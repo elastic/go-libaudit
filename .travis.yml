@@ -1,0 +1,21 @@
+sudo: false
+language: go
+go:
+- 1.8
+
+go_import_path: github.com/elastic/go-libaudit
+
+install:
+- go get github.com/mitchellh/gox
+- go get -d -t
+
+script:
+- >
+  find . -name '*.go' | grep -v vendor | xargs gofmt -s -l |
+  read && echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2 && exit 1 || true
+- go test -v $(go list ./... | grep -v /vendor/)
+- mkdir -p build/bin
+- >
+  gox -output="build/bin/{{.Dir}}-{{.OS}}-{{.Arch}}" -os='linux' -arch='amd64 386'
+    github.com/elastic/go-libaudit/cmd/audit
+    github.com/elastic/go-libaudit/cmd/auparse

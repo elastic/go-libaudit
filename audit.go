@@ -138,7 +138,6 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 func (c *AuditClient) SetPID(wm WaitMode) error {
 	status := AuditStatus{
 		Mask:    AuditStatusPID,
-		Enabled: 1,
 		PID:     uint32(os.Getpid()),
 	}
 	return c.set(status, wm)

@@ -87,16 +87,16 @@ func read() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get audit status")
 	}
-	log.WithField("status", status).Info("received audit status")
+	log.Infof("received audit status=%+v", status)
 
 	log.Debugln("enabling auditing in the kernel")
 	if err = client.SetEnabled(true); err != nil {
 		return errors.Wrap(err, "failed to set enabled=true")
 	}
 
-	log.Debugln("sending message to kernel registering our PID as the audit daemon")
+	log.Debugf("sending message to kernel registering our PID (%v) as the audit daemon", os.Getpid())
 	if err = client.SetPID(libaudit.WaitForReply); err != nil {
-		return errors.Wrap(err, "failed to set audit PID")
+		return errors.Wrap(err, "failed to set audit PID (Did you stop auditd?)")
 	}
 
 	for {

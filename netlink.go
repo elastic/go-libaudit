@@ -45,6 +45,7 @@ type NetlinkReceiver interface {
 
 // NetlinkSendReceiver combines the Send and Receive into one interface.
 type NetlinkSendReceiver interface {
+	io.Closer
 	NetlinkSender
 	NetlinkReceiver
 }

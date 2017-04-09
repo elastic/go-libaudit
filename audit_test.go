@@ -110,7 +110,7 @@ func TestAuditClientSetEnabled(t *testing.T) {
 	}
 	defer c.Close()
 
-	err = c.SetEnabled(true)
+	err = c.SetEnabled(true, WaitForReply)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,7 +141,7 @@ func TestAuditClientSetRateLimit(t *testing.T) {
 	defer c.Close()
 
 	var limit uint32 = 1233
-	err = c.SetRateLimit(limit)
+	err = c.SetRateLimit(limit, WaitForReply)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,7 +172,7 @@ func TestAuditClientSetBacklogLimit(t *testing.T) {
 	defer c.Close()
 
 	var limit uint32 = 10002
-	err = c.SetBacklogLimit(limit)
+	err = c.SetBacklogLimit(limit, WaitForReply)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -206,7 +206,7 @@ func TestAuditClientReceive(t *testing.T) {
 	}
 	defer observer.Close()
 
-	if err := observer.SetEnabled(false); err != nil {
+	if err := observer.SetEnabled(false, WaitForReply); err != nil {
 		t.Fatal("failed to disable audit", err)
 	}
 
@@ -226,14 +226,14 @@ func TestAuditClientReceive(t *testing.T) {
 	if err != nil {
 		t.Fatal("get status failed", err)
 	}
-	t.Logf("status=%+v, process_id=%v, port_id=%v", status, os.Getpid(), client.GetNetlinkPortID())
+	t.Logf("status=%+v, process_id=%v", status, os.Getpid())
 
-	err = client.SetEnabled(true)
+	err = client.SetEnabled(true, WaitForReply)
 	if err != nil {
 		t.Fatal("set enabled failed:", err)
 	}
 
-	err = client.SetBacklogLimit(1024)
+	err = client.SetBacklogLimit(1024, WaitForReply)
 	if err != nil {
 		t.Fatal("set backlog limit failed:", err)
 	}

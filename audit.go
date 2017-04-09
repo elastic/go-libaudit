@@ -55,7 +55,7 @@ const (
 // AuditClient is a client for communicating with the Linux kernels audit
 // interface over netlink.
 type AuditClient struct {
-	netlink *NetlinkClient
+	Netlink NetlinkSendReceiver
 }
 
 // NewAuditClient creates a new AuditClient. The resp parameter is optional. If
@@ -69,12 +69,7 @@ func NewAuditClient(resp io.Writer) (*AuditClient, error) {
 		return nil, err
 	}
 
-	return &AuditClient{netlink: netlink}, nil
-}
-
-// GetNetlinkPortID returns the port ID of the underlying netlink socket.
-func (c *AuditClient) GetNetlinkPortID() int {
-	return int(c.netlink.pid)
+	return &AuditClient{Netlink: netlink}, nil
 }
 
 // GetStatus returns the current status of the kernel's audit subsystem.
@@ -88,7 +83,7 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 	}
 
 	// Send AUDIT_GET message to the kernel.
-	seq, err := c.netlink.Send(msg)
+	seq, err := c.Netlink.Send(msg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed sending request")
 	}
@@ -137,8 +132,8 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 // https://github.com/linux-audit/audit-userspace/blob/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/libaudit.c#L432-L464
 func (c *AuditClient) SetPID(wm WaitMode) error {
 	status := AuditStatus{
-		Mask:    AuditStatusPID,
-		PID:     uint32(os.Getpid()),
+		Mask: AuditStatusPID,
+		PID:  uint32(os.Getpid()),
 	}
 	return c.set(status, wm)
 }
@@ -147,31 +142,31 @@ func (c *AuditClient) SetPID(wm WaitMode) error {
 // send per second. This can be used to throttle the rate if systems become
 // unresponsive. Of course the trade off is that events will be dropped.
 // The default value is 0, meaning no limit.
-func (c *AuditClient) SetRateLimit(perSecondLimit uint32) error {
+func (c *AuditClient) SetRateLimit(perSecondLimit uint32, wm WaitMode) error {
 	status := AuditStatus{
 		Mask:      AuditStatusRateLimit,
 		RateLimit: perSecondLimit,
 	}
-	return c.set(status, WaitForReply)
+	return c.set(status, wm)
 }
 
 // SetBacklogLimit sets the queue length for audit events awaiting transfer to
 // the audit daemon. The default value is 64 which can potentially be overrun by
 // bursts of activity. When the backlog limit is reached, the kernel consults
 // the failure_flag to see what action to take.
-func (c *AuditClient) SetBacklogLimit(limit uint32) error {
+func (c *AuditClient) SetBacklogLimit(limit uint32, wm WaitMode) error {
 	status := AuditStatus{
 		Mask:         AuditStatusBacklogLimit,
 		BacklogLimit: limit,
 	}
-	return c.set(status, WaitForReply)
+	return c.set(status, wm)
 }
 
 // SetEnabled is used to control whether or not the audit system is
 // active. When the audit system is enabled (enabled set to 1), every syscall
 // will pass through the audit system to collect information and potentially
 // trigger an event.
-func (c *AuditClient) SetEnabled(enabled bool) error {
+func (c *AuditClient) SetEnabled(enabled bool, wm WaitMode) error {
 	var e uint32
 	if enabled {
 		e = 1
@@ -181,7 +176,7 @@ func (c *AuditClient) SetEnabled(enabled bool) error {
 		Mask:    AuditStatusEnabled,
 		Enabled: e,
 	}
-	return c.set(status, WaitForReply)
+	return c.set(status, wm)
 }
 
 // RawAuditMessage is a raw audit message received from the kernel.
@@ -194,7 +189,7 @@ type RawAuditMessage struct {
 // use the returned message then you should make a copy of the raw data before
 // calling receive again because the raw data is backed by the read buffer.
 func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
-	msgs, err := c.netlink.Receive(nonBlocking, parseNetlinkAuditMessage)
+	msgs, err := c.Netlink.Receive(nonBlocking, parseNetlinkAuditMessage)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +203,7 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 
 // Close closes the AuditClient and frees any associated resources.
 func (c *AuditClient) Close() error {
-	return c.netlink.Close()
+	return c.Netlink.Close()
 }
 
 // getReply reads from the netlink socket and find the message with the given
@@ -220,7 +215,7 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 
 	// Retry the non-blocking read multiple times until a response is received.
 	for i := 0; i < 10; i++ {
-		msgs, err = c.netlink.Receive(true, parseNetlinkAuditMessage)
+		msgs, err = c.Netlink.Receive(true, parseNetlinkAuditMessage)
 		if err != nil {
 			switch err {
 			case syscall.EINTR:
@@ -257,7 +252,7 @@ func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {
 		Data: status.toWireFormat(),
 	}
 
-	seq, err := c.netlink.Send(msg)
+	seq, err := c.Netlink.Send(msg)
 	if err != nil {
 		return errors.Wrap(err, "failed sending request")
 	}

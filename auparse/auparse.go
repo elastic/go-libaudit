@@ -122,7 +122,18 @@ func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 	msg.Timestamp = timestamp
 	msg.Sequence = seq
 
-	msg.Data, err = extractKeyValuePairs(msg.RecordType, msg.RawData)
+	message, err = removeAuditHeader(message)
+	if err != nil {
+		return msg, err
+	}
+
+	message, err = normalizeAuditMessage(typ, message)
+	if err != nil {
+		return msg, err
+	}
+
+	msg.Data = map[string]string{}
+	extractKeyValuePairs(message, msg.Data)
 	if err != nil {
 		msg.Error = err
 		return msg, err
@@ -192,8 +203,9 @@ func removeAuditHeader(msg string) (string, error) {
 // Key/Value Parsing Helpers
 
 var (
-	// keyValueRegex is the regular expression used to match keys.
-	keyValueRegex = regexp.MustCompile(`[a-z0-9_-]+=`)
+	// kvRegex is the regular expression used to match quoted and unquoted key
+	// value pairs.
+	kvRegex = regexp.MustCompile(`([a-z0-9_-]+)=((?:[^"'\s]+)|'(?:\\'|[^'])*'|"(?:\\"|[^"])*")`)
 
 	// avcMessageRegex matches the beginning of AVC messages to parse the
 	// seresult and seperms parameters. Example: "avc:  denied  { read } for  "
@@ -215,7 +227,6 @@ func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 		msg = strings.Replace(msg, "old ", "old_", 2)
 		msg = strings.Replace(msg, "new ", "new_", 2)
 	case AUDIT_CRED_DISP, AUDIT_USER_START, AUDIT_USER_END:
-		msg = strings.Replace(msg, "msg='PAM: ", "msg='op=PAM:", 2)
 		msg = strings.Replace(msg, " (hostname=", " hostname=", 2)
 		msg = strings.TrimRight(msg, ")'")
 	}
@@ -223,30 +234,11 @@ func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 	return msg, nil
 }
 
-func extractKeyValuePairs(typ AuditMessageType, msg string) (map[string]string, error) {
-	msg, err := removeAuditHeader(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	msg, err = normalizeAuditMessage(typ, msg)
-	if err != nil {
-		return nil, err
-	}
-
-	data := map[string]string{}
-
-	keyIndexes := keyValueRegex.FindAllStringSubmatchIndex(msg, -1)
-	for i, keyIndex := range keyIndexes {
-		key := msg[keyIndex[0] : keyIndex[1]-1]
-		var value string
-
-		if i < len(keyIndexes)-1 {
-			nextKeyIndex := keyIndexes[i+1]
-			value = trimQuotesAndSpace(msg[keyIndex[1]:nextKeyIndex[0]])
-		} else {
-			value = trimQuotesAndSpace(msg[keyIndex[1]:])
-		}
+func extractKeyValuePairs(msg string, data map[string]string) {
+	matches := kvRegex.FindAllStringSubmatch(msg, -1)
+	for _, m := range matches {
+		key := m[1]
+		value := trimQuotesAndSpace(m[2])
 
 		// Drop fields with useless values.
 		switch value {
@@ -254,10 +246,12 @@ func extractKeyValuePairs(typ AuditMessageType, msg string) (map[string]string, 
 			continue
 		}
 
-		data[key] = value
+		if key == "msg" {
+			extractKeyValuePairs(value, data)
+		} else {
+			data[key] = value
+		}
 	}
-
-	return data, nil
 }
 
 func trimQuotesAndSpace(v string) string {
@@ -288,6 +282,14 @@ func enrichData(msg *AuditMessage) error {
 		}
 	case AUDIT_USER_CMD:
 		if err := hexDecode("cmd", msg.Data); err != nil {
+			return err
+		}
+	case AUDIT_TTY, AUDIT_USER_TTY:
+		if err := hexDecode("data", msg.Data); err != nil {
+			return err
+		}
+	case AUDIT_EXECVE:
+		if err := execveCmdline(msg.Data); err != nil {
 			return err
 		}
 	}
@@ -358,4 +360,66 @@ func hexDecode(key string, data map[string]string) error {
 
 	data[key] = ascii
 	return nil
+}
+
+func execveCmdline(data map[string]string) error {
+	argc, found := data["argc"]
+	if !found {
+		return errors.New("argc key not found")
+	}
+
+	count, err := strconv.ParseUint(argc, 10, 32)
+	if err != nil {
+		return errors.Wrapf(err, "failed to convert argc='%v' to number", argc)
+	}
+
+	var args []string
+	for i := 0; i < int(count); i++ {
+		key := "a" + strconv.Itoa(i)
+
+		arg, found := data[key]
+		if !found {
+			return errors.Errorf("failed to find arg %v", key)
+		}
+
+		if ascii, err := hexToASCII(arg); err == nil {
+			arg = ascii
+		}
+
+		args = append(args, arg)
+	}
+
+	// Delete aN keys after successfully extracting all values.
+	for i := 0; i < int(count); i++ {
+		key := "a" + strconv.Itoa(i)
+		delete(data, key)
+	}
+
+	data["cmdline"] = joinQuoted(args, " ")
+	return nil
+}
+
+// joinQuoted concatenates the elements of a to create a single string. The
+// separator string sep is placed between elements in the resulting string. Each
+// element of a is double quoted (any inner quotes are escaped).
+func joinQuoted(a []string, sep string) string {
+	switch len(a) {
+	case 0:
+		return ""
+	case 1:
+		return strconv.Quote(a[0])
+	}
+
+	n := len(sep) * (len(a) - 1)
+	for i := 0; i < len(a); i++ {
+		n += len(a[i]) + 2
+	}
+
+	b := make([]byte, 0, n)
+	b = strconv.AppendQuote(b, a[0])
+	for _, s := range a[1:] {
+		b = append(b, []byte(sep)...)
+		b = strconv.AppendQuote(b, s)
+	}
+	return string(b)
 }

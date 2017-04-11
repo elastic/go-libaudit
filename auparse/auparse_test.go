@@ -100,6 +100,61 @@ func TestGetAuditMessageType(t *testing.T) {
 	assert.Equal(t, errInvalidAuditMessageTypName, err)
 }
 
+func TestExtractKeyValuePairs(t *testing.T) {
+	tests := []struct {
+		in  string
+		out map[string]string
+	}{
+		{
+			`argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"'`,
+			map[string]string{"argc": "4", "a0": "cat", "a1": "btest=test", "a2": "-f", "a3": "regex=8"},
+		},
+		{
+			`x='grep "test" file' y=z`,
+			map[string]string{"x": `grep "test" file`, "y": "z"},
+		},
+		{
+			`x="grep 'test' file" y=z`,
+			map[string]string{"x": `grep 'test' file`, "y": "z"},
+		},
+		{
+			`x="grep \"test\" file" y=z`,
+			map[string]string{"x": `grep \"test\" file`, "y": "z"},
+		},
+		{
+			`x='grep \'test\' file' y=z`,
+			map[string]string{"x": `grep \'test\' file`, "y": "z"},
+		},
+	}
+
+	for _, tc := range tests {
+		out := map[string]string{}
+		extractKeyValuePairs(tc.in, out)
+		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
+	}
+}
+
+func TestExecveCmdline(t *testing.T) {
+	data := map[string]string{
+		"argc": "3",
+		"a0":   "grep",
+		"a1":   "root",
+		"a2":   "/etc/passwd",
+	}
+
+	if err := execveCmdline(data); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, `"grep" "root" "/etc/passwd"`, data["cmdline"])
+	_, found := data["a0"]
+	assert.False(t, found, "a0")
+	_, found = data["a1"]
+	assert.False(t, found, "a1")
+	_, found = data["a2"]
+	assert.False(t, found, "a2")
+}
+
 func TestParseLogLineFromFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/*.log")
 	if err != nil {

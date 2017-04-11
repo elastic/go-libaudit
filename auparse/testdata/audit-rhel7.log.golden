@@ -194,14 +194,8 @@
   },
   {
     "@timestamp": "2016-12-07 02:20:31.371 +0000 UTC",
-    "a0": "auditctl",
-    "a1": "-a",
-    "a2": "exit,always",
-    "a3": "-F",
-    "a5": "-S",
-    "a6": "execve",
-    "arch": "b32",
     "argc": "7",
+    "cmdline": "\"auditctl\" \"-a\" \"exit,always\" \"-F\" \"arch=b32\" \"-S\" \"execve\"",
     "raw_msg": "audit(1481077231.371:479): argc=7 a0=\"auditctl\" a1=\"-a\" a2=\"exit,always\" a3=\"-F\" a4=\"arch=b32\" a5=\"-S\" a6=\"execve\"",
     "record_type": "EXECVE",
     "sequence": "479"
@@ -571,7 +565,6 @@
     "default-context": "unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023",
     "exe": "/usr/sbin/sshd",
     "hostname": "pool-96-241-146-97.washdc.fios.verizon.net",
-    "msg": "pam:",
     "pid": "1298",
     "raw_msg": "audit(1481077043.140:415): pid=1298 uid=0 auid=1000 ses=1 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023 msg='pam: default-context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 selected-context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 exe=\"/usr/sbin/sshd\" hostname=pool-96-241-146-97.washdc.fios.verizon.net addr=96.241.146.97 terminal=ssh res=success'",
     "record_type": "USER_ROLE_CHANGE",
@@ -606,7 +599,6 @@
     "@timestamp": "2016-12-07 02:16:33 +0000 UTC",
     "auid": "4294967295",
     "exe": "/usr/sbin/hwclock",
-    "msg": "changing system time",
     "pid": "1232",
     "raw_msg": "audit(1481076993.000:402): pid=1232 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:unconfined_service_t:s0 msg='changing system time exe=\"/usr/sbin/hwclock\" hostname=? addr=? terminal=? res=success'",
     "record_type": "USYS_CONFIG",
@@ -615,5 +607,67 @@
     "ses": "4294967295",
     "subj": "system_u:system_r:unconfined_service_t:s0",
     "uid": "0"
+  },
+  {
+    "@timestamp": "2017-04-11 15:21:03.55 +0000 UTC",
+    "auid": "1000",
+    "comm": "bash",
+    "data": "ehecho test\rvim /etc/pam.d/password-auth-ac\rman pam_tty_audit\rman pam.d\rvim /etc\u0001sudo \u0005/pamd.sy.m.d/sy\t-a\ta-a\t\rman pam\rtgrep sys/var/lo\tg/me\ts\t | grep pam_tty\rgrep pam_tty /var/log/mes\t\r\u001b[A\u0001sudo \rsudo su\r",
+    "major": "136",
+    "minor": "0",
+    "pid": "27930",
+    "raw_msg": "audit(1491924063.550:1065565): tty pid=27930 uid=1000 auid=1000 ses=762 major=136 minor=0 comm=\"bash\" data=65687F7F6563686F20746573740D76696D202F6574632F70616D2E642F70617373776F72642D617574682D61630D6D616E2070616D5F7474795F61756469740D6D616E2070616D2E640D76696D202F657463017375646F20052F70616D642E73797F7F7F7F7F2E7F6D2E642F7379092D6109617F2D61090D6D616E2070616D0D747F67726570207379737F7F7F2F7661722F6C6F09672F6D65097309207C20677265702070616D5F7474790D677265702070616D5F747479202F7661722F6C6F672F6D6573090D1B5B41017375646F200D7375646F2073750D",
+    "record_type": "TTY",
+    "sequence": "1065565",
+    "ses": "762",
+    "uid": "1000"
+  },
+  {
+    "@timestamp": "2017-04-11 14:57:51.974 +0000 UTC",
+    "auid": "1000",
+    "data": "exit",
+    "pid": "28202",
+    "raw_msg": "audit(1491922671.974:1065045): pid=28202 uid=0 auid=1000 ses=762 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 data=\"exit\"",
+    "record_type": "USER_TTY",
+    "sequence": "1065045",
+    "ses": "762",
+    "subj": "unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023",
+    "uid": "0"
+  },
+  {
+    "@timestamp": "2017-04-11 14:58:01.082 +0000 UTC",
+    "auid": "1000",
+    "data": "su - andrew_kroh",
+    "pid": "28058",
+    "raw_msg": "audit(1491922681.082:1065050): pid=28058 uid=0 auid=1000 ses=762 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 data=7375202D20616E647265775F6B726F68",
+    "record_type": "USER_TTY",
+    "sequence": "1065050",
+    "ses": "762",
+    "subj": "unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023",
+    "uid": "0"
+  },
+  {
+    "@timestamp": "2017-04-11 17:16:37.196 +0000 UTC",
+    "argc": "4",
+    "cmdline": "\"cat\" \"btest=test\" \"-f\" \"regex=8\"",
+    "raw_msg": "audit(1491930997.196:1068053): argc=4 a0=\"cat\" a1=\"btest=test\" a2=\"-f\" a3=\"regex=8\"",
+    "record_type": "EXECVE",
+    "sequence": "1068053"
+  },
+  {
+    "@timestamp": "2017-04-10 22:24:46.221 +0000 UTC",
+    "argc": "5",
+    "cmdline": "\"grep\" \"--color=auto\" \"-e\" \"[:alpha:]\" \"/etc/passwd\"",
+    "raw_msg": "audit(1491863086.221:1050925): argc=5 a0=\"grep\" a1=\"--color=auto\" a2=\"-e\" a3=\"[:alpha:]\" a4=\"/etc/passwd\"",
+    "record_type": "EXECVE",
+    "sequence": "1050925"
+  },
+  {
+    "@timestamp": "2017-04-11 21:34:31.575 +0000 UTC",
+    "argc": "3",
+    "cmdline": "\"jq\" \".\" \"{\\n        \\\"dev\\\": \\\"08:01\\\",\\n        \\\"inode\\\": \\\"19549646\\\",\\n        \\\"item\\\": \\\"0\\\",\\n        \\\"mode\\\": \\\"0100775\\\",\\n        \\\"name\\\": \\\"/usr/bin/jq\\\",\\n        \\\"obj\\\": \\\"unconfined_u:object_r:user_home_t:s0\\\",\\n        \\\"objtype\\\": \\\"NORMAL\\\",\\n        \\\"ogid\\\": \\\"1001\\\",\\n        \\\"ouid\\\": \\\"1000\\\",\\n        \\\"raw_message\\\": \\\"audit(1491946296.757:1075834): item=0 name=\\\\\\\"/usr/bin/jq\\\\\\\" inode=19549646 dev=08:01 mode=0100775 ouid=1000 ogid=1001 rdev=00:00 obj=unconfined_u:object_r:user_home_t:s0 objtype=NORMAL\\\",\\n        \\\"rdev\\\": \\\"00:00\\\",\\n        \\\"record_type\\\": \\\"PATH\\\",\\n        \\\"sequence\\\": 1075834\\n      }\"",
+    "raw_msg": "audit(1491946471.575:1075898): argc=3 a0=\"jq\" a1=\".\" a2=7B0A202020202020202022646576223A202230383A3031222C0A202020202020202022696E6F6465223A20223139353439363436222C0A2020202020202020226974656D223A202230222C0A2020202020202020226D6F6465223A202230313030373735222C0A2020202020202020226E616D65223A20222F7573722F62696E2F6A71222C0A2020202020202020226F626A223A2022756E636F6E66696E65645F753A6F626A6563745F723A757365725F686F6D655F743A7330222C0A2020202020202020226F626A74797065223A20224E4F524D414C222C0A2020202020202020226F676964223A202231303031222C0A2020202020202020226F756964223A202231303030222C0A2020202020202020227261775F6D657373616765223A2022617564697428313439313934363239362E3735373A31303735383334293A206974656D3D30206E616D653D5C222F7573722F62696E2F6A715C2220696E6F64653D3139353439363436206465763D30383A3031206D6F64653D30313030373735206F7569643D31303030206F6769643D3130303120726465763D30303A3030206F626A3D756E636F6E66696E65645F753A6F626A6563745F723A757365725F686F6D655F743A7330206F626A747970653D4E4F524D414C222C0A20202020202020202272646576223A202230303A3030222C0A2020202020202020227265636F72645F74797065223A202250415448222C0A20202020202020202273657175656E6365223A20313037353833340A2020202020207D",
+    "record_type": "EXECVE",
+    "sequence": "1075898"
   }
 ]

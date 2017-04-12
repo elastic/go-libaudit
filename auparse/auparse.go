@@ -294,6 +294,9 @@ func enrichData(msg *AuditMessage) error {
 		}
 	}
 
+	// Many different message types can have subj field so check them all.
+	parseSELinuxContext("subj", msg.Data)
+
 	return nil
 }
 
@@ -422,4 +425,25 @@ func joinQuoted(a []string, sep string) string {
 		b = strconv.AppendQuote(b, s)
 	}
 	return string(b)
+}
+
+// parseSELinuxContext parses a SELinux security context of the form
+// 'user:role:domain:level:category'.
+func parseSELinuxContext(key string, data map[string]string) error {
+	context, found := data[key]
+	if !found {
+		return errors.Errorf("%v key not found", key)
+	}
+
+	keys := []string{"_user", "_role", "_domain", "_level", "_category"}
+	contextParts := strings.SplitN(context, ":", len(keys))
+	if len(contextParts) == 0 {
+		return errors.Errorf("failed to split SELinux context field %v", key)
+	}
+	delete(data, key)
+
+	for i, part := range contextParts {
+		data[key+keys[i]] = part
+	}
+	return nil
 }

@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- auparse - Combine EXECVE arguments into a single field called `cmdline`.
+- auparse - Split SELinux `subj` field into `subj_user`, `subj_role`,
+  `subj_domain`, `subj_level`, and `subj_category`.
 
 ### Changed
 

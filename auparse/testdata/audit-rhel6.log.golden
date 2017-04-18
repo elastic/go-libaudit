@@ -6,7 +6,7 @@
     "a2": "1d0",
     "a3": "0",
     "arch": "x86_64",
-    "auid": "4294967295",
+    "auid": "unset",
     "comm": "charon",
     "egid": "0",
     "euid": "0",

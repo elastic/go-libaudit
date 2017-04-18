@@ -71,11 +71,12 @@ func TestNormalizeAuditMessage(t *testing.T) {
 }
 
 func TestParseAuditHeader(t *testing.T) {
-	ts, seq, err := parseAuditHeader([]byte(syscallMsg))
+	ts, seq, end, err := parseAuditHeader([]byte(syscallMsg))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	assert.EqualValues(t, ')', syscallMsg[end])
 	assert.Equal(t, time.Unix(1490137971, 11*int64(time.Millisecond)).UnixNano(), ts.UnixNano())
 	assert.EqualValues(t, 50406, seq)
 }
@@ -177,7 +178,7 @@ func TestParseLogLineFromFiles(t *testing.T) {
 			lineNum++
 
 			event, err := ParseLogLine(line)
-			if err != nil {
+			if err != nil && *update {
 				t.Logf("parsing failed at %v:%d on '%v' with error: %v",
 					name, lineNum, line, err)
 			}
@@ -200,7 +201,11 @@ func TestParseLogLineFromFiles(t *testing.T) {
 		}
 
 		for i, gold := range goldenEvents {
-			assert.Equal(t, gold, events[i].ToMapStr(), "file: %v:%d", name, i+1)
+			if events[i] != nil {
+				assert.Equal(t, gold, events[i].ToMapStr(), "file: %v:%d", name, i+1)
+			} else {
+				assert.Nil(t, gold, events[i], "file: %v:%d", name, i+1)
+			}
 		}
 	}
 }
@@ -214,7 +219,11 @@ func writeGoldenFile(sourceName string, events []*AuditMessage) error {
 
 	jsonEvents := []map[string]string{}
 	for _, event := range events {
-		jsonEvents = append(jsonEvents, event.ToMapStr())
+		if event != nil {
+			jsonEvents = append(jsonEvents, event.ToMapStr())
+		} else {
+			jsonEvents = append(jsonEvents, nil)
+		}
 
 	}
 
@@ -247,7 +256,7 @@ func readGoldenFile(name string) ([]map[string]string, error) {
 func BenchmarkParseAuditHeader(b *testing.B) {
 	msg := []byte(syscallMsg)
 	for i := 0; i < b.N; i++ {
-		_, _, err := parseAuditHeader(msg)
+		_, _, _, err := parseAuditHeader(msg)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -292,7 +301,7 @@ func ExampleParseLogLine() {
 	//   "a2": "6e",
 	//   "a3": "ea60",
 	//   "arch": "x86_64",
-	//   "auid": "4294967295",
+	//   "auid": "unset",
 	//   "comm": "master",
 	//   "egid": "0",
 	//   "euid": "0",

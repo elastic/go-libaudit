@@ -87,6 +87,7 @@ func NewNetlinkClient(proto int, readBuf []byte, resp io.Writer) (*NetlinkClient
 
 	pid, err := getPortID(s)
 	if err != nil {
+		syscall.Close(s)
 		return nil, err
 	}
 

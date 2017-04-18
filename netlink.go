@@ -176,7 +176,7 @@ func (c *NetlinkClient) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.Ne
 
 	// Dump raw data for inspection purposes.
 	if c.respWriter != nil {
-		if _, err := c.respWriter.Write(buf); err != nil {
+		if _, err = c.respWriter.Write(buf); err != nil {
 			return nil, err
 		}
 	}

@@ -98,10 +98,10 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 		return nil, errors.Errorf("unexpected ACK to GET, type=%d", ack.Header.Type)
 	}
 
-	if err := ParseNetlinkError(ack.Data); err != NLE_SUCCESS {
+	if err = ParseNetlinkError(ack.Data); err != NLE_SUCCESS {
 		if len(ack.Data) >= 4+12 {
 			status := &AuditStatus{}
-			if err := status.fromWireFormat(ack.Data[4:]); err == nil {
+			if err = status.fromWireFormat(ack.Data[4:]); err == nil {
 				return nil, syscall.Errno(status.Failure)
 			}
 		}
@@ -273,7 +273,7 @@ func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {
 	if err := ParseNetlinkError(ack.Data); err != NLE_SUCCESS {
 		if len(ack.Data) >= 4+12 {
 			status := &AuditStatus{}
-			if err := status.fromWireFormat(ack.Data[4:]); err == nil {
+			if err = status.fromWireFormat(ack.Data[4:]); err == nil {
 				return syscall.Errno(status.Failure)
 			}
 		}

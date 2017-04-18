@@ -206,7 +206,7 @@ func TestAuditClientReceive(t *testing.T) {
 	}
 	defer observer.Close()
 
-	if err := observer.SetEnabled(false, WaitForReply); err != nil {
+	if err = observer.SetEnabled(false, WaitForReply); err != nil {
 		t.Fatal("failed to disable audit", err)
 	}
 

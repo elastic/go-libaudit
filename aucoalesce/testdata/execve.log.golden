@@ -1,0 +1,72 @@
+{
+  "@timestamp": "2017-04-12T22:48:11.036Z",
+  "cwd": "/home/andrew_kroh",
+  "execve": {
+    "argc": "3",
+    "cmdline": "\"grep\" \"--color=auto\" \"mapping\""
+  },
+  "path": [
+    {
+      "dev": "08:01",
+      "inode": "2512",
+      "item": "0",
+      "mode": "0100755",
+      "name": "/usr/bin/grep",
+      "obj_domain": "bin_t",
+      "obj_level": "s0",
+      "obj_role": "object_r",
+      "obj_user": "system_u",
+      "objtype": "NORMAL",
+      "ogid": "0",
+      "ouid": "0",
+      "rdev": "00:00"
+    },
+    {
+      "dev": "08:01",
+      "inode": "19161168",
+      "item": "1",
+      "mode": "0100755",
+      "name": "/lib64/ld-linux-x86-64.so.2",
+      "obj_domain": "ld_so_t",
+      "obj_level": "s0",
+      "obj_role": "object_r",
+      "obj_user": "system_u",
+      "objtype": "NORMAL",
+      "ogid": "0",
+      "ouid": "0",
+      "rdev": "00:00"
+    }
+  ],
+  "sequence": 59,
+  "syscall": {
+    "a0": "1522170",
+    "a1": "1506120",
+    "a2": "14faeb0",
+    "a3": "7ffcc4582df0",
+    "arch": "x86_64",
+    "auid": "1000",
+    "comm": "grep",
+    "egid": "1001",
+    "euid": "1000",
+    "exe": "/usr/bin/grep",
+    "exit": "0",
+    "fsgid": "1001",
+    "fsuid": "1000",
+    "gid": "1001",
+    "key": "user_commands",
+    "name": "execve",
+    "pid": "13393",
+    "ppid": "12041",
+    "ses": "802",
+    "sgid": "1001",
+    "subj_category": "c0.c1023",
+    "subj_domain": "unconfined_t",
+    "subj_level": "s0-s0",
+    "subj_role": "unconfined_r",
+    "subj_user": "unconfined_u",
+    "success": "yes",
+    "suid": "1000",
+    "tty": "pts1",
+    "uid": "1000"
+  }
+}

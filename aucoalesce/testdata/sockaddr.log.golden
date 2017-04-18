@@ -1,0 +1,55 @@
+{
+  "@timestamp": "2017-04-12T19:57:42.361Z",
+  "cwd": "/",
+  "path": [
+    {
+      "dev": "00:13",
+      "inode": "6504",
+      "item": "0",
+      "mode": "0140777",
+      "name": "/run/systemd/notify",
+      "obj_domain": "init_var_run_t",
+      "obj_level": "s0",
+      "obj_role": "object_r",
+      "obj_user": "system_u",
+      "objtype": "NORMAL",
+      "ogid": "0",
+      "ouid": "0",
+      "rdev": "00:00"
+    }
+  ],
+  "sequence": 1316151,
+  "sockaddr": {
+    "address_family": "unix",
+    "path": "/run/systemd/notify"
+  },
+  "syscall": {
+    "a0": "14",
+    "a1": "7ffe911f2610",
+    "a2": "4000",
+    "a3": "ffffffffffffffa9",
+    "arch": "x86_64",
+    "auid": "unset",
+    "comm": "systemd-logind",
+    "egid": "0",
+    "euid": "0",
+    "exe": "/usr/lib/systemd/systemd-logind",
+    "exit": "10",
+    "fsgid": "0",
+    "fsuid": "0",
+    "gid": "0",
+    "name": "sendmsg",
+    "pid": "385",
+    "ppid": "1",
+    "ses": "4294967295",
+    "sgid": "0",
+    "subj_domain": "systemd_logind_t",
+    "subj_level": "s0",
+    "subj_role": "system_r",
+    "subj_user": "system_u",
+    "success": "yes",
+    "suid": "0",
+    "tty": "(none)",
+    "uid": "0"
+  }
+}

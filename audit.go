@@ -62,7 +62,7 @@ type AuditClient struct {
 // provided resp will receive a copy of all data read from the netlink socket.
 // This is useful for debugging purposes.
 func NewAuditClient(resp io.Writer) (*AuditClient, error) {
-	buf := make([]byte, AuditMessageMaxLength)
+	buf := make([]byte, syscall.NLMSG_HDRLEN+AuditMessageMaxLength)
 
 	netlink, err := NewNetlinkClient(syscall.NETLINK_AUDIT, buf, resp)
 	if err != nil {

@@ -14,6 +14,8 @@
 
 // +build linux
 
+// audit is an example that receives audit messages from the kernel and outputs
+// them to stdout. The output format is configurable using CLI flags.
 package main
 
 import (

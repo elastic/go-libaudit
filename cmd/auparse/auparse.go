@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// auparse is an example that parses audit log files from the Linux auditd
+// process.
 package main
 
 import (

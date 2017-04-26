@@ -339,7 +339,7 @@
   {
     "@timestamp": "2016-12-07 02:40:24.953 +0000 UTC",
     "addr": "169.254.169.254",
-    "address_family": "ipv4",
+    "family": "ipv4",
     "port": "80",
     "raw_msg": "audit(1481078424.953:688): saddr=02000050A9FEA9FE0000000000000000",
     "record_type": "SOCKADDR",
@@ -347,7 +347,7 @@
   },
   {
     "@timestamp": "2017-03-29 19:48:44.99 +0000 UTC",
-    "address_family": "netlink",
+    "family": "netlink",
     "raw_msg": "audit(1490816924.990:517643): saddr=100000000000000000000000",
     "record_type": "SOCKADDR",
     "saddr": "100000000000000000000000",
@@ -356,7 +356,7 @@
   {
     "@timestamp": "2017-03-29 19:48:44.99 +0000 UTC",
     "addr": "::",
-    "address_family": "ipv6",
+    "family": "ipv6",
     "port": "22",
     "raw_msg": "audit(1490816924.990:517644): saddr=0A000016000000000000000000000000000000000000000000000000",
     "record_type": "SOCKADDR",
@@ -364,7 +364,7 @@
   },
   {
     "@timestamp": "2017-03-29 19:48:44.99 +0000 UTC",
-    "address_family": "0",
+    "family": "0",
     "raw_msg": "audit(1490816924.990:517645): saddr=00000000000000000000000000000000",
     "record_type": "SOCKADDR",
     "saddr": "00000000000000000000000000000000",
@@ -372,7 +372,7 @@
   },
   {
     "@timestamp": "2017-03-29 19:48:44.99 +0000 UTC",
-    "address_family": "unix",
+    "family": "unix",
     "path": "/var/run/nscd/socket",
     "raw_msg": "audit(1490816924.990:517647): saddr=01002F7661722F72756E2F6E7363642F736F636B65740000603B7B47FC7F0000303C7B47FC7F0000020000000000000014000000160001030800000000000000C03B7B47FC7F0000103B7B47FC7F00002000000000000000303C7B47FC7F0000C0FB39861C7F0000787F2F861C7F",
     "record_type": "SOCKADDR",

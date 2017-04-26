@@ -38,7 +38,7 @@ func parseSockaddr(s string) (map[string]string, error) {
 			return nil, err
 		}
 
-		out["address_family"] = "unix"
+		out["family"] = "unix"
 		out["path"] = socket
 	case 2: // AF_INET
 		port, err := hexToDec(s[4:8])
@@ -51,7 +51,7 @@ func parseSockaddr(s string) (map[string]string, error) {
 			return nil, err
 		}
 
-		out["address_family"] = "ipv4"
+		out["family"] = "ipv4"
 		out["addr"] = ip
 		out["port"] = strconv.Itoa(int(port))
 	case 10: // AF_INET6
@@ -70,17 +70,17 @@ func parseSockaddr(s string) (map[string]string, error) {
 			return nil, err
 		}
 
-		out["address_family"] = "ipv6"
+		out["family"] = "ipv6"
 		out["addr"] = ip
 		out["port"] = strconv.Itoa(int(port))
 		if flow > 0 {
 			out["flow"] = strconv.Itoa(int(flow))
 		}
 	case 16: // AF_NETLINK
-		out["address_family"] = "netlink"
+		out["family"] = "netlink"
 		out["saddr"] = s
 	default:
-		out["address_family"] = strconv.Itoa(int(addressFamily))
+		out["family"] = strconv.Itoa(int(addressFamily))
 		out["saddr"] = s
 	}
 

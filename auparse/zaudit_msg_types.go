@@ -459,6 +459,10 @@ func (t AuditMessageType) String() string {
 	return fmt.Sprintf("UNKNOWN[%d]", uint16(t))
 }
 
+func (t AuditMessageType) MarshalText() (text []byte, err error) {
+	return []byte(strings.ToLower(t.String())), nil
+}
+
 var auditMessageNameToType = map[string]AuditMessageType{
 	"APPARMOR":                 AUDIT_AA,
 	"ACCT_LOCK":                AUDIT_ACCT_LOCK,

@@ -276,6 +276,18 @@ func trimQuotesAndSpace(v string) string {
 // Enrichment after KV parsing
 
 func enrichData(msg *AuditMessage) error {
+	normalizeUnsetID("auid", msg.data)
+	normalizeUnsetID("ses", msg.data)
+
+	// Many different message types can have subj field so check them all.
+	parseSELinuxContext("subj", msg.data)
+
+	// Normalize success/res to result.
+	result(msg.data)
+
+	// Normalize keys that are of the form key="key=user_command".
+	auditRuleKey(msg.data)
+
 	switch msg.RecordType {
 	case AUDIT_SYSCALL:
 		if err := arch(msg.data); err != nil {
@@ -287,7 +299,6 @@ func enrichData(msg *AuditMessage) error {
 		if err := hexDecode("exe", msg.data); err != nil {
 			return err
 		}
-		normalizeAUID(msg.data)
 	case AUDIT_SOCKADDR:
 		if err := saddr(msg.data); err != nil {
 			return err
@@ -310,10 +321,10 @@ func enrichData(msg *AuditMessage) error {
 		}
 	case AUDIT_PATH:
 		parseSELinuxContext("obj", msg.data)
+	case AUDIT_USER_LOGIN:
+		// acct only exists in failed logins.
+		hexDecode("acct", msg.data)
 	}
-
-	// Many different message types can have subj field so check them all.
-	parseSELinuxContext("subj", msg.data)
 
 	return nil
 }
@@ -367,15 +378,15 @@ func saddr(data map[string]string) error {
 	return nil
 }
 
-func normalizeAUID(data map[string]string) {
-	auid, found := data["auid"]
+func normalizeUnsetID(key string, data map[string]string) {
+	id, found := data[key]
 	if !found {
 		return
 	}
 
-	switch auid {
+	switch id {
 	case "4294967295", "-1":
-		data["auid"] = "unset"
+		data[key] = "unset"
 	}
 }
 
@@ -476,4 +487,44 @@ func parseSELinuxContext(key string, data map[string]string) error {
 		data[key+keys[i]] = part
 	}
 	return nil
+}
+
+func result(data map[string]string) error {
+	// Syscall messages use "success". Other messages use "res".
+	result, found := data["success"]
+	if !found {
+		result, found = data["res"]
+		if !found {
+			return errors.New("success and res key not found")
+		}
+		delete(data, "res")
+	} else {
+		delete(data, "success")
+	}
+
+	result = strings.ToLower(result)
+	switch {
+	case result == "yes", result == "1", strings.HasPrefix(result, "suc"):
+		result = "success"
+	default:
+		result = "fail"
+	}
+
+	data["result"] = result
+	return nil
+}
+
+func auditRuleKey(data map[string]string) {
+	value, found := data["key"]
+	if !found {
+		return
+	}
+
+	// TODO: test multiple keys
+	parts := strings.SplitN(value, "=", 2)
+	if len(parts) != 2 {
+		return
+	}
+
+	data["key"] = parts[1]
 }

@@ -1,0 +1,35 @@
+[
+  {
+    "@timestamp": "2017-04-22 21:25:01.818 +0000 UTC",
+    "acct": "(invalid user)",
+    "addr": "179.38.151.221",
+    "auid": "unset",
+    "exe": "/usr/sbin/sshd",
+    "op": "login",
+    "pid": "12635",
+    "raw_msg": "audit(1492896301.818:19955): pid=12635 uid=0 auid=4294967295 ses=4294967295 msg='op=login acct=28696E76616C6964207573657229 exe=\"/usr/sbin/sshd\" hostname=? addr=179.38.151.221 terminal=sshd res=failed'",
+    "record_type": "USER_LOGIN",
+    "result": "fail",
+    "sequence": "19955",
+    "ses": "unset",
+    "terminal": "sshd",
+    "uid": "0"
+  },
+  {
+    "@timestamp": "2017-04-21 21:39:57.778 +0000 UTC",
+    "addr": "72.83.230.100",
+    "auid": "1001",
+    "exe": "/usr/sbin/sshd",
+    "hostname": "72.83.230.100",
+    "id": "1001",
+    "op": "login",
+    "pid": "11396",
+    "raw_msg": "audit(1492810797.778:12651): pid=11396 uid=0 auid=1001 ses=36 msg='op=login id=1001 exe=\"/usr/sbin/sshd\" hostname=72.83.230.100 addr=72.83.230.100 terminal=/dev/pts/1 res=success'",
+    "record_type": "USER_LOGIN",
+    "result": "success",
+    "sequence": "12651",
+    "ses": "36",
+    "terminal": "/dev/pts/1",
+    "uid": "0"
+  }
+]

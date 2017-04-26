@@ -14,4 +14,7 @@
 
 // Package auparse is a pure Go audit log parsing library. It can parse and
 // enrich audit messages from the Linux kernel.
+//
+// Each message is composed of multiple fields that are reported as key=value.
+// Any data that does not have an equal sign is superfluous and is ignored.
 package auparse

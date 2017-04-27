@@ -261,7 +261,7 @@ func TestAuditClientReceive(t *testing.T) {
 		} else if err != nil {
 			t.Fatal(err)
 		} else {
-			t.Logf("Received: type=%v, msg=%v", msg.MessageType, string(msg.RawData))
+			t.Logf("Received: type=%v, msg=%v", msg.Type, string(msg.Data))
 			msgCount++
 		}
 	}

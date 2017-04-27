@@ -26,6 +26,8 @@ import (
 	"unsafe"
 
 	"github.com/pkg/errors"
+
+	"github.com/elastic/go-libaudit/auparse"
 )
 
 const (
@@ -181,8 +183,8 @@ func (c *AuditClient) SetEnabled(enabled bool, wm WaitMode) error {
 
 // RawAuditMessage is a raw audit message received from the kernel.
 type RawAuditMessage struct {
-	MessageType uint16
-	RawData     []byte // RawData is backed by the read buffer so make a copy.
+	Type auparse.AuditMessageType
+	Data []byte // RawData is backed by the read buffer so make a copy.
 }
 
 // Receive reads an audit message from the netlink socket. If you are going to
@@ -196,8 +198,8 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 
 	// ParseNetlinkAuditMessage always return a slice with 1 item.
 	return &RawAuditMessage{
-		MessageType: msgs[0].Header.Type,
-		RawData:     msgs[0].Data,
+		Type: auparse.AuditMessageType(msgs[0].Header.Type),
+		Data: msgs[0].Data,
 	}, nil
 }
 

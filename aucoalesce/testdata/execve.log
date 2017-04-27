@@ -1,6 +1,0 @@
-type=SYSCALL msg=audit(1492037291.036:59): arch=c000003e syscall=59 success=yes exit=0 a0=1522170 a1=1506120 a2=14faeb0 a3=7ffcc4582df0 items=2 ppid=12041 pid=13393 auid=1000 uid=1000 gid=1001 euid=1000 suid=1000 fsuid=1000 egid=1001 sgid=1001 fsgid=1001 tty=pts1 ses=802 comm="grep" exe="/usr/bin/grep" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key="user_commands"
-type=EXECVE msg=audit(1492037291.036:59): argc=3 a0="grep" a1="--color=auto" a2="mapping"
-type=CWD msg=audit(1492037291.036:59):  cwd="/home/andrew_kroh"
-type=PATH msg=audit(1492037291.036:59): item=0 name="/usr/bin/grep" inode=2512 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:bin_t:s0 objtype=NORMAL
-type=PATH msg=audit(1492037291.036:59): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=19161168 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 objtype=NORMAL
-type=EOE msg=audit(1492037291.036:59)

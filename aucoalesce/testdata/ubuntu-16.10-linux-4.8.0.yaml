@@ -1,0 +1,65 @@
+---
+tests:
+  ANOM_PROMISCUOUS: |
+    type=ANOM_PROMISCUOUS msg=audit(1492734742.981:753): dev=ens4 prom=0 old_prom=256 auid=1001 uid=0 gid=0 ses=1
+    type=SYSCALL msg=audit(1492734742.981:753): arch=c000003e syscall=16 success=yes exit=0 a0=4 a1=8914 a2=7ffdaff944b0 a3=0 items=0 ppid=1852 pid=1926 auid=1001 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=1 comm="ifconfig" exe="/sbin/ifconfig" key=(null)
+    type=PROCTITLE msg=audit(1492734742.981:753): proctitle=6966636F6E66696700656E7334002D70726F6D697363
+    type=EOE msg=audit(1492734742.981:753):
+
+  EXECVE: |
+    type=SYSCALL msg=audit(1492752522.985:8972): arch=c000003e syscall=59 success=yes exit=0 a0=10812c8 a1=1070208 a2=1152008 a3=59a items=2 ppid=10027 pid=10043 auid=1001 uid=1001 gid=1002 euid=1001 suid=1001 fsuid=1001 egid=1002 sgid=1002 fsgid=1002 tty=pts0 ses=11 comm="uname" exe="/bin/uname" key="key=user_commands"
+    type=EXECVE msg=audit(1492752522.985:8972): argc=2 a0="uname" a1="-a"
+    type=CWD msg=audit(1492752522.985:8972): cwd="/home/andrew_kroh"
+    type=PATH msg=audit(1492752522.985:8972): item=0 name="/bin/uname" inode=155 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
+    type=PATH msg=audit(1492752522.985:8972): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=1923 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
+    type=PROCTITLE msg=audit(1492752522.985:8972): proctitle=756E616D65002D61
+    type=EOE msg=audit(1492752522.985:8972):
+
+  NETFILTER_CFG: |
+    type=NETFILTER_CFG msg=audit(1492648520.473:4678): table=filter family=2 entries=7
+    type=SYSCALL msg=audit(1492648520.473:4678): arch=c000003e syscall=54 success=yes exit=0 a0=4 a1=0 a2=40 a3=562bf7914100 items=0 ppid=9708 pid=9709 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="iptables" exe="/sbin/xtables-multi" key=(null)
+    type=PROCTITLE msg=audit(1492648520.473:4678): proctitle=2F7362696E2F69707461626C6573002D77002D49007373686775617264002D730034352E37362E3134352E313532002D6A0044524F50
+    type=EOE msg=audit(1492648520.473:4678):
+
+  accept syscall: |
+    type=SYSCALL msg=audit(1492752520.441:8832): arch=c000003e syscall=43 success=yes exit=5 a0=3 a1=7ffd0dc80040 a2=7ffd0dc7ffd0 a3=0 items=0 ppid=1 pid=1663 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="sshd" exe="/usr/sbin/sshd" key="key=net"
+    type=SOCKADDR msg=audit(1492752520.441:8832): saddr=0200E31C4853E6640000000000000000
+    type=PROCTITLE msg=audit(1492752520.441:8832): proctitle="(sshd)"
+    type=EOE msg=audit(1492752520.441:8832):
+
+  connect syscall: |
+    type=SYSCALL msg=audit(1492753107.096:9004): arch=c000003e syscall=42 success=no exit=-115 a0=5 a1=7ffc12ac3ab0 a2=10 a3=4 items=0 ppid=1 pid=1648 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="google_ip_forwa" exe="/usr/bin/python3.5" key="key=net"
+    type=SOCKADDR msg=audit(1492753107.096:9004): saddr=02000050A9FEA9FE0000000000000000
+    type=PROCTITLE msg=audit(1492753107.096:9004): proctitle="(g_daemon)"
+    type=EOE msg=audit(1492753107.096:9004):
+
+  USER_START: |
+    type=USER_START msg=audit(1492752521.165:8955): pid=9950 uid=0 auid=1001 ses=11 msg='op=PAM:session_open acct="andrew_kroh" exe="/usr/sbin/sshd" hostname=72.83.230.100 addr=72.83.230.100 terminal=ssh res=success'
+
+  USER_END: |
+    type=USER_END msg=audit(1492751821.295:8784): pid=9945 uid=0 auid=0 ses=10 msg='op=PAM:session_close acct="root" exe="/usr/sbin/cron" hostname=? addr=? terminal=cron res=success'
+
+  SERVICE_START: |
+    type=SERVICE_START msg=audit(1492625990.183:4083): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=rsyslog comm="systemd" exe="/lib/systemd/systemd" hostname=? addr=? terminal=? res=success
+
+  changed-system-time: |
+    type=SYSCALL msg=audit(1492783775.673:11516): arch=c000003e syscall=159 success=yes exit=0 a0=5614c63c1160 a1=2001 a2=5614c63c1160 a3=0 items=0 ppid=1 pid=1596 auid=4294967295 uid=112 gid=116 euid=112 suid=112 fsuid=112 egid=116 sgid=116 fsgid=116 tty=(none) ses=4294967295 comm="ntpd" exe="/usr/sbin/ntpd" key="key=time-change"
+    type=PROCTITLE msg=audit(1492783775.673:11516): proctitle=2F7573722F7362696E2F6E747064002D70002F7661722F72756E2F6E7470642E706964002D67002D63002F7661722F6C69622F6E74702F6E74702E636F6E662E64686370002D75003131323A313136
+    type=EOE msg=audit(1492783775.673:11516):
+
+  CONFIG_CHANGE update rules: |
+    type=CONFIG_CHANGE msg=audit(1492743664.836:8068): auid=1001 ses=6 op="updated_rules" path="/etc/gshadow" key="auth" list=4 res=1
+
+  CONFIG_CHANGE remove rule: |
+    type=CONFIG_CHANGE msg=audit(1492732670.795:12517): auid=1001 ses=67 op="remove_rule" key="key=container-create" list=4 res=1
+
+  USER_LOGIN failed ssh: |
+    type=USER_LOGIN msg=audit(1492896301.818:19955): pid=12635 uid=0 auid=4294967295 ses=4294967295 msg='op=login acct=28696E76616C6964207573657229 exe="/usr/sbin/sshd" hostname=? addr=179.38.151.221 terminal=sshd res=failed'
+
+  USER_LOGIN success: |
+    type=USER_LOGIN msg=audit(1492810797.778:12651): pid=11396 uid=0 auid=1001 ses=36 msg='op=login id=1001 exe="/usr/sbin/sshd" hostname=72.83.230.100 addr=72.83.230.100 terminal=/dev/pts/1 res=success'
+
+  listen syscall: |
+    type=SYSCALL msg=audit(1493123198.373:25922): arch=c000003e syscall=50 success=yes exit=0 a0=e a1=80 a2=20 a3=7ffe900ae940 items=0 ppid=1 pid=23492 auid=1001 uid=1001 gid=1002 euid=1001 suid=1001 fsuid=1001 egid=1002 sgid=1002 fsgid=1002 tty=(none) ses=140 comm="systemd" exe="/lib/systemd/systemd" key="key=net"
+    type=PROCTITLE msg=audit(1493123198.373:25922): proctitle="(systemd)"
+    type=EOE msg=audit(1493123198.373:25922):

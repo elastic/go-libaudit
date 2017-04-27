@@ -1,0 +1,515 @@
+[
+  {
+    "test_name": "CRED_ACQ",
+    "event": {
+      "@timestamp": "2017-04-26T15:17:01.115Z",
+      "sequence": 21416,
+      "category": "user-login",
+      "record_type": "cred_acq",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "root",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "acquired-credentials",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:setcred",
+        "pid": "10665",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "CRED_DISP",
+    "event": {
+      "@timestamp": "2017-04-26T14:17:01.101Z",
+      "sequence": 21264,
+      "category": "user-login",
+      "record_type": "cred_disp",
+      "result": "success",
+      "session": "38",
+      "actor": {
+        "primary": "0",
+        "secondary": "root",
+        "attrs": {
+          "auid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "disposed-credentials",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:setcred",
+        "pid": "10631",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_ACCT",
+    "event": {
+      "@timestamp": "2017-04-26T15:17:01.115Z",
+      "sequence": 21415,
+      "category": "user-login",
+      "record_type": "user_acct",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "root",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "was-authorized",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:accounting",
+        "pid": "10665",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_AUTH",
+    "event": {
+      "@timestamp": "2017-04-25T23:24:12.324Z",
+      "sequence": 18669,
+      "category": "user-login",
+      "record_type": "user_auth",
+      "result": "success",
+      "session": "1",
+      "actor": {
+        "primary": "1001",
+        "secondary": "root",
+        "attrs": {
+          "auid": "1001",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "/dev/pts/0",
+        "what": "user-session"
+      },
+      "action": "authenticated",
+      "how": "/bin/su",
+      "data": {
+        "acct": "root",
+        "exe": "/bin/su",
+        "op": "PAM:authentication",
+        "pid": "9730",
+        "terminal": "/dev/pts/0"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_CHAUTHTOK failed",
+    "event": {
+      "@timestamp": "2017-04-26T16:40:50.928Z",
+      "sequence": 21878,
+      "category": "user-login",
+      "record_type": "user_chauthtok",
+      "result": "fail",
+      "session": "41",
+      "actor": {
+        "primary": "1001",
+        "secondary": "akroh",
+        "attrs": {
+          "auid": "1001",
+          "uid": "1002"
+        }
+      },
+      "thing": {
+        "primary": "pts/0",
+        "what": "user-session"
+      },
+      "action": "changed-password",
+      "how": "/usr/bin/passwd",
+      "data": {
+        "acct": "akroh",
+        "exe": "/usr/bin/passwd",
+        "op": "PAM:chauthtok",
+        "pid": "10829",
+        "terminal": "pts/0"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_CMD",
+    "event": {
+      "@timestamp": "2017-04-25T23:24:12.304Z",
+      "sequence": 18662,
+      "category": "user-space",
+      "record_type": "user_cmd",
+      "result": "success",
+      "session": "1",
+      "actor": {
+        "primary": "1001",
+        "secondary": "1001",
+        "attrs": {
+          "auid": "1001",
+          "uid": "1001"
+        }
+      },
+      "thing": {
+        "primary": "su",
+        "what": "process"
+      },
+      "action": "ran-command",
+      "data": {
+        "cmd": "su",
+        "cwd": "/home/andrew_kroh",
+        "pid": "9729",
+        "terminal": "pts/0"
+      }
+    }
+  },
+  {
+    "test_name": "USER_END",
+    "event": {
+      "@timestamp": "2017-04-26T14:17:01.105Z",
+      "sequence": 21265,
+      "category": "user-login",
+      "record_type": "user_end",
+      "result": "success",
+      "session": "38",
+      "actor": {
+        "primary": "0",
+        "secondary": "root",
+        "attrs": {
+          "auid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "ended-session",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:session_close",
+        "pid": "10631",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_ERR",
+    "event": {
+      "@timestamp": "2017-04-26T15:16:59.739Z",
+      "sequence": 21413,
+      "category": "user-login",
+      "record_type": "user_err",
+      "result": "fail",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "ssh",
+        "secondary": "185.56.82.22",
+        "what": "user-session"
+      },
+      "action": "error",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "addr": "185.56.82.22",
+        "exe": "/usr/sbin/sshd",
+        "hostname": "185.56.82.22",
+        "op": "PAM:bad_ident",
+        "pid": "10663",
+        "terminal": "ssh"
+      }
+    }
+  },
+  {
+    "test_name": "USER_LOGIN",
+    "event": {
+      "@timestamp": "2017-04-26T14:14:10.975Z",
+      "sequence": 21203,
+      "category": "user-login",
+      "record_type": "user_login",
+      "result": "fail",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "(invalid user)",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "sshd",
+        "secondary": "31.207.47.36",
+        "what": "user-session"
+      },
+      "action": "logged-in",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "acct": "(invalid user)",
+        "addr": "31.207.47.36",
+        "exe": "/usr/sbin/sshd",
+        "op": "login",
+        "pid": "10617",
+        "terminal": "sshd"
+      }
+    }
+  },
+  {
+    "test_name": "USER_START",
+    "event": {
+      "@timestamp": "2017-04-26T15:17:01.115Z",
+      "sequence": 21419,
+      "category": "user-login",
+      "record_type": "user_start",
+      "result": "success",
+      "session": "39",
+      "actor": {
+        "primary": "0",
+        "secondary": "root",
+        "attrs": {
+          "auid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "started-session",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:session_open",
+        "pid": "10665",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "rename syscall",
+    "event": {
+      "@timestamp": "2017-04-25T13:05:24.089Z",
+      "sequence": 126,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "5",
+      "actor": {
+        "primary": "1001",
+        "secondary": "0",
+        "attrs": {
+          "auid": "1001",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "/etc/audit/rules.d/audit.rules",
+        "secondary": "271112",
+        "what": "file"
+      },
+      "action": "renamed",
+      "how": "/usr/bin/vim.basic",
+      "key": "auditconfig",
+      "data": {
+        "a0": "55942f993060",
+        "a1": "55942fb79090",
+        "a2": "fffffffffffffeb0",
+        "a3": "55942fb79090",
+        "arch": "x86_64",
+        "comm": "vim",
+        "cwd": "/home/andrew_kroh",
+        "exe": "/usr/bin/vim.basic",
+        "exit": "0",
+        "pid": "3231",
+        "ppid": "3207",
+        "proctitle": "vim",
+        "syscall": "rename",
+        "tty": "pts1"
+      },
+      "paths": [
+        {
+          "dev": "08:01",
+          "inode": "271071",
+          "item": "0",
+          "mode": "040750",
+          "name": "/etc/audit/rules.d/",
+          "nametype": "PARENT",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "271071",
+          "item": "1",
+          "mode": "040750",
+          "name": "/etc/audit/rules.d/",
+          "nametype": "PARENT",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "271112",
+          "item": "2",
+          "mode": "0100640",
+          "name": "/etc/audit/rules.d/audit.rules",
+          "nametype": "DELETE",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "271112",
+          "item": "3",
+          "mode": "0100640",
+          "name": "/etc/audit/rules.d/audit.rules~",
+          "nametype": "CREATE",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "unlink syscall",
+    "event": {
+      "@timestamp": "2017-04-25T14:09:15.852Z",
+      "sequence": 624,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "5",
+      "actor": {
+        "primary": "1001",
+        "secondary": "0",
+        "attrs": {
+          "auid": "1001",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "/etc/audit/rules.d/.audit.rules.swp",
+        "secondary": "271044",
+        "what": "file"
+      },
+      "action": "deleted",
+      "how": "/usr/bin/vim.basic",
+      "key": "auditconfig",
+      "data": {
+        "a0": "55faa178f800",
+        "a1": "1",
+        "a2": "1",
+        "a3": "7ffd21b026d0",
+        "arch": "x86_64",
+        "comm": "vim",
+        "cwd": "/home/andrew_kroh",
+        "exe": "/usr/bin/vim.basic",
+        "exit": "0",
+        "pid": "3346",
+        "ppid": "3309",
+        "proctitle": "vim",
+        "syscall": "unlink",
+        "tty": "pts1"
+      },
+      "paths": [
+        {
+          "dev": "08:01",
+          "inode": "271071",
+          "item": "0",
+          "mode": "040750",
+          "name": "/etc/audit/rules.d/",
+          "nametype": "PARENT",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "271044",
+          "item": "1",
+          "mode": "0100640",
+          "name": "/etc/audit/rules.d/.audit.rules.swp",
+          "nametype": "DELETE",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  }
+]

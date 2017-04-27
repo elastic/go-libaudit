@@ -1,0 +1,41 @@
+[
+  {
+    "test_name": "ANOM_ABEND SIGSEGV seg fault",
+    "event": {
+      "@timestamp": "2015-02-06T15:03:14.398Z",
+      "sequence": 911150,
+      "category": "anomoly",
+      "record_type": "anom_abend",
+      "result": "unknown",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "48",
+        "attrs": {
+          "auid": "unset",
+          "gid": "48",
+          "uid": "48"
+        },
+        "selinux": {
+          "domain": "httpd_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "httpd",
+        "secondary": "31242",
+        "what": "process"
+      },
+      "action": "crashed-program",
+      "how": "11",
+      "data": {
+        "comm": "httpd",
+        "pid": "31242",
+        "reason": "memory violation",
+        "sig": "11"
+      }
+    }
+  }
+]

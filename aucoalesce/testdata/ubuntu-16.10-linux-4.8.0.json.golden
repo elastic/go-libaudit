@@ -1,0 +1,609 @@
+[
+  {
+    "test_name": "ANOM_PROMISCUOUS",
+    "event": {
+      "@timestamp": "2017-04-21T00:32:22.981Z",
+      "sequence": 753,
+      "category": "anomoly",
+      "record_type": "anom_promiscuous",
+      "result": "success",
+      "session": "1",
+      "actor": {
+        "primary": "1001",
+        "secondary": "0",
+        "attrs": {
+          "auid": "1001",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "ens4",
+        "what": "network-device"
+      },
+      "action": "changed-promiscuous-mode-on-device",
+      "how": "/sbin/ifconfig",
+      "data": {
+        "a0": "4",
+        "a1": "8914",
+        "a2": "7ffdaff944b0",
+        "a3": "0",
+        "arch": "x86_64",
+        "auid": "1001",
+        "comm": "ifconfig",
+        "dev": "ens4",
+        "exe": "/sbin/ifconfig",
+        "exit": "0",
+        "gid": "0",
+        "old_prom": "256",
+        "pid": "1926",
+        "ppid": "1852",
+        "proctitle": "ifconfig",
+        "prom": "0",
+        "ses": "1",
+        "syscall": "ioctl",
+        "tty": "pts0",
+        "uid": "0"
+      }
+    }
+  },
+  {
+    "test_name": "CONFIG_CHANGE remove rule",
+    "event": {
+      "@timestamp": "2017-04-20T23:57:50.795Z",
+      "sequence": 12517,
+      "category": "configuration",
+      "record_type": "config_change",
+      "result": "success",
+      "session": "67",
+      "actor": {
+        "primary": "1001",
+        "attrs": {
+          "auid": "1001"
+        }
+      },
+      "thing": {
+        "primary": "remove_rule",
+        "what": "audit-config"
+      },
+      "action": "changed-audit-configuration",
+      "key": "container-create",
+      "data": {
+        "list": "4",
+        "op": "remove_rule"
+      }
+    }
+  },
+  {
+    "test_name": "CONFIG_CHANGE update rules",
+    "event": {
+      "@timestamp": "2017-04-21T03:01:04.836Z",
+      "sequence": 8068,
+      "category": "configuration",
+      "record_type": "config_change",
+      "result": "success",
+      "session": "6",
+      "actor": {
+        "primary": "1001",
+        "attrs": {
+          "auid": "1001"
+        }
+      },
+      "thing": {
+        "primary": "updated_rules",
+        "what": "audit-config"
+      },
+      "action": "changed-audit-configuration",
+      "key": "auth",
+      "data": {
+        "list": "4",
+        "op": "updated_rules",
+        "path": "/etc/gshadow"
+      }
+    }
+  },
+  {
+    "test_name": "EXECVE",
+    "event": {
+      "@timestamp": "2017-04-21T05:28:42.985Z",
+      "sequence": 8972,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "11",
+      "actor": {
+        "primary": "1001",
+        "secondary": "1001",
+        "attrs": {
+          "auid": "1001",
+          "egid": "1002",
+          "euid": "1001",
+          "fsgid": "1002",
+          "fsuid": "1001",
+          "gid": "1002",
+          "sgid": "1002",
+          "suid": "1001",
+          "uid": "1001"
+        }
+      },
+      "thing": {
+        "primary": "/bin/uname",
+        "secondary": "155",
+        "what": "file"
+      },
+      "action": "executed",
+      "how": "/bin/uname",
+      "key": "user_commands",
+      "data": {
+        "a0": "10812c8",
+        "a1": "1070208",
+        "a2": "1152008",
+        "a3": "59a",
+        "arch": "x86_64",
+        "argc": "2",
+        "cmdline": "\"uname\" \"-a\"",
+        "comm": "uname",
+        "cwd": "/home/andrew_kroh",
+        "exe": "/bin/uname",
+        "exit": "0",
+        "pid": "10043",
+        "ppid": "10027",
+        "proctitle": "uname",
+        "syscall": "execve",
+        "tty": "pts0"
+      },
+      "paths": [
+        {
+          "dev": "08:01",
+          "inode": "155",
+          "item": "0",
+          "mode": "0100755",
+          "name": "/bin/uname",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "1923",
+          "item": "1",
+          "mode": "0100755",
+          "name": "/lib64/ld-linux-x86-64.so.2",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "NETFILTER_CFG",
+    "event": {
+      "@timestamp": "2017-04-20T00:35:20.473Z",
+      "sequence": 4678,
+      "category": "configuration",
+      "record_type": "netfilter_cfg",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "filter",
+        "what": "firewall"
+      },
+      "action": "loaded-firewall-rule-to",
+      "how": "/sbin/xtables-multi",
+      "data": {
+        "a0": "4",
+        "a1": "0",
+        "a2": "40",
+        "a3": "562bf7914100",
+        "arch": "x86_64",
+        "comm": "iptables",
+        "entries": "7",
+        "exe": "/sbin/xtables-multi",
+        "exit": "0",
+        "family": "2",
+        "pid": "9709",
+        "ppid": "9708",
+        "proctitle": "/sbin/iptables",
+        "syscall": "setsockopt",
+        "table": "filter",
+        "tty": "(none)"
+      }
+    }
+  },
+  {
+    "test_name": "SERVICE_START",
+    "event": {
+      "@timestamp": "2017-04-19T18:19:50.183Z",
+      "sequence": 4083,
+      "category": "system-services",
+      "record_type": "service_start",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "rsyslog",
+        "what": "service"
+      },
+      "action": "started-service",
+      "how": "/lib/systemd/systemd",
+      "data": {
+        "comm": "systemd",
+        "exe": "/lib/systemd/systemd",
+        "pid": "1",
+        "unit": "rsyslog"
+      }
+    }
+  },
+  {
+    "test_name": "USER_END",
+    "event": {
+      "@timestamp": "2017-04-21T05:17:01.295Z",
+      "sequence": 8784,
+      "category": "user-login",
+      "record_type": "user_end",
+      "result": "success",
+      "session": "10",
+      "actor": {
+        "primary": "0",
+        "secondary": "root",
+        "attrs": {
+          "auid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "cron",
+        "what": "user-session"
+      },
+      "action": "ended-session",
+      "how": "/usr/sbin/cron",
+      "data": {
+        "acct": "root",
+        "exe": "/usr/sbin/cron",
+        "op": "PAM:session_close",
+        "pid": "9945",
+        "terminal": "cron"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "USER_LOGIN failed ssh",
+    "event": {
+      "@timestamp": "2017-04-22T21:25:01.818Z",
+      "sequence": 19955,
+      "category": "user-login",
+      "record_type": "user_login",
+      "result": "fail",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "(invalid user)",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "sshd",
+        "secondary": "179.38.151.221",
+        "what": "user-session"
+      },
+      "action": "logged-in",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "acct": "(invalid user)",
+        "addr": "179.38.151.221",
+        "exe": "/usr/sbin/sshd",
+        "op": "login",
+        "pid": "12635",
+        "terminal": "sshd"
+      }
+    }
+  },
+  {
+    "test_name": "USER_LOGIN success",
+    "event": {
+      "@timestamp": "2017-04-21T21:39:57.778Z",
+      "sequence": 12651,
+      "category": "user-login",
+      "record_type": "user_login",
+      "result": "success",
+      "session": "36",
+      "actor": {
+        "primary": "1001",
+        "secondary": "1001",
+        "attrs": {
+          "auid": "1001",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "/dev/pts/1",
+        "secondary": "72.83.230.100",
+        "what": "user-session"
+      },
+      "action": "logged-in",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "addr": "72.83.230.100",
+        "exe": "/usr/sbin/sshd",
+        "hostname": "72.83.230.100",
+        "id": "1001",
+        "op": "login",
+        "pid": "11396",
+        "terminal": "/dev/pts/1"
+      }
+    }
+  },
+  {
+    "test_name": "USER_START",
+    "event": {
+      "@timestamp": "2017-04-21T05:28:41.165Z",
+      "sequence": 8955,
+      "category": "user-login",
+      "record_type": "user_start",
+      "result": "success",
+      "session": "11",
+      "actor": {
+        "primary": "1001",
+        "secondary": "andrew_kroh",
+        "attrs": {
+          "auid": "1001",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "ssh",
+        "secondary": "72.83.230.100",
+        "what": "user-session"
+      },
+      "action": "started-session",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "acct": "andrew_kroh",
+        "addr": "72.83.230.100",
+        "exe": "/usr/sbin/sshd",
+        "hostname": "72.83.230.100",
+        "op": "PAM:session_open",
+        "pid": "9950",
+        "terminal": "ssh"
+      }
+    }
+  },
+  {
+    "test_name": "accept syscall",
+    "event": {
+      "@timestamp": "2017-04-21T05:28:40.441Z",
+      "sequence": 8832,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "72.83.230.100",
+        "secondary": "58140",
+        "what": "socket"
+      },
+      "action": "accepted-connection-from",
+      "how": "/usr/sbin/sshd",
+      "key": "net",
+      "data": {
+        "a0": "3",
+        "a1": "7ffd0dc80040",
+        "a2": "7ffd0dc7ffd0",
+        "a3": "0",
+        "arch": "x86_64",
+        "comm": "sshd",
+        "exe": "/usr/sbin/sshd",
+        "exit": "5",
+        "pid": "1663",
+        "ppid": "1",
+        "proctitle": "(sshd)",
+        "syscall": "accept",
+        "tty": "(none)"
+      },
+      "socket": {
+        "addr": "72.83.230.100",
+        "family": "ipv4",
+        "port": "58140"
+      }
+    }
+  },
+  {
+    "test_name": "changed-system-time",
+    "event": {
+      "@timestamp": "2017-04-21T14:09:35.673Z",
+      "sequence": 11516,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "112",
+        "attrs": {
+          "auid": "unset",
+          "egid": "116",
+          "euid": "112",
+          "fsgid": "116",
+          "fsuid": "112",
+          "gid": "116",
+          "sgid": "116",
+          "suid": "112",
+          "uid": "112"
+        }
+      },
+      "thing": {
+        "what": "system"
+      },
+      "action": "changed-system-time",
+      "how": "/usr/sbin/ntpd",
+      "key": "time-change",
+      "data": {
+        "a0": "5614c63c1160",
+        "a1": "2001",
+        "a2": "5614c63c1160",
+        "a3": "0",
+        "arch": "x86_64",
+        "comm": "ntpd",
+        "exe": "/usr/sbin/ntpd",
+        "exit": "0",
+        "pid": "1596",
+        "ppid": "1",
+        "proctitle": "/usr/sbin/ntpd",
+        "syscall": "adjtimex",
+        "tty": "(none)"
+      }
+    }
+  },
+  {
+    "test_name": "connect syscall",
+    "event": {
+      "@timestamp": "2017-04-21T05:38:27.096Z",
+      "sequence": 9004,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "fail",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "thing": {
+        "primary": "169.254.169.254",
+        "secondary": "80",
+        "what": "socket"
+      },
+      "action": "connected-to",
+      "how": "google_ip_forwa",
+      "key": "net",
+      "data": {
+        "a0": "5",
+        "a1": "7ffc12ac3ab0",
+        "a2": "10",
+        "a3": "4",
+        "arch": "x86_64",
+        "comm": "google_ip_forwa",
+        "exe": "/usr/bin/python3.5",
+        "exit": "-115",
+        "pid": "1648",
+        "ppid": "1",
+        "proctitle": "(g_daemon)",
+        "syscall": "connect",
+        "tty": "(none)"
+      },
+      "socket": {
+        "addr": "169.254.169.254",
+        "family": "ipv4",
+        "port": "80"
+      }
+    }
+  },
+  {
+    "test_name": "listen syscall",
+    "event": {
+      "@timestamp": "2017-04-25T12:26:38.373Z",
+      "sequence": 25922,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "140",
+      "actor": {
+        "primary": "1001",
+        "secondary": "1001",
+        "attrs": {
+          "auid": "1001",
+          "egid": "1002",
+          "euid": "1001",
+          "fsgid": "1002",
+          "fsuid": "1001",
+          "gid": "1002",
+          "sgid": "1002",
+          "suid": "1001",
+          "uid": "1001"
+        }
+      },
+      "thing": {
+        "what": "socket"
+      },
+      "action": "listen-for-connections",
+      "how": "/lib/systemd/systemd",
+      "key": "net",
+      "data": {
+        "a0": "e",
+        "a1": "80",
+        "a2": "20",
+        "a3": "7ffe900ae940",
+        "arch": "x86_64",
+        "comm": "systemd",
+        "exe": "/lib/systemd/systemd",
+        "exit": "0",
+        "pid": "23492",
+        "ppid": "1",
+        "proctitle": "(systemd)",
+        "syscall": "listen",
+        "tty": "(none)"
+      }
+    }
+  }
+]

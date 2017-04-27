@@ -1,0 +1,4 @@
+---
+tests:
+  ANOM_ABEND SIGSEGV seg fault: |
+    type=ANOM_ABEND msg=audit(1423234994.398:911150): auid=4294967295 uid=48 gid=48 ses=4294967295 subj=system_u:system_r:httpd_t:s0 pid=31242 comm="httpd" reason="memory violation" sig=11

@@ -1,0 +1,506 @@
+[
+  {
+    "test_name": "CONFIG_CHANGE add rule",
+    "event": {
+      "@timestamp": "2017-04-21T04:37:47.018Z",
+      "sequence": 1209,
+      "category": "configuration",
+      "record_type": "config_change",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "attrs": {
+          "auid": "unset"
+        },
+        "selinux": {
+          "domain": "unconfined_service_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "add_rule",
+        "what": "audit-config"
+      },
+      "action": "changed-audit-configuration",
+      "key": "pam",
+      "data": {
+        "list": "4",
+        "op": "add_rule"
+      }
+    }
+  },
+  {
+    "test_name": "CONFIG_CHANGE backlog limit",
+    "event": {
+      "@timestamp": "2017-04-21T05:49:55.844Z",
+      "sequence": 15406,
+      "category": "configuration",
+      "record_type": "config_change",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "attrs": {
+          "auid": "unset"
+        },
+        "selinux": {
+          "domain": "unconfined_service_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "64",
+        "what": "audit-config"
+      },
+      "action": "changed-audit-configuration",
+      "data": {
+        "audit_backlog_limit": "64",
+        "old": "8192"
+      }
+    }
+  },
+  {
+    "test_name": "CRYPTO_KEY_USER",
+    "event": {
+      "@timestamp": "2016-12-07T02:17:21.497Z",
+      "sequence": 404,
+      "category": "crypto",
+      "record_type": "crypto_key_user",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "category": "c0.c1023",
+          "domain": "sshd_t",
+          "level": "s0-s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
+        "secondary": "96.241.146.97",
+        "what": "user-session"
+      },
+      "action": "negotiated-crypto-key",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "addr": "96.241.146.97",
+        "exe": "/usr/sbin/sshd",
+        "fp": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
+        "kind": "server",
+        "op": "destroy",
+        "pid": "1299",
+        "spid": "1299"
+      }
+    }
+  },
+  {
+    "test_name": "CRYPTO_SESSION",
+    "event": {
+      "@timestamp": "2016-12-07T02:17:21.515Z",
+      "sequence": 406,
+      "category": "crypto",
+      "record_type": "crypto_session",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "suid": "74",
+          "uid": "0"
+        },
+        "selinux": {
+          "category": "c0.c1023",
+          "domain": "sshd_t",
+          "level": "s0-s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "96.241.146.97",
+        "secondary": "63927",
+        "what": "user-session"
+      },
+      "action": "started-crypto-session",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "addr": "96.241.146.97",
+        "cipher": "chacha20-poly1305@openssh.com",
+        "direction": "from-server",
+        "exe": "/usr/sbin/sshd",
+        "ksize": "512",
+        "laddr": "10.142.0.2",
+        "lport": "22",
+        "op": "start",
+        "pfs": "curve25519-sha256@libssh.org",
+        "pid": "1298",
+        "rport": "63927",
+        "spid": "1299"
+      }
+    }
+  },
+  {
+    "test_name": "LOGIN success",
+    "event": {
+      "@timestamp": "2016-12-07T02:17:23.057Z",
+      "sequence": 414,
+      "category": "unknown",
+      "record_type": "login",
+      "result": "success",
+      "session": "1",
+      "actor": {
+        "primary": "4294967295",
+        "secondary": "0",
+        "attrs": {
+          "auid": "1000",
+          "old-auid": "4294967295",
+          "uid": "0"
+        },
+        "selinux": {
+          "category": "c0.c1023",
+          "domain": "sshd_t",
+          "level": "s0-s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "1000",
+        "what": "user-session"
+      },
+      "action": "changed-login-id-to",
+      "data": {
+        "old-ses": "4294967295",
+        "pid": "1298"
+      }
+    }
+  },
+  {
+    "test_name": "USER_LOGIN",
+    "event": {
+      "@timestamp": "2017-04-24T15:00:15.752Z",
+      "sequence": 42120,
+      "category": "user-login",
+      "record_type": "user_login",
+      "result": "fail",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "root",
+        "attrs": {
+          "auid": "unset",
+          "uid": "0"
+        },
+        "selinux": {
+          "category": "c0.c1023",
+          "domain": "sshd_t",
+          "level": "s0-s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "ssh",
+        "secondary": "46.160.144.250",
+        "what": "user-session"
+      },
+      "action": "logged-in",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "acct": "root",
+        "addr": "46.160.144.250",
+        "exe": "/usr/sbin/sshd",
+        "op": "login",
+        "pid": "18981",
+        "terminal": "ssh"
+      }
+    }
+  },
+  {
+    "test_name": "USER_LOGOUT",
+    "event": {
+      "@timestamp": "2017-04-26T03:56:45.243Z",
+      "sequence": 73336,
+      "category": "user-login",
+      "record_type": "user_logout",
+      "result": "success",
+      "session": "132",
+      "actor": {
+        "primary": "1000",
+        "secondary": "1000",
+        "attrs": {
+          "auid": "1000",
+          "uid": "0"
+        },
+        "selinux": {
+          "category": "c0.c1023",
+          "domain": "sshd_t",
+          "level": "s0-s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "/dev/pts/1",
+        "what": "user-session"
+      },
+      "action": "logged-out",
+      "how": "/usr/sbin/sshd",
+      "data": {
+        "exe": "/usr/sbin/sshd",
+        "id": "1000",
+        "op": "login",
+        "pid": "2370",
+        "terminal": "/dev/pts/1"
+      }
+    },
+    "warnings": [
+      "failed to set object secondary using keys=[addr hostname] because they were not found"
+    ]
+  },
+  {
+    "test_name": "changed-system-time",
+    "event": {
+      "@timestamp": "2017-04-21T18:15:41.391Z",
+      "sequence": 20246,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "38",
+        "attrs": {
+          "auid": "unset",
+          "egid": "38",
+          "euid": "38",
+          "fsgid": "38",
+          "fsuid": "38",
+          "gid": "38",
+          "sgid": "38",
+          "suid": "38",
+          "uid": "38"
+        },
+        "selinux": {
+          "domain": "ntpd_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "what": "system"
+      },
+      "action": "changed-system-time",
+      "how": "/usr/sbin/ntpd",
+      "key": "time-change",
+      "data": {
+        "a0": "7f71508da920",
+        "a1": "1",
+        "a2": "0",
+        "a3": "7f715258624c",
+        "arch": "x86_64",
+        "comm": "ntpd",
+        "exe": "/usr/sbin/ntpd",
+        "exit": "0",
+        "items": "0",
+        "pid": "1075",
+        "ppid": "1",
+        "syscall": "adjtimex",
+        "tty": "(none)"
+      }
+    }
+  },
+  {
+    "test_name": "make-device",
+    "event": {
+      "@timestamp": "2017-04-21T18:53:19.05Z",
+      "sequence": 20294,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "domain": "systemd_logind_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "/run/systemd/sessions/",
+        "secondary": "11378",
+        "what": "file",
+        "selinux": {
+          "domain": "systemd_logind_sessions_t",
+          "level": "s0",
+          "role": "object_r",
+          "user": "system_u"
+        }
+      },
+      "action": "make-device",
+      "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+      "key": "specialfiles",
+      "data": {
+        "a0": "7ff61dde1960",
+        "a1": "1180",
+        "a2": "0",
+        "a3": "2",
+        "arch": "x86_64",
+        "comm": "systemd-logind",
+        "cwd": "/",
+        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+        "exit": "0",
+        "pid": "326",
+        "ppid": "1",
+        "syscall": "mknod",
+        "tty": "(none)"
+      },
+      "paths": [
+        {
+          "dev": "00:13",
+          "inode": "11378",
+          "item": "0",
+          "mode": "040755",
+          "name": "/run/systemd/sessions/",
+          "obj_domain": "systemd_logind_sessions_t",
+          "obj_level": "s0",
+          "obj_role": "object_r",
+          "obj_user": "system_u",
+          "objtype": "PARENT",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "00:13",
+          "inode": "98040",
+          "item": "1",
+          "mode": "010600",
+          "name": "/run/systemd/sessions/23.ref",
+          "obj_domain": "systemd_logind_sessions_t",
+          "obj_level": "s0",
+          "obj_role": "object_r",
+          "obj_user": "system_u",
+          "objtype": "CREATE",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "mount syscall",
+    "event": {
+      "@timestamp": "2017-04-25T14:01:01.69Z",
+      "sequence": 48922,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "actor": {
+        "primary": "unset",
+        "secondary": "0",
+        "attrs": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "domain": "systemd_logind_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "thing": {
+        "primary": "/run/user/0",
+        "secondary": "454267",
+        "what": "file",
+        "selinux": {
+          "domain": "user_tmp_t",
+          "level": "s0",
+          "role": "object_r",
+          "user": "system_u"
+        }
+      },
+      "action": "mounted",
+      "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+      "key": "mount",
+      "data": {
+        "a0": "7ff61c0a7270",
+        "a1": "7ff61dddf470",
+        "a2": "7ff61c0a7270",
+        "a3": "6",
+        "arch": "x86_64",
+        "comm": "systemd-logind",
+        "cwd": "/",
+        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+        "exit": "0",
+        "pid": "326",
+        "ppid": "1",
+        "syscall": "mount",
+        "tty": "(none)"
+      },
+      "paths": [
+        {
+          "item": "0",
+          "name": "/run/user/0",
+          "objtype": "UNKNOWN"
+        },
+        {
+          "dev": "00:13",
+          "inode": "454267",
+          "item": "1",
+          "mode": "040700",
+          "name": "/run/user/0",
+          "obj_domain": "user_tmp_t",
+          "obj_level": "s0",
+          "obj_role": "object_r",
+          "obj_user": "system_u",
+          "objtype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  }
+]

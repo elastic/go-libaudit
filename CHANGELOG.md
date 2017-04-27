@@ -5,8 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- auparse - Convert auid and session values of `4294967295` or `-1` to "unset". #5
+- auparse - Added `MarshallText` method to AuditMessageType to enable the value
+  to be marshaled as a string in JSON. faabfa94ec9479bdc1ad6c0334ff178b8193fce5
+- aucoalesce - Enhanced aucoalesce to normalize events. 666ff1c30fe624e9fcd9a108b20fceb82331f5fa
 
 ### Changed
+- Rename RawAuditMessage fields `MessageType` and `RawData` to `Type` and
+  `Data` respectively. 8622833714fccd7810669b1265df1c1f918ec0c4
+- Make Reassembler concurrency-safe. c57b59c20a684e2a6298a1a5929a79192d76d61b
+- auparse - Renamed `address_family` to `family` in parsed sockaddr messages.
+  73f97b2f366e6e00acf2ddff4f6575432da3283e
 
 ### Deprecated
 

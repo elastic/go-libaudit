@@ -16,12 +16,16 @@ package libaudit
 
 import (
 	"sort"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/auparse"
 )
+
+var errReassemblerClosed = errors.New("reassembler closed")
 
 // Stream is implemented by the user of the Reassembler to handle reassembled
 // audit data.
@@ -41,13 +45,15 @@ type Stream interface {
 
 // Reassembler combines related messages in to an event based on their timestamp
 // and sequence number. It handles messages that may be have been received out
-// of order or are interleaved.
+// of order or are interleaved. Reassembler is concurrency-safe.
 //
 // The Reassembler uses callbacks (see Stream interface) to notify the user of
 // completed messages. Callbacks for reassembled events will occur in order of
 // sequence number unless a late message is received that falls outside of the
 // sequences held in memory.
 type Reassembler struct {
+	closed int32 // closed is set to 1 when after the Reassembler is closed.
+
 	// cache contains the in-flight event messages. Eviction occurs when an
 	// event is completed via an EOE message, the cache reaches max size
 	// (lowest sequence is evicted first), or an event expires base on time.
@@ -89,7 +95,7 @@ func (r *Reassembler) PushMessage(msg *auparse.AuditMessage) {
 // function that handles calling auparse.Parse() to extract the message's
 // timestamp and sequence number. If parsing fails then an error will be
 // returned. See PushMessage.
-func (r *Reassembler) Push(typ uint16, rawData []byte) error {
+func (r *Reassembler) Push(typ auparse.AuditMessageType, rawData []byte) error {
 	msg, err := auparse.Parse(auparse.AuditMessageType(typ), string(rawData))
 	if err != nil {
 		return err
@@ -100,17 +106,25 @@ func (r *Reassembler) Push(typ uint16, rawData []byte) error {
 }
 
 // Maintain performs maintenance on the cached message. It can be called
-// periodically to evict timed-out events.
-func (r *Reassembler) Maintain() {
+// periodically to evict timed-out events. It returns a non-nil error if
+// the Reassembler has been closed.
+func (r *Reassembler) Maintain() error {
+	if atomic.LoadInt32(&r.closed) == 1 {
+		return errReassemblerClosed
+	}
 	evicted, lost := r.list.CleanUp()
 	r.callback(evicted, lost)
+	return nil
 }
 
 // Close flushes any cached events and closes the Reassembler.
 func (r *Reassembler) Close() error {
-	evicted, lost := r.list.Clear()
-	r.callback(evicted, lost)
-	return nil
+	if atomic.CompareAndSwapInt32(&r.closed, 0, 1) {
+		evicted, lost := r.list.Clear()
+		r.callback(evicted, lost)
+		return nil
+	}
+	return errReassemblerClosed
 }
 
 func (r *Reassembler) callback(events []*event, lost int) {
@@ -166,18 +180,22 @@ type event struct {
 func (e *event) Add(msg *auparse.AuditMessage) {
 	e.msgs = append(e.msgs, msg)
 
-	if msg.RecordType == auparse.AUDIT_EOE {
+	// These messages all signal the completion of an event.
+	if msg.RecordType == auparse.AUDIT_PROCTITLE ||
+		msg.RecordType <= auparse.AUDIT_LAST_DAEMON ||
+		msg.RecordType >= auparse.AUDIT_ANOM_LOGIN_FAILURES {
 		e.complete = true
 	}
 }
 
 func (e *event) IsExpired() bool {
-	return e.expireTime.After(time.Now())
+	return time.Now().After(e.expireTime)
 }
 
 // Type - eventList
 
 type eventList struct {
+	sync.Mutex
 	seqs    sequenceNumSlice
 	events  map[sequenceNum]*event
 	lastSeq sequenceNum
@@ -194,8 +212,8 @@ func newEventList(maxSize int, timeout time.Duration) *eventList {
 	}
 }
 
-// Remove the first event (lowest sequence) in the list.
-func (l *eventList) Remove() {
+// remove the first event (lowest sequence) in the list.
+func (l *eventList) remove() {
 	if len(l.seqs) > 0 {
 		seq := l.seqs[0]
 		l.seqs = l.seqs[1:]
@@ -206,6 +224,9 @@ func (l *eventList) Remove() {
 // Clear removes all events from the list and returns the events and the number
 // of list events.
 func (l *eventList) Clear() ([]*event, int) {
+	l.Lock()
+	defer l.Unlock()
+
 	var lost int
 	var seq sequenceNum
 	var evicted []*event
@@ -224,7 +245,7 @@ func (l *eventList) Clear() ([]*event, int) {
 		}
 		l.lastSeq = seq
 		evicted = append(evicted, event)
-		l.Remove()
+		l.remove()
 	}
 
 	return evicted, lost
@@ -232,14 +253,26 @@ func (l *eventList) Clear() ([]*event, int) {
 
 // Put a new message in the list.
 func (l *eventList) Put(msg *auparse.AuditMessage) {
+	l.Lock()
+	defer l.Unlock()
+
 	seq := sequenceNum(msg.Sequence)
 	e, found := l.events[seq]
+
+	// Mark as complete, but do not append.
+	if msg.RecordType == auparse.AUDIT_EOE {
+		if found {
+			e.complete = true
+		}
+		return
+	}
+
 	if !found {
 		l.seqs = append(l.seqs, seq)
 		l.seqs.Sort()
 
 		e = &event{
-			expireTime: time.Now(),
+			expireTime: time.Now().Add(l.timeout),
 			msgs:       make([]*auparse.AuditMessage, 0, 4),
 		}
 		l.events[seq] = e
@@ -249,6 +282,9 @@ func (l *eventList) Put(msg *auparse.AuditMessage) {
 }
 
 func (l *eventList) CleanUp() ([]*event, int) {
+	l.Lock()
+	defer l.Unlock()
+
 	var lost int
 	var seq sequenceNum
 	var evicted []*event
@@ -268,7 +304,7 @@ func (l *eventList) CleanUp() ([]*event, int) {
 			}
 			l.lastSeq = seq
 			evicted = append(evicted, event)
-			l.Remove()
+			l.remove()
 			continue
 		}
 

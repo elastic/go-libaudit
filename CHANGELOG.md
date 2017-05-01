@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+## [0.0.3]
+
+### Added
 - auparse - Convert auid and session values of `4294967295` or `-1` to "unset". #5
 - auparse - Added `MarshallText` method to AuditMessageType to enable the value
   to be marshaled as a string in JSON. faabfa94ec9479bdc1ad6c0334ff178b8193fce5

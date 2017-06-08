@@ -19,16 +19,30 @@ package libaudit
 import (
 	"encoding/hex"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"syscall"
 	"testing"
 	"time"
 
+	"encoding/base64"
+
 	"github.com/stretchr/testify/assert"
 )
 
-var hexdump = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")
+// This can be run inside of Docker with:
+// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit \
+//   --pid=host --privileged golang:1.8.3 /bin/bash
+
+var (
+	hexdump = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")
+	list    = flag.Bool("l", false, "dump rules")
+)
+
+// testRule is a base64 representation of the following rule.
+// -a always,exit -S open,truncate -F dir=/etc -F success=0
+const testRule = `BAAAAAIAAAACAAAABAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGsAAABoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAvZXRj`
 
 func TestAuditClientGetStatus(t *testing.T) {
 	if os.Geteuid() != 0 {
@@ -50,7 +64,12 @@ func TestAuditClientGetStatusPermissionError(t *testing.T) {
 
 	status, err := getStatus(t)
 	assert.Nil(t, status, "status should be nil")
-	assert.Equal(t, syscall.EPERM, err)
+
+	// ECONNREFUSED means we are in a username space.
+	// EPERM means we are not root.
+	if err != syscall.ECONNREFUSED && err != syscall.EPERM {
+		t.Fatal("unexpected error")
+	}
 }
 
 func getStatus(t testing.TB) (*AuditStatus, error) {
@@ -67,6 +86,147 @@ func getStatus(t testing.TB) (*AuditStatus, error) {
 	defer c.Close()
 
 	return c.GetStatus()
+}
+
+func TestDeleteRules(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to get audit status")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	n, err := c.DeleteRules()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%v rules deleted", n)
+}
+
+func TestListRules(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to list rules")
+	}
+
+	if !*list {
+		t.SkipNow()
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	rules, err := c.GetRules()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i, rule := range rules {
+		b64 := base64.StdEncoding.EncodeToString(rule)
+		t.Logf("rule %v - (base64):\n%v", i, b64)
+		t.Logf("rule %v - (hexdump):\n%v", i, hex.Dump(rule))
+	}
+}
+
+func TestAddRule(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to get audit status")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	defer c.DeleteRules()
+
+	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
+	if err := c.AddRule(rawRule); err != nil {
+		t.Fatal(err)
+	}
+	t.Log("rule added")
+}
+
+func TestAddDuplicateRule(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to get audit status")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	defer c.DeleteRules()
+
+	// Add first rule.
+	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
+	if err := c.AddRule(rawRule); err != nil {
+		t.Fatal(err)
+	}
+
+	// Add duplicate rule.
+	err = c.AddRule(rawRule)
+	if err == nil {
+		t.Fatal("expected error about duplicate rule")
+	}
+	assert.Contains(t, err.Error(), "rule exists")
+}
+
+func TestAuditClientGetRules(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to get audit status")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	rules, err := c.GetRules()
+	if err != nil {
+		t.Fatalf("%+v", err)
+	}
+
+	for _, r := range rules {
+		fmt.Printf("%+v\n", r)
+	}
 }
 
 func TestAuditClientSetPID(t *testing.T) {

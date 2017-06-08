@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Add GetRules, DeleteRules, DeleteRule, and AddRule methods to AuditClient.
 
 ### Changed
 

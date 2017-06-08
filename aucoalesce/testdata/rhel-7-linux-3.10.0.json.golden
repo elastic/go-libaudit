@@ -20,11 +20,11 @@
           "user": "system_u"
         }
       },
+      "action": "changed-audit-configuration",
       "thing": {
         "primary": "add_rule",
         "what": "audit-config"
       },
-      "action": "changed-audit-configuration",
       "key": "pam",
       "data": {
         "list": "4",
@@ -53,11 +53,11 @@
           "user": "system_u"
         }
       },
+      "action": "changed-audit-configuration",
       "thing": {
         "primary": "64",
         "what": "audit-config"
       },
-      "action": "changed-audit-configuration",
       "data": {
         "audit_backlog_limit": "64",
         "old": "8192"
@@ -89,12 +89,12 @@
           "user": "system_u"
         }
       },
+      "action": "negotiated-crypto-key",
       "thing": {
         "primary": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
         "secondary": "96.241.146.97",
         "what": "user-session"
       },
-      "action": "negotiated-crypto-key",
       "how": "/usr/sbin/sshd",
       "data": {
         "addr": "96.241.146.97",
@@ -132,12 +132,12 @@
           "user": "system_u"
         }
       },
+      "action": "started-crypto-session",
       "thing": {
         "primary": "96.241.146.97",
         "secondary": "63927",
         "what": "user-session"
       },
-      "action": "started-crypto-session",
       "how": "/usr/sbin/sshd",
       "data": {
         "addr": "96.241.146.97",
@@ -180,11 +180,11 @@
           "user": "system_u"
         }
       },
+      "action": "changed-login-id-to",
       "thing": {
         "primary": "1000",
         "what": "user-session"
       },
-      "action": "changed-login-id-to",
       "data": {
         "old-ses": "4294967295",
         "pid": "1298"
@@ -215,12 +215,12 @@
           "user": "system_u"
         }
       },
+      "action": "logged-in",
       "thing": {
         "primary": "ssh",
         "secondary": "46.160.144.250",
         "what": "user-session"
       },
-      "action": "logged-in",
       "how": "/usr/sbin/sshd",
       "data": {
         "acct": "root",
@@ -256,11 +256,11 @@
           "user": "system_u"
         }
       },
+      "action": "logged-out",
       "thing": {
         "primary": "/dev/pts/1",
         "what": "user-session"
       },
-      "action": "logged-out",
       "how": "/usr/sbin/sshd",
       "data": {
         "exe": "/usr/sbin/sshd",
@@ -304,10 +304,10 @@
           "user": "system_u"
         }
       },
+      "action": "changed-system-time",
       "thing": {
         "what": "system"
       },
-      "action": "changed-system-time",
       "how": "/usr/sbin/ntpd",
       "key": "time-change",
       "data": {
@@ -357,6 +357,7 @@
           "user": "system_u"
         }
       },
+      "action": "make-device",
       "thing": {
         "primary": "/run/systemd/sessions/",
         "secondary": "11378",
@@ -368,7 +369,6 @@
           "user": "system_u"
         }
       },
-      "action": "make-device",
       "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
       "key": "specialfiles",
       "data": {
@@ -450,6 +450,7 @@
           "user": "system_u"
         }
       },
+      "action": "mounted",
       "thing": {
         "primary": "/run/user/0",
         "secondary": "454267",
@@ -461,7 +462,6 @@
           "user": "system_u"
         }
       },
-      "action": "mounted",
       "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
       "key": "mount",
       "data": {

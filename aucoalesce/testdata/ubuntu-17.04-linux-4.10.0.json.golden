@@ -16,11 +16,11 @@
           "uid": "0"
         }
       },
+      "action": "acquired-credentials",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "acquired-credentials",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -51,11 +51,11 @@
           "uid": "0"
         }
       },
+      "action": "disposed-credentials",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "disposed-credentials",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -86,11 +86,11 @@
           "uid": "0"
         }
       },
+      "action": "was-authorized",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "was-authorized",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -121,11 +121,11 @@
           "uid": "0"
         }
       },
+      "action": "authenticated",
       "thing": {
         "primary": "/dev/pts/0",
         "what": "user-session"
       },
-      "action": "authenticated",
       "how": "/bin/su",
       "data": {
         "acct": "root",
@@ -156,11 +156,11 @@
           "uid": "1002"
         }
       },
+      "action": "changed-password",
       "thing": {
         "primary": "pts/0",
         "what": "user-session"
       },
-      "action": "changed-password",
       "how": "/usr/bin/passwd",
       "data": {
         "acct": "akroh",
@@ -191,11 +191,11 @@
           "uid": "1001"
         }
       },
+      "action": "ran-command",
       "thing": {
         "primary": "su",
         "what": "process"
       },
-      "action": "ran-command",
       "data": {
         "cmd": "su",
         "cwd": "/home/andrew_kroh",
@@ -221,11 +221,11 @@
           "uid": "0"
         }
       },
+      "action": "ended-session",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "ended-session",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -256,12 +256,12 @@
           "uid": "0"
         }
       },
+      "action": "error",
       "thing": {
         "primary": "ssh",
         "secondary": "185.56.82.22",
         "what": "user-session"
       },
-      "action": "error",
       "how": "/usr/sbin/sshd",
       "data": {
         "addr": "185.56.82.22",
@@ -290,12 +290,12 @@
           "uid": "0"
         }
       },
+      "action": "logged-in",
       "thing": {
         "primary": "sshd",
         "secondary": "31.207.47.36",
         "what": "user-session"
       },
-      "action": "logged-in",
       "how": "/usr/sbin/sshd",
       "data": {
         "acct": "(invalid user)",
@@ -324,11 +324,11 @@
           "uid": "0"
         }
       },
+      "action": "started-session",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "started-session",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -366,12 +366,12 @@
           "uid": "0"
         }
       },
+      "action": "renamed",
       "thing": {
         "primary": "/etc/audit/rules.d/audit.rules",
         "secondary": "271112",
         "what": "file"
       },
-      "action": "renamed",
       "how": "/usr/bin/vim.basic",
       "key": "auditconfig",
       "data": {
@@ -462,12 +462,12 @@
           "uid": "0"
         }
       },
+      "action": "deleted",
       "thing": {
         "primary": "/etc/audit/rules.d/.audit.rules.swp",
         "secondary": "271044",
         "what": "file"
       },
-      "action": "deleted",
       "how": "/usr/bin/vim.basic",
       "key": "auditconfig",
       "data": {

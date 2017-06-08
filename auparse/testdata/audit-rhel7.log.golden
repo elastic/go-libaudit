@@ -424,7 +424,7 @@
     "egid": "0",
     "euid": "0",
     "exe": "/usr/bin/python2.7;58d1ccfb (deleted)",
-    "exit": "-115",
+    "exit": "EINPROGRESS",
     "fsgid": "0",
     "fsuid": "0",
     "gid": "0",

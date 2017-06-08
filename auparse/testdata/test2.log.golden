@@ -27,7 +27,7 @@
     "egid": "890",
     "euid": "890",
     "exe": "/usr/libexec/postfix/pickup",
-    "exit": "-13",
+    "exit": "EACCES",
     "fsgid": "890",
     "fsuid": "890",
     "gid": "890",

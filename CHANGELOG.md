@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Add GetRules, DeleteRules, DeleteRule, and AddRule methods to AuditClient.
+- auparse - Add conversion of POSIX exit code values to their name.
 
 ### Changed
 

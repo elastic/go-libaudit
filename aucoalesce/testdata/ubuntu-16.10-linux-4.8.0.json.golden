@@ -23,11 +23,11 @@
           "uid": "0"
         }
       },
+      "action": "changed-promiscuous-mode-on-device",
       "thing": {
         "primary": "ens4",
         "what": "network-device"
       },
-      "action": "changed-promiscuous-mode-on-device",
       "how": "/sbin/ifconfig",
       "data": {
         "a0": "4",
@@ -68,11 +68,11 @@
           "auid": "1001"
         }
       },
+      "action": "changed-audit-configuration",
       "thing": {
         "primary": "remove_rule",
         "what": "audit-config"
       },
-      "action": "changed-audit-configuration",
       "key": "container-create",
       "data": {
         "list": "4",
@@ -95,11 +95,11 @@
           "auid": "1001"
         }
       },
+      "action": "changed-audit-configuration",
       "thing": {
         "primary": "updated_rules",
         "what": "audit-config"
       },
-      "action": "changed-audit-configuration",
       "key": "auth",
       "data": {
         "list": "4",
@@ -132,12 +132,12 @@
           "uid": "1001"
         }
       },
+      "action": "executed",
       "thing": {
         "primary": "/bin/uname",
         "secondary": "155",
         "what": "file"
       },
-      "action": "executed",
       "how": "/bin/uname",
       "key": "user_commands",
       "data": {
@@ -208,11 +208,11 @@
           "uid": "0"
         }
       },
+      "action": "loaded-firewall-rule-to",
       "thing": {
         "primary": "filter",
         "what": "firewall"
       },
-      "action": "loaded-firewall-rule-to",
       "how": "/sbin/xtables-multi",
       "data": {
         "a0": "4",
@@ -251,11 +251,11 @@
           "uid": "0"
         }
       },
+      "action": "started-service",
       "thing": {
         "primary": "rsyslog",
         "what": "service"
       },
-      "action": "started-service",
       "how": "/lib/systemd/systemd",
       "data": {
         "comm": "systemd",
@@ -282,11 +282,11 @@
           "uid": "0"
         }
       },
+      "action": "ended-session",
       "thing": {
         "primary": "cron",
         "what": "user-session"
       },
-      "action": "ended-session",
       "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
@@ -317,12 +317,12 @@
           "uid": "0"
         }
       },
+      "action": "logged-in",
       "thing": {
         "primary": "sshd",
         "secondary": "179.38.151.221",
         "what": "user-session"
       },
-      "action": "logged-in",
       "how": "/usr/sbin/sshd",
       "data": {
         "acct": "(invalid user)",
@@ -351,12 +351,12 @@
           "uid": "0"
         }
       },
+      "action": "logged-in",
       "thing": {
         "primary": "/dev/pts/1",
         "secondary": "72.83.230.100",
         "what": "user-session"
       },
-      "action": "logged-in",
       "how": "/usr/sbin/sshd",
       "data": {
         "addr": "72.83.230.100",
@@ -386,12 +386,12 @@
           "uid": "0"
         }
       },
+      "action": "started-session",
       "thing": {
         "primary": "ssh",
         "secondary": "72.83.230.100",
         "what": "user-session"
       },
-      "action": "started-session",
       "how": "/usr/sbin/sshd",
       "data": {
         "acct": "andrew_kroh",
@@ -428,12 +428,12 @@
           "uid": "0"
         }
       },
+      "action": "accepted-connection-from",
       "thing": {
         "primary": "72.83.230.100",
         "secondary": "58140",
         "what": "socket"
       },
-      "action": "accepted-connection-from",
       "how": "/usr/sbin/sshd",
       "key": "net",
       "data": {
@@ -482,10 +482,10 @@
           "uid": "112"
         }
       },
+      "action": "changed-system-time",
       "thing": {
         "what": "system"
       },
-      "action": "changed-system-time",
       "how": "/usr/sbin/ntpd",
       "key": "time-change",
       "data": {
@@ -529,12 +529,12 @@
           "uid": "0"
         }
       },
+      "action": "connected-to",
       "thing": {
         "primary": "169.254.169.254",
         "secondary": "80",
         "what": "socket"
       },
-      "action": "connected-to",
       "how": "google_ip_forwa",
       "key": "net",
       "data": {
@@ -545,7 +545,7 @@
         "arch": "x86_64",
         "comm": "google_ip_forwa",
         "exe": "/usr/bin/python3.5",
-        "exit": "-115",
+        "exit": "EINPROGRESS",
         "pid": "1648",
         "ppid": "1",
         "proctitle": "(g_daemon)",
@@ -583,10 +583,10 @@
           "uid": "1001"
         }
       },
+      "action": "listen-for-connections",
       "thing": {
         "what": "socket"
       },
-      "action": "listen-for-connections",
       "how": "/lib/systemd/systemd",
       "key": "net",
       "data": {

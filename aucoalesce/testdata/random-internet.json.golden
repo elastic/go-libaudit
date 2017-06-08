@@ -23,12 +23,12 @@
           "user": "system_u"
         }
       },
+      "action": "crashed-program",
       "thing": {
         "primary": "httpd",
         "secondary": "31242",
         "what": "process"
       },
-      "action": "crashed-program",
       "how": "11",
       "data": {
         "comm": "httpd",

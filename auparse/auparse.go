@@ -344,7 +344,7 @@ func arch(data map[string]string) error {
 		return errors.Wrap(err, "failed to parse arch")
 	}
 
-	data["arch"] = auditArch(arch).String()
+	data["arch"] = AuditArch(arch).String()
 	return nil
 }
 
@@ -360,7 +360,7 @@ func syscall(data map[string]string) error {
 	}
 
 	arch := data["arch"]
-	data["syscall"] = auditSyscalls[arch][syscall]
+	data["syscall"] = AuditSyscalls[arch][syscall]
 	return nil
 }
 

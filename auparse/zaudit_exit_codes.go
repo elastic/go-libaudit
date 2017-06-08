@@ -18,8 +18,8 @@
 package auparse
 
 var AuditErrnoToNum = map[string]int{
-	"EWOULDBLOCK":     0xb,
 	"EDEADLOCK":       0x23,
+	"EWOULDBLOCK":     0xb,
 	"EPERM":           0x1,
 	"ENOENT":          0x2,
 	"ESRCH":           0x3,

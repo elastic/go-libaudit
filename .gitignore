@@ -26,3 +26,6 @@
 # Cmds
 cmd/audit/audit
 cmd/auparse/auparse
+
+# Vendor
+vendor/*/

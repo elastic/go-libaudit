@@ -283,6 +283,48 @@ func TestAuditClientSetEnabled(t *testing.T) {
 	assert.EqualValues(t, 1, status.Enabled)
 }
 
+func TestAuditClientSetFailure(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to enable audit")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	err = c.SetFailure(LogOnFailure, WaitForReply)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("SetFailure complete")
+
+	status, err := getStatus(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.EqualValues(t, LogOnFailure, status.Failure)
+
+	err = c.SetFailure(SilentOnFailure, WaitForReply)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("SetFailure complete")
+
+	status, err = getStatus(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.EqualValues(t, SilentOnFailure, status.Failure)
+}
+
 func TestAuditClientSetRateLimit(t *testing.T) {
 	if os.Geteuid() != 0 {
 		t.Skip("must be root to set rate limit")

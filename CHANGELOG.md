@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
+- auparse - Apply hex decoding to CWD field. #10
 
 ### Deprecated
 

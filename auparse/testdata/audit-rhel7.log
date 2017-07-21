@@ -8,6 +8,7 @@ type=CRED_REFR msg=audit(1489640461.198:480): pid=1402 uid=0 auid=0 ses=2 subj=s
 type=CRYPTO_KEY_USER msg=audit(1481077041.497:404): pid=1299 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023 msg='op=destroy kind=server fp=6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3 direction=? spid=1299 suid=0  exe="/usr/sbin/sshd" hostname=? addr=96.241.146.97 terminal=? res=success'
 type=CRYPTO_SESSION msg=audit(1481077041.515:406): pid=1298 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023 msg='op=start direction=from-server cipher=chacha20-poly1305@openssh.com ksize=512 mac= pfs=curve25519-sha256@libssh.org spid=1299 suid=74 rport=63927 laddr=10.142.0.2 lport=22  exe="/usr/sbin/sshd" hostname=? addr=96.241.146.97 terminal=? res=success'
 type=CWD msg=audit(1481077231.371:479):  cwd="/home/andrew_kroh"
+type=CWD msg=audit(1500661699.656:1208725):  cwd=2F746D702F6120622063
 type=DAEMON_CONFIG msg=audit(1490239800.477:34) config changed, auid=0 pid=1512 subj=system_u:system_r:unconfined_service_t:s0 res=success
 type=DAEMON_END msg=audit(1481078697.892:7799): auditd normal halt, sending auid=? pid=? subj=? res=success
 type=DAEMON_START msg=audit(1481076983.819:7798): auditd start, ver=2.4.1 format=raw kernel=3.10.0-327.36.3.el7.x86_64 auid=4294967295 pid=251 subj=system_u:system_r:auditd_t:s0 res=success

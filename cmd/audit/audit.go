@@ -34,11 +34,12 @@ import (
 )
 
 var (
-	fs      = flag.NewFlagSet("audit", flag.ExitOnError)
-	debug   = fs.Bool("d", false, "enable debug output to stderr")
-	diag    = fs.String("diag", "", "dump raw information from kernel to file")
-	rate    = fs.Uint("rate", 0, "rate limit in kernel (default 0, no rate limit)")
-	backlog = fs.Uint("backlog", 8192, "backlog limit")
+	fs          = flag.NewFlagSet("audit", flag.ExitOnError)
+	debug       = fs.Bool("d", false, "enable debug output to stderr")
+	diag        = fs.String("diag", "", "dump raw information from kernel to file")
+	rate        = fs.Uint("rate", 0, "rate limit in kernel (default 0, no rate limit)")
+	backlog     = fs.Uint("backlog", 8192, "backlog limit")
+	receiveOnly = fs.Bool("ro", false, "receive only using multicast, requires kernel 3.16+")
 )
 
 func enableLogger() {
@@ -81,45 +82,60 @@ func read() error {
 	}
 
 	log.Debugln("starting netlink client")
-	client, err := libaudit.NewAuditClient(diagWriter)
-	if err != nil {
-		return err
-	}
 
-	status, err := client.GetStatus()
-	if err != nil {
-		return errors.Wrap(err, "failed to get audit status")
-	}
-	log.Infof("received audit status=%+v", status)
+	var err error
+	var client *libaudit.AuditClient
+	if *receiveOnly {
+		client, err = libaudit.NewMulticastAuditClient(diagWriter)
+		if err != nil {
+			return errors.Wrap(err, "failed to create receive-only audit client")
+		}
+	} else {
+		client, err = libaudit.NewAuditClient(diagWriter)
+		if err != nil {
+			return errors.Wrap(err, "failed to create audit client")
+		}
 
-	if status.Enabled == 0 {
-		log.Debugln("enabling auditing in the kernel")
-		if err = client.SetEnabled(true, libaudit.WaitForReply); err != nil {
-			return errors.Wrap(err, "failed to set enabled=true")
+		status, err := client.GetStatus()
+		if err != nil {
+			return errors.Wrap(err, "failed to get audit status")
+		}
+		log.Infof("received audit status=%+v", status)
+
+		if status.Enabled == 0 {
+			log.Debugln("enabling auditing in the kernel")
+			if err = client.SetEnabled(true, libaudit.WaitForReply); err != nil {
+				return errors.Wrap(err, "failed to set enabled=true")
+			}
+		}
+
+		if status.RateLimit != uint32(*rate) {
+			log.Debugf("setting rate limit in kernel to %v", *rate)
+			if err = client.SetRateLimit(uint32(*rate), libaudit.NoWait); err != nil {
+				return errors.Wrap(err, "failed to set rate limit to unlimited")
+			}
+		}
+
+		if status.BacklogLimit != uint32(*backlog) {
+			log.Debugf("setting backlog limit in kernel to %v", *backlog)
+			if err = client.SetBacklogLimit(uint32(*backlog), libaudit.NoWait); err != nil {
+				return errors.Wrap(err, "failed to set backlog limit")
+			}
+		}
+
+		log.Debugf("sending message to kernel registering our PID (%v) as the audit daemon", os.Getpid())
+		if err = client.SetPID(libaudit.NoWait); err != nil {
+			return errors.Wrap(err, "failed to set audit PID")
 		}
 	}
+	defer client.Close()
 
-	if status.RateLimit != uint32(*rate) {
-		log.Debugf("setting rate limit in kernel to %v", *rate)
-		if err = client.SetRateLimit(uint32(*rate), libaudit.NoWait); err != nil {
-			return errors.Wrap(err, "failed to set rate limit to unlimited")
-		}
-	}
+	return receive(client)
+}
 
-	if status.BacklogLimit != uint32(*backlog) {
-		log.Debugf("setting backlog limit in kernel to %v", *backlog)
-		if err = client.SetBacklogLimit(uint32(*backlog), libaudit.NoWait); err != nil {
-			return errors.Wrap(err, "failed to set backlog limit")
-		}
-	}
-
-	log.Debugf("sending message to kernel registering our PID (%v) as the audit daemon", os.Getpid())
-	if err = client.SetPID(libaudit.NoWait); err != nil {
-		return errors.Wrap(err, "failed to set audit PID")
-	}
-
+func receive(r *libaudit.AuditClient) error {
 	for {
-		rawEvent, err := client.Receive(false)
+		rawEvent, err := r.Receive(false)
 		if err != nil {
 			return errors.Wrap(err, "receive failed")
 		}

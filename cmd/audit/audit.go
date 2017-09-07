@@ -90,11 +90,13 @@ func read() error {
 		if err != nil {
 			return errors.Wrap(err, "failed to create receive-only audit client")
 		}
+		defer client.Close()
 	} else {
 		client, err = libaudit.NewAuditClient(diagWriter)
 		if err != nil {
 			return errors.Wrap(err, "failed to create audit client")
 		}
+		defer client.Close()
 
 		status, err := client.GetStatus()
 		if err != nil {
@@ -128,7 +130,6 @@ func read() error {
 			return errors.Wrap(err, "failed to set audit PID")
 		}
 	}
-	defer client.Close()
 
 	return receive(client)
 }

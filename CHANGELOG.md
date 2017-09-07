@@ -2,17 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.0.6]
 
 ### Added
 
 - Add support for listening for audit messages using a multicast group. #9
-
-### Changed
-
-### Deprecated
-
-### Removed
 
 ## [0.0.5]
 

@@ -28,7 +28,7 @@ import (
 var _ NetlinkSendReceiver = &NetlinkClient{}
 
 func TestNewNetlinkClient(t *testing.T) {
-	c, err := NewNetlinkClient(syscall.NETLINK_AUDIT, nil, nil)
+	c, err := NewNetlinkClient(syscall.NETLINK_AUDIT, 0, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +39,7 @@ func TestNewNetlinkClient(t *testing.T) {
 	// First PID assigned by the kernel will be our actual PID.
 	assert.EqualValues(t, os.Getpid(), c.pid)
 
-	c2, err := NewNetlinkClient(syscall.NETLINK_AUDIT, nil, nil)
+	c2, err := NewNetlinkClient(syscall.NETLINK_AUDIT, 0, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

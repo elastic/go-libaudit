@@ -387,6 +387,41 @@ func TestAuditClientSetBacklogLimit(t *testing.T) {
 	assert.EqualValues(t, limit, status.BacklogLimit)
 }
 
+func TestMulticastAuditClient(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to bind to netlink audit socket")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	// Start the testing.
+	client, err := NewMulticastAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+
+	// Receive (likely no messages will be received).
+	var msgCount int
+	for i := 0; i < 5; i++ {
+		msg, err := client.Receive(true)
+		if err == syscall.EAGAIN {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else if err != nil {
+			t.Fatal(err)
+		} else {
+			t.Logf("Received: type=%v, msg=%v", msg.Type, string(msg.Data))
+			msgCount++
+		}
+	}
+	t.Logf("received %d messages", msgCount)
+}
+
 func TestAuditClientReceive(t *testing.T) {
 	if os.Geteuid() != 0 {
 		t.Skip("must be root to set audit port id")

@@ -513,3 +513,48 @@ func TestAuditStatusMask(t *testing.T) {
 	assert.EqualValues(t, 0x00010, AuditStatusBacklogLimit)
 	assert.EqualValues(t, 0x00020, AuditStatusBacklogWaitTime)
 }
+
+func TestAuditWaitForPendingACKs(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to change settings")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	// Perform some asynchronous requests
+
+	var limit uint32 = 10002
+	if err = c.SetBacklogLimit(limit, NoWait); err != nil {
+		t.Fatal(err, "set backlog limit failed:", err)
+	}
+
+	failureMode := PanicOnFailure
+	if err = c.SetFailure(failureMode, NoWait); err != nil {
+		t.Fatal(err, "set failure mode failed:", err)
+	}
+
+	// Wait for completion
+
+	if err = c.WaitForPendingACKs(); err != nil {
+		t.Fatal(err, "wait for pending ACKs failed:", err)
+	}
+
+	// Perform synchronous request
+
+	if err = c.SetPID(WaitForReply); err != nil {
+		t.Fatal("set pid failed:", err, " (Did you stop auditd?)")
+	}
+
+	t.Log("WaitForPendingACKs complete")
+
+}

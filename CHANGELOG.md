@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
  
 ### Added
+
+- Added WaitForPendingACKs to receive pending ACK messages from the kernel. #14
  
 ### Changed
 

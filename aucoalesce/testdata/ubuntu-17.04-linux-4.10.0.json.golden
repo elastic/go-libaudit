@@ -386,7 +386,7 @@
         "exit": "0",
         "pid": "3231",
         "ppid": "3207",
-        "proctitle": "vim",
+        "proctitle": "vim /etc/audit/rules.d/audit.rules",
         "syscall": "rename",
         "tty": "pts1"
       },
@@ -482,7 +482,7 @@
         "exit": "0",
         "pid": "3346",
         "ppid": "3309",
-        "proctitle": "vim",
+        "proctitle": "vim /etc/audit/rules.d/audit.rules",
         "syscall": "unlink",
         "tty": "pts1"
       },

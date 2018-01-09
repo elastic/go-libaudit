@@ -402,13 +402,18 @@ func hexDecode(key string, data map[string]string) error {
 		return errors.Errorf("%v key not found", key)
 	}
 
-	ascii, err := hexToASCII(hexValue)
+	values, err := hexToStrings(hexValue)
 	if err != nil {
 		// Field is not in hex. Ignore.
 		return nil
 	}
 
-	data[key] = ascii
+	if len(values) == 1 {
+		data[key] = values[0]
+	} else if len(values) > 0 {
+		data[key] = strings.Join(values, " ")
+	}
+
 	return nil
 }
 
@@ -432,7 +437,7 @@ func execveCmdline(data map[string]string) error {
 			return errors.Errorf("failed to find arg %v", key)
 		}
 
-		if ascii, err := hexToASCII(arg); err == nil {
+		if ascii, err := hexToString(arg); err == nil {
 			arg = ascii
 		}
 

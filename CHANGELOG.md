@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  
 ### Changed
 
+- auparse - Fixed an issue where the proctitle value was being truncated. #15
+
 ### Deprecated
 
 ### Removed

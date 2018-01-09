@@ -312,5 +312,13 @@
     "subj_user": "unconfined_u",
     "terminal": "pts/0",
     "uid": "0"
+  },
+  {
+    "@timestamp": "2017-10-06 15:40:39.922 +0000 UTC",
+    "argc": "5",
+    "cmdline": "\"useradd\" \"-u\" \"0\\x05\" \"-m\" \"trainer5\"",
+    "raw_msg": "audit(1507304439.922:1865): argc=5 a0=\"useradd\" a1=\"-u\" a2=\"3005\" a3=\"-m\" a4=\"trainer5\"",
+    "record_type": "EXECVE",
+    "sequence": "1865"
   }
 ]

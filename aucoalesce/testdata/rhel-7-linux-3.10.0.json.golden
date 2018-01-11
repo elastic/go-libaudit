@@ -25,7 +25,9 @@
         "primary": "add_rule",
         "what": "audit-config"
       },
-      "key": "pam",
+      "tags": [
+        "pam"
+      ],
       "data": {
         "list": "4",
         "op": "add_rule"
@@ -309,7 +311,9 @@
         "what": "system"
       },
       "how": "/usr/sbin/ntpd",
-      "key": "time-change",
+      "tags": [
+        "time-change"
+      ],
       "data": {
         "a0": "7f71508da920",
         "a1": "1",
@@ -370,7 +374,9 @@
         }
       },
       "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
-      "key": "specialfiles",
+      "tags": [
+        "specialfiles"
+      ],
       "data": {
         "a0": "7ff61dde1960",
         "a1": "1180",
@@ -463,7 +469,9 @@
         }
       },
       "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
-      "key": "mount",
+      "tags": [
+        "mount"
+      ],
       "data": {
         "a0": "7ff61c0a7270",
         "a1": "7ff61dddf470",

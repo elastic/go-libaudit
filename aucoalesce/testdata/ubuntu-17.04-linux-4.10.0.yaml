@@ -47,3 +47,11 @@ tests:
 
   USER_CHAUTHTOK failed: |
     type=USER_CHAUTHTOK msg=audit(1493224850.928:21878): pid=10829 uid=1002 auid=1001 ses=41 msg='op=PAM:chauthtok acct="akroh" exe="/usr/bin/passwd" hostname=? addr=? terminal=pts/0 res=failed'
+
+  EXECVE with multiple keys: |
+    type=SYSCALL msg=audit(1515708162.888:124507): arch=c000003e syscall=59 success=yes exit=0 a0=55dccab18ea8 a1=55dccab2bcc8 a2=55dccab26f20 a3=7f6a0e06682c items=2 ppid=5820 pid=5821 auid=1002 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=194 comm="docker" exe="/usr/bin/docker" key=65786563013634626974
+    type=EXECVE msg=audit(1515708162.888:124507): argc=3 a0="docker" a1="inspect" a2="721df12151a7"'
+    type=CWD msg=audit(1515708162.888:124507): cwd="/home/andrew_kroh"
+    type=PATH msg=audit(1515708162.888:124507): item=0 name="/usr/bin/docker" inode=16571 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
+    type=PATH msg=audit(1515708162.888:124507): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=2366 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
+    type=PROCTITLE msg=audit(1515708162.888:124507): proctitle=646F636B657200696E737065637400373231646631323135316137

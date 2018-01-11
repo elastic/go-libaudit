@@ -70,6 +70,89 @@
     ]
   },
   {
+    "test_name": "EXECVE with multiple keys",
+    "event": {
+      "@timestamp": "2018-01-11T22:02:42.888Z",
+      "sequence": 124507,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "194",
+      "actor": {
+        "primary": "1002",
+        "secondary": "0",
+        "attrs": {
+          "auid": "1002",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "action": "executed",
+      "thing": {
+        "primary": "/usr/bin/docker",
+        "secondary": "16571",
+        "what": "file"
+      },
+      "how": "/usr/bin/docker",
+      "tags": [
+        "exec",
+        "64bit"
+      ],
+      "cmdline": [
+        "docker",
+        "inspect",
+        "721df12151a7"
+      ],
+      "data": {
+        "a0": "55dccab18ea8",
+        "a1": "55dccab2bcc8",
+        "a2": "55dccab26f20",
+        "a3": "7f6a0e06682c",
+        "arch": "x86_64",
+        "argc": "3",
+        "comm": "docker",
+        "cwd": "/home/andrew_kroh",
+        "exe": "/usr/bin/docker",
+        "exit": "0",
+        "pid": "5821",
+        "ppid": "5820",
+        "proctitle": "docker inspect 721df12151a7",
+        "syscall": "execve",
+        "tty": "pts1"
+      },
+      "paths": [
+        {
+          "dev": "08:01",
+          "inode": "16571",
+          "item": "0",
+          "mode": "0100755",
+          "name": "/usr/bin/docker",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "dev": "08:01",
+          "inode": "2366",
+          "item": "1",
+          "mode": "0100755",
+          "name": "/lib64/ld-linux-x86-64.so.2",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ]
+    }
+  },
+  {
     "test_name": "USER_ACCT",
     "event": {
       "@timestamp": "2017-04-26T15:17:01.115Z",
@@ -373,7 +456,9 @@
         "what": "file"
       },
       "how": "/usr/bin/vim.basic",
-      "key": "auditconfig",
+      "tags": [
+        "auditconfig"
+      ],
       "data": {
         "a0": "55942f993060",
         "a1": "55942fb79090",
@@ -469,7 +554,9 @@
         "what": "file"
       },
       "how": "/usr/bin/vim.basic",
-      "key": "auditconfig",
+      "tags": [
+        "auditconfig"
+      ],
       "data": {
         "a0": "55faa178f800",
         "a1": "1",

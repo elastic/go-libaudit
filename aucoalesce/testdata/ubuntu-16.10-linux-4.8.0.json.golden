@@ -73,7 +73,9 @@
         "primary": "remove_rule",
         "what": "audit-config"
       },
-      "key": "container-create",
+      "tags": [
+        "container-create"
+      ],
       "data": {
         "list": "4",
         "op": "remove_rule"
@@ -100,7 +102,9 @@
         "primary": "updated_rules",
         "what": "audit-config"
       },
-      "key": "auth",
+      "tags": [
+        "auth"
+      ],
       "data": {
         "list": "4",
         "op": "updated_rules",
@@ -139,7 +143,13 @@
         "what": "file"
       },
       "how": "/bin/uname",
-      "key": "user_commands",
+      "tags": [
+        "user_commands"
+      ],
+      "cmdline": [
+        "uname",
+        "-a"
+      ],
       "data": {
         "a0": "10812c8",
         "a1": "1070208",
@@ -147,7 +157,6 @@
         "a3": "59a",
         "arch": "x86_64",
         "argc": "2",
-        "cmdline": "\"uname\" \"-a\"",
         "comm": "uname",
         "cwd": "/home/andrew_kroh",
         "exe": "/bin/uname",
@@ -435,7 +444,9 @@
         "what": "socket"
       },
       "how": "/usr/sbin/sshd",
-      "key": "net",
+      "tags": [
+        "net"
+      ],
       "data": {
         "a0": "3",
         "a1": "7ffd0dc80040",
@@ -487,7 +498,9 @@
         "what": "system"
       },
       "how": "/usr/sbin/ntpd",
-      "key": "time-change",
+      "tags": [
+        "time-change"
+      ],
       "data": {
         "a0": "5614c63c1160",
         "a1": "2001",
@@ -536,7 +549,9 @@
         "what": "socket"
       },
       "how": "google_ip_forwa",
-      "key": "net",
+      "tags": [
+        "net"
+      ],
       "data": {
         "a0": "5",
         "a1": "7ffc12ac3ab0",
@@ -588,7 +603,9 @@
         "what": "socket"
       },
       "how": "/lib/systemd/systemd",
-      "key": "net",
+      "tags": [
+        "net"
+      ],
       "data": {
         "a0": "e",
         "a1": "80",

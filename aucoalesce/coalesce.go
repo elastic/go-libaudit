@@ -31,17 +31,18 @@ import (
 const modeBlockDevice = 060000
 
 type Event struct {
-	Timestamp time.Time                `json:"@timestamp"       yaml:"timestamp"`
-	Sequence  uint32                   `json:"sequence"         yaml:"sequence"`
-	Category  AuditEventType           `json:"category"         yaml:"category"`
-	Type      auparse.AuditMessageType `json:"record_type"      yaml:"type"`
-	Result    string                   `json:"result,omitempty" yaml:"result,omitempty"`
-	Session   string                   `json:"session"          yaml:"session"`
-	Subject   Subject                  `json:"actor"            yaml:"actor"`
-	Action    string                   `json:"action,omitempty" yaml:"action,omitempty"`
-	Object    Object                   `json:"thing,omitempty"  yaml:"thing,omitempty"`
-	How       string                   `json:"how,omitempty"    yaml:"how,omitempty"`
-	Key       string                   `json:"key,omitempty"    yaml:"key,omitempty"`
+	Timestamp   time.Time                `json:"@timestamp"        yaml:"timestamp"`
+	Sequence    uint32                   `json:"sequence"          yaml:"sequence"`
+	Category    AuditEventType           `json:"category"          yaml:"category"`
+	Type        auparse.AuditMessageType `json:"record_type"       yaml:"type"`
+	Result      string                   `json:"result,omitempty"  yaml:"result,omitempty"`
+	Session     string                   `json:"session"           yaml:"session"`
+	Subject     Subject                  `json:"actor"             yaml:"actor"`
+	Action      string                   `json:"action,omitempty"  yaml:"action,omitempty"`
+	Object      Object                   `json:"thing,omitempty"   yaml:"thing,omitempty"`
+	How         string                   `json:"how,omitempty"     yaml:"how,omitempty"`
+	Tags        []string                 `json:"tags,omitempty"    yaml:"tags,omitempty"`
+	CommandLine []string                 `json:"cmdline,omitempty" yaml:"cmdline,omitempty"`
 
 	Data   map[string]string   `json:"data,omitempty"   yaml:"data,omitempty"`
 	Paths  []map[string]string `json:"paths,omitempty"  yaml:"paths,omitempty"`
@@ -130,6 +131,8 @@ func normalizeCompound(msgs []*auparse.AuditMessage) (*Event, error) {
 		case auparse.AUDIT_SOCKADDR:
 			data, _ := msg.Data()
 			event.Socket = data
+		case auparse.AUDIT_EXECVE:
+			addExecveRecord(msg, event)
 		default:
 			addFieldsToEventData(msg, event)
 		}
@@ -180,10 +183,7 @@ func newEvent(msg *auparse.AuditMessage, syscall *auparse.AuditMessage) *Event {
 		event.Subject.Secondary = uid
 	}
 
-	if key, found := data["key"]; found {
-		event.Key = key
-		delete(data, "key")
-	}
+	event.Tags, _ = msg.Tags()
 
 	for k, v := range data {
 		if strings.HasSuffix(k, "uid") || strings.HasSuffix(k, "gid") {
@@ -231,6 +231,47 @@ func addPathRecord(path *auparse.AuditMessage, event *Event) {
 	}
 
 	event.Paths = append(event.Paths, data)
+}
+
+func addExecveRecord(execve *auparse.AuditMessage, event *Event) {
+	data, err := execve.Data()
+	if err != nil {
+		event.Warnings = append(event.Warnings, errors.Wrap(err,
+			"failed to parse EXECVE message"))
+		return
+	}
+
+	argc, found := data["argc"]
+	if !found {
+		event.Warnings = append(event.Warnings,
+			errors.New("argc key not found in EXECVE message"))
+		return
+	}
+	event.Data["argc"] = argc
+
+	count, err := strconv.ParseUint(argc, 10, 32)
+	if err != nil {
+		event.Warnings = append(event.Warnings, errors.Wrapf(err,
+			"failed to convert argc='%v' to number", argc))
+		return
+	}
+
+	var args []string
+	for i := 0; i < int(count); i++ {
+		key := "a" + strconv.Itoa(i)
+
+		arg, found := data[key]
+		if !found {
+			event.Warnings = append(event.Warnings, errors.Errorf(
+				"failed to find arg %v", key))
+			return
+		}
+
+		delete(data, key)
+		args = append(args, arg)
+	}
+
+	event.CommandLine = args
 }
 
 func addFieldsToEventData(msg *auparse.AuditMessage, event *Event) {

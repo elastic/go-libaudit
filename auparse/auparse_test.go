@@ -104,56 +104,53 @@ func TestGetAuditMessageType(t *testing.T) {
 func TestExtractKeyValuePairs(t *testing.T) {
 	tests := []struct {
 		in  string
-		out map[string]string
+		out map[string]*field
 	}{
 		{
 			`argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"'`,
-			map[string]string{"argc": "4", "a0": "cat", "a1": "btest=test", "a2": "-f", "a3": "regex=8"},
+			map[string]*field{
+				"argc": newField("4"),
+				"a0":   {`"cat"`, `cat`},
+				"a1":   {`"btest=test"`, `btest=test`},
+				"a2":   {`"-f"`, `-f`},
+				"a3":   {`"regex=8"`, `regex=8`},
+			},
 		},
 		{
 			`x='grep "test" file' y=z`,
-			map[string]string{"x": `grep "test" file`, "y": "z"},
+			map[string]*field{
+				"x": {`'grep "test" file'`, `grep "test" file`},
+				"y": newField("z"),
+			},
 		},
 		{
 			`x="grep 'test' file" y=z`,
-			map[string]string{"x": `grep 'test' file`, "y": "z"},
+			map[string]*field{
+				"x": {`"grep 'test' file"`, `grep 'test' file`},
+				"y": newField("z"),
+			},
 		},
 		{
 			`x="grep \"test\" file" y=z`,
-			map[string]string{"x": `grep \"test\" file`, "y": "z"},
+			map[string]*field{
+				"x": {`"grep \"test\" file"`, `grep \"test\" file`},
+				"y": newField("z"),
+			},
 		},
 		{
 			`x='grep \'test\' file' y=z`,
-			map[string]string{"x": `grep \'test\' file`, "y": "z"},
+			map[string]*field{
+				"x": {`'grep \'test\' file'`, `grep \'test\' file`},
+				"y": newField("z"),
+			},
 		},
 	}
 
 	for _, tc := range tests {
-		out := map[string]string{}
+		out := map[string]*field{}
 		extractKeyValuePairs(tc.in, out)
 		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
 	}
-}
-
-func TestExecveCmdline(t *testing.T) {
-	data := map[string]string{
-		"argc": "3",
-		"a0":   "grep",
-		"a1":   "root",
-		"a2":   "/etc/passwd",
-	}
-
-	if err := execveCmdline(data); err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, `"grep" "root" "/etc/passwd"`, data["cmdline"])
-	_, found := data["a0"]
-	assert.False(t, found, "a0")
-	_, found = data["a1"]
-	assert.False(t, found, "a1")
-	_, found = data["a2"]
-	assert.False(t, found, "a2")
 }
 
 func TestParseLogLineFromFiles(t *testing.T) {
@@ -202,11 +199,38 @@ func TestParseLogLineFromFiles(t *testing.T) {
 
 		for i, gold := range goldenEvents {
 			if events[i] != nil {
-				assert.Equal(t, gold, events[i].ToMapStr(), "file: %v:%d", name, i+1)
+				assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", name, i+1)
 			} else {
-				assert.Nil(t, gold, events[i], "file: %v:%d", name, i+1)
+				assert.Nil(t, gold, "file: %v:%d", name, i+1)
 			}
 		}
+	}
+}
+
+type StoredAuditMessage struct {
+	Timestamp  time.Time         `json:"@timestamp"`
+	RecordType AuditMessageType  `json:"record_type"`
+	Sequence   uint32            `json:"sequence"`
+	RawMessage string            `json:"raw_msg"`
+	Tags       []string          `json:"keys,omitempty"`
+	Data       map[string]string `json:"data"`
+}
+
+func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
+	if msg == nil {
+		return nil
+	}
+
+	// Ensure raw message has been parsed.
+	msg.Data()
+
+	return &StoredAuditMessage{
+		Timestamp:  msg.Timestamp,
+		RecordType: msg.RecordType,
+		Sequence:   msg.Sequence,
+		RawMessage: msg.RawData,
+		Tags:       msg.tags,
+		Data:       msg.data,
 	}
 }
 
@@ -217,14 +241,13 @@ func writeGoldenFile(sourceName string, events []*AuditMessage) error {
 	}
 	defer f.Close()
 
-	jsonEvents := []map[string]string{}
+	var jsonEvents []*StoredAuditMessage
 	for _, event := range events {
 		if event != nil {
-			jsonEvents = append(jsonEvents, event.ToMapStr())
+			jsonEvents = append(jsonEvents, NewStoredAuditMessage(event))
 		} else {
 			jsonEvents = append(jsonEvents, nil)
 		}
-
 	}
 
 	b, err := json.MarshalIndent(jsonEvents, "", "  ")
@@ -239,13 +262,13 @@ func writeGoldenFile(sourceName string, events []*AuditMessage) error {
 	return nil
 }
 
-func readGoldenFile(name string) ([]map[string]string, error) {
+func readGoldenFile(name string) ([]*StoredAuditMessage, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 
-	var out []map[string]string
+	var out []*StoredAuditMessage
 	if err := json.Unmarshal(data, &out); err != nil {
 		return nil, err
 	}

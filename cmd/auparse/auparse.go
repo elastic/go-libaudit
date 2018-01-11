@@ -172,9 +172,9 @@ func outputMultipleMessages(msgs []*auparse.AuditMessage) {
 		}
 	default:
 		fmt.Println("---")
-		fmt.Printf(`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v key=%v`+"\n",
+		fmt.Printf(`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
 			event.Timestamp, event.Sequence, event.Category, event.Type, event.Subject.Primary, event.Subject.Secondary,
-			event.Action, event.Object.Primary, event.Object.Secondary, event.How, event.Key)
+			event.Action, event.Object.Primary, event.Object.Secondary, event.How, event.Tags)
 	}
 }
 

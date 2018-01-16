@@ -14,9 +14,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - auparse - Fixed an issue where values were incorrectly interpretted as hex
   data. #13
 - auparse - Fixed parsing of the `key` value when multiple keys are present. #16
-- auparse - The `cmdline` key is no longer created for EXECVE records.
+- auparse - The `cmdline` key is no longer created for EXECVE records. #17
 - aucoalesce - Changed the event format to have objects for user, process, file,
-  and network data.
+  and network data. #17
 
 ### Deprecated
 

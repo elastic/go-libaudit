@@ -76,6 +76,11 @@ type Process struct {
 	Args  []string `json:"args,omitempty"  yaml:"args,omitempty"`
 }
 
+func (p Process) IsEmpty() bool {
+	return p.PID == "" && p.PPID == "" && p.Title == "" && p.Name == "" &&
+		p.Exe == "" && p.CWD == "" && len(p.Args) == 0
+}
+
 type User struct {
 	IDs     map[string]string `json:"ids,omitempty"     yaml:"ids,omitempty"`     // Identifying data like auid, uid, euid, suid, fsuid, gid, egid, sgid, fsgid.
 	Names   map[string]string `json:"names,omitempty"   yaml:"names,omitempty"`   // Mappings of ID to name (auid -> "root").

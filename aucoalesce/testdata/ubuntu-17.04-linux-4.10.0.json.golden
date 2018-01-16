@@ -8,25 +8,31 @@
       "record_type": "cred_acq",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "root"
+        },
+        "action": "acquired-credentials",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "acquired-credentials",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "10665",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:setcred",
-        "pid": "10665",
         "terminal": "cron"
       }
     },
@@ -43,25 +49,31 @@
       "record_type": "cred_disp",
       "result": "success",
       "session": "38",
-      "actor": {
-        "primary": "0",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "0",
+          "secondary": "root"
+        },
+        "action": "disposed-credentials",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "0",
           "uid": "0"
         }
       },
-      "action": "disposed-credentials",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "10631",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:setcred",
-        "pid": "10631",
         "terminal": "cron"
       }
     },
@@ -78,10 +90,24 @@
       "record_type": "syscall",
       "result": "success",
       "session": "194",
-      "actor": {
-        "primary": "1002",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "exec",
+        "64bit"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1002",
+          "secondary": "0"
+        },
+        "action": "executed",
+        "object": {
+          "type": "file",
+          "primary": "/usr/bin/docker"
+        },
+        "how": "/usr/bin/docker"
+      },
+      "user": {
+        "ids": {
           "auid": "1002",
           "egid": "0",
           "euid": "0",
@@ -93,22 +119,27 @@
           "uid": "0"
         }
       },
-      "action": "executed",
-      "thing": {
-        "primary": "/usr/bin/docker",
-        "secondary": "16571",
-        "what": "file"
+      "process": {
+        "pid": "5821",
+        "ppid": "5820",
+        "title": "docker inspect 721df12151a7",
+        "name": "docker",
+        "exe": "/usr/bin/docker",
+        "cwd": "/home/andrew_kroh",
+        "args": [
+          "docker",
+          "inspect",
+          "721df12151a7"
+        ]
       },
-      "how": "/usr/bin/docker",
-      "tags": [
-        "exec",
-        "64bit"
-      ],
-      "cmdline": [
-        "docker",
-        "inspect",
-        "721df12151a7"
-      ],
+      "file": {
+        "path": "/usr/bin/docker",
+        "device": "00:00",
+        "inode": "16571",
+        "mode": "0755",
+        "uid": "0",
+        "gid": "0"
+      },
       "data": {
         "a0": "55dccab18ea8",
         "a1": "55dccab2bcc8",
@@ -116,13 +147,7 @@
         "a3": "7f6a0e06682c",
         "arch": "x86_64",
         "argc": "3",
-        "comm": "docker",
-        "cwd": "/home/andrew_kroh",
-        "exe": "/usr/bin/docker",
         "exit": "0",
-        "pid": "5821",
-        "ppid": "5820",
-        "proctitle": "docker inspect 721df12151a7",
         "syscall": "execve",
         "tty": "pts1"
       },
@@ -161,25 +186,31 @@
       "record_type": "user_acct",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "root"
+        },
+        "action": "was-authorized",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "was-authorized",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "10665",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:accounting",
-        "pid": "10665",
         "terminal": "cron"
       }
     },
@@ -196,25 +227,31 @@
       "record_type": "user_auth",
       "result": "success",
       "session": "1",
-      "actor": {
-        "primary": "1001",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "root"
+        },
+        "action": "authenticated",
+        "object": {
+          "type": "user-session",
+          "primary": "/dev/pts/0"
+        },
+        "how": "/bin/su"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "uid": "0"
         }
       },
-      "action": "authenticated",
-      "thing": {
-        "primary": "/dev/pts/0",
-        "what": "user-session"
+      "process": {
+        "pid": "9730",
+        "exe": "/bin/su"
       },
-      "how": "/bin/su",
       "data": {
         "acct": "root",
-        "exe": "/bin/su",
         "op": "PAM:authentication",
-        "pid": "9730",
         "terminal": "/dev/pts/0"
       }
     },
@@ -231,25 +268,31 @@
       "record_type": "user_chauthtok",
       "result": "fail",
       "session": "41",
-      "actor": {
-        "primary": "1001",
-        "secondary": "akroh",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "akroh"
+        },
+        "action": "changed-password",
+        "object": {
+          "type": "user-session",
+          "primary": "pts/0"
+        },
+        "how": "/usr/bin/passwd"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "uid": "1002"
         }
       },
-      "action": "changed-password",
-      "thing": {
-        "primary": "pts/0",
-        "what": "user-session"
+      "process": {
+        "pid": "10829",
+        "exe": "/usr/bin/passwd"
       },
-      "how": "/usr/bin/passwd",
       "data": {
         "acct": "akroh",
-        "exe": "/usr/bin/passwd",
         "op": "PAM:chauthtok",
-        "pid": "10829",
         "terminal": "pts/0"
       }
     },
@@ -266,23 +309,29 @@
       "record_type": "user_cmd",
       "result": "success",
       "session": "1",
-      "actor": {
-        "primary": "1001",
-        "secondary": "1001",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "1001"
+        },
+        "action": "ran-command",
+        "object": {
+          "type": "process",
+          "primary": "su"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "uid": "1001"
         }
       },
-      "action": "ran-command",
-      "thing": {
-        "primary": "su",
-        "what": "process"
+      "process": {
+        "pid": "9729",
+        "cwd": "/home/andrew_kroh"
       },
       "data": {
         "cmd": "su",
-        "cwd": "/home/andrew_kroh",
-        "pid": "9729",
         "terminal": "pts/0"
       }
     }
@@ -296,25 +345,31 @@
       "record_type": "user_end",
       "result": "success",
       "session": "38",
-      "actor": {
-        "primary": "0",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "0",
+          "secondary": "root"
+        },
+        "action": "ended-session",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "0",
           "uid": "0"
         }
       },
-      "action": "ended-session",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "10631",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:session_close",
-        "pid": "10631",
         "terminal": "cron"
       }
     },
@@ -331,27 +386,38 @@
       "record_type": "user_err",
       "result": "fail",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "error",
+        "object": {
+          "type": "user-session",
+          "primary": "ssh",
+          "secondary": "185.56.82.22"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "error",
-      "thing": {
-        "primary": "ssh",
-        "secondary": "185.56.82.22",
-        "what": "user-session"
+      "process": {
+        "pid": "10663",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "185.56.82.22"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
-        "addr": "185.56.82.22",
-        "exe": "/usr/sbin/sshd",
         "hostname": "185.56.82.22",
         "op": "PAM:bad_ident",
-        "pid": "10663",
         "terminal": "ssh"
       }
     }
@@ -365,27 +431,38 @@
       "record_type": "user_login",
       "result": "fail",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "(invalid user)",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "(invalid user)"
+        },
+        "action": "logged-in",
+        "object": {
+          "type": "user-session",
+          "primary": "sshd",
+          "secondary": "31.207.47.36"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "logged-in",
-      "thing": {
-        "primary": "sshd",
-        "secondary": "31.207.47.36",
-        "what": "user-session"
+      "process": {
+        "pid": "10617",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "31.207.47.36"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
         "acct": "(invalid user)",
-        "addr": "31.207.47.36",
-        "exe": "/usr/sbin/sshd",
         "op": "login",
-        "pid": "10617",
         "terminal": "sshd"
       }
     }
@@ -399,30 +476,153 @@
       "record_type": "user_start",
       "result": "success",
       "session": "39",
-      "actor": {
-        "primary": "0",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "0",
+          "secondary": "root"
+        },
+        "action": "started-session",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "0",
           "uid": "0"
         }
       },
-      "action": "started-session",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "10665",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:session_open",
-        "pid": "10665",
         "terminal": "cron"
       }
     },
     "warnings": [
-      "failed to set object secondary using keys=[addr hostname] because they were not found"
+      "failed to set object secondary using keys=[addr hostname] because they were not found",
+      "failed to set source IP using keys=[addr] because they were not found"
+    ]
+  },
+  {
+    "test_name": "getpeername syscall",
+    "event": {
+      "@timestamp": "2018-01-13T02:02:01.269Z",
+      "sequence": 149790,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "tags": [
+        "sockets"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "object": {},
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "process": {
+        "pid": "17669",
+        "ppid": "1861",
+        "title": "/usr/sbin/sshd -D -R",
+        "name": "sshd",
+        "exe": "/usr/sbin/sshd"
+      },
+      "data": {
+        "a0": "3",
+        "a1": "7f76e6e047e0",
+        "a2": "7ffd77f198f8",
+        "a3": "64",
+        "arch": "x86_64",
+        "exit": "0",
+        "socket_addr": "54.36.214.69",
+        "socket_family": "ipv4",
+        "socket_port": "60192",
+        "syscall": "getpeername",
+        "tty": "(none)"
+      }
+    },
+    "warnings": [
+      "no normalization found for event"
+    ]
+  },
+  {
+    "test_name": "getsockname syscall",
+    "event": {
+      "@timestamp": "2018-01-13T02:16:02.572Z",
+      "sequence": 150881,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "unset",
+      "tags": [
+        "sockets"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "object": {},
+        "how": "google_accounts"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "process": {
+        "pid": "1878",
+        "ppid": "1",
+        "title": "/usr/bin/python3 /usr/bin/google_accounts_daemon",
+        "name": "google_accounts",
+        "exe": "/usr/bin/python3.5"
+      },
+      "data": {
+        "a0": "5",
+        "a1": "7ffd94f66ea8",
+        "a2": "7ffd94f66fd0",
+        "a3": "10",
+        "arch": "x86_64",
+        "exit": "0",
+        "socket_addr": "10.142.0.2",
+        "socket_family": "ipv4",
+        "socket_port": "53989",
+        "syscall": "getsockname",
+        "tty": "(none)"
+      }
+    },
+    "warnings": [
+      "no normalization found for event"
     ]
   },
   {
@@ -434,10 +634,23 @@
       "record_type": "syscall",
       "result": "success",
       "session": "5",
-      "actor": {
-        "primary": "1001",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "auditconfig"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "0"
+        },
+        "action": "renamed",
+        "object": {
+          "type": "file",
+          "primary": "/etc/audit/rules.d/audit.rules"
+        },
+        "how": "/usr/bin/vim.basic"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "egid": "0",
           "euid": "0",
@@ -449,29 +662,29 @@
           "uid": "0"
         }
       },
-      "action": "renamed",
-      "thing": {
-        "primary": "/etc/audit/rules.d/audit.rules",
-        "secondary": "271112",
-        "what": "file"
+      "process": {
+        "pid": "3231",
+        "ppid": "3207",
+        "title": "vim /etc/audit/rules.d/audit.rules",
+        "name": "vim",
+        "exe": "/usr/bin/vim.basic",
+        "cwd": "/home/andrew_kroh"
       },
-      "how": "/usr/bin/vim.basic",
-      "tags": [
-        "auditconfig"
-      ],
+      "file": {
+        "path": "/etc/audit/rules.d/audit.rules",
+        "device": "00:00",
+        "inode": "271112",
+        "mode": "0640",
+        "uid": "0",
+        "gid": "0"
+      },
       "data": {
         "a0": "55942f993060",
         "a1": "55942fb79090",
         "a2": "fffffffffffffeb0",
         "a3": "55942fb79090",
         "arch": "x86_64",
-        "comm": "vim",
-        "cwd": "/home/andrew_kroh",
-        "exe": "/usr/bin/vim.basic",
         "exit": "0",
-        "pid": "3231",
-        "ppid": "3207",
-        "proctitle": "vim /etc/audit/rules.d/audit.rules",
         "syscall": "rename",
         "tty": "pts1"
       },
@@ -532,10 +745,23 @@
       "record_type": "syscall",
       "result": "success",
       "session": "5",
-      "actor": {
-        "primary": "1001",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "auditconfig"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "0"
+        },
+        "action": "deleted",
+        "object": {
+          "type": "file",
+          "primary": "/etc/audit/rules.d/.audit.rules.swp"
+        },
+        "how": "/usr/bin/vim.basic"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "egid": "0",
           "euid": "0",
@@ -547,29 +773,29 @@
           "uid": "0"
         }
       },
-      "action": "deleted",
-      "thing": {
-        "primary": "/etc/audit/rules.d/.audit.rules.swp",
-        "secondary": "271044",
-        "what": "file"
+      "process": {
+        "pid": "3346",
+        "ppid": "3309",
+        "title": "vim /etc/audit/rules.d/audit.rules",
+        "name": "vim",
+        "exe": "/usr/bin/vim.basic",
+        "cwd": "/home/andrew_kroh"
       },
-      "how": "/usr/bin/vim.basic",
-      "tags": [
-        "auditconfig"
-      ],
+      "file": {
+        "path": "/etc/audit/rules.d/.audit.rules.swp",
+        "device": "00:00",
+        "inode": "271044",
+        "mode": "0640",
+        "uid": "0",
+        "gid": "0"
+      },
       "data": {
         "a0": "55faa178f800",
         "a1": "1",
         "a2": "1",
         "a3": "7ffd21b026d0",
         "arch": "x86_64",
-        "comm": "vim",
-        "cwd": "/home/andrew_kroh",
-        "exe": "/usr/bin/vim.basic",
         "exit": "0",
-        "pid": "3346",
-        "ppid": "3309",
-        "proctitle": "vim /etc/audit/rules.d/audit.rules",
         "syscall": "unlink",
         "tty": "pts1"
       },

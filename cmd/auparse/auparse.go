@@ -171,10 +171,11 @@ func outputMultipleMessages(msgs []*auparse.AuditMessage) {
 			log.WithError(err).Error("failed to marshal message to YAML")
 		}
 	default:
+		sm := event.Summary
 		fmt.Println("---")
 		fmt.Printf(`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
-			event.Timestamp, event.Sequence, event.Category, event.Type, event.Subject.Primary, event.Subject.Secondary,
-			event.Action, event.Object.Primary, event.Object.Secondary, event.How, event.Tags)
+			event.Timestamp, event.Sequence, event.Category, event.Type, sm.Actor.Primary, sm.Actor.Secondary,
+			sm.Action, sm.Object.Primary, sm.Object.Secondary, sm.How, event.Tags)
 	}
 }
 

@@ -55,3 +55,13 @@ tests:
     type=PATH msg=audit(1515708162.888:124507): item=0 name="/usr/bin/docker" inode=16571 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
     type=PATH msg=audit(1515708162.888:124507): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=2366 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL
     type=PROCTITLE msg=audit(1515708162.888:124507): proctitle=646F636B657200696E737065637400373231646631323135316137
+
+  getpeername syscall: |
+    type=SYSCALL msg=audit(1515808921.269:149790): arch=c000003e syscall=52 success=yes exit=0 a0=3 a1=7f76e6e047e0 a2=7ffd77f198f8 a3=64 items=0 ppid=1861 pid=17669 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="sshd" exe="/usr/sbin/sshd" key="sockets"
+    type=SOCKADDR msg=audit(1515808921.269:149790): saddr=0200EB203624D6450000000000000000
+    type=PROCTITLE msg=audit(1515808921.269:149790): proctitle=2F7573722F7362696E2F73736864002D44002D52
+
+  getsockname syscall: |
+    type=SYSCALL msg=audit(1515809762.572:150881): arch=c000003e syscall=51 success=yes exit=0 a0=5 a1=7ffd94f66ea8 a2=7ffd94f66fd0 a3=10 items=0 ppid=1 pid=1878 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="google_accounts" exe="/usr/bin/python3.5" key="sockets"
+    type=SOCKADDR msg=audit(1515809762.572:150881): saddr=0200D2E50A8E00020000000000000000
+    type=PROCTITLE msg=audit(1515809762.572:150881): proctitle=2F7573722F62696E2F707974686F6E33002F7573722F62696E2F676F6F676C655F6163636F756E74735F6461656D6F6E

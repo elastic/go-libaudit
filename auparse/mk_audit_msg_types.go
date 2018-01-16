@@ -103,6 +103,15 @@ func (t AuditMessageType) MarshalText() (text []byte, err error) {
 	return []byte(strings.ToLower(t.String())), nil
 }
 
+func (t *AuditMessageType) UnmarshalText(text []byte) error {
+	messageType, err := GetAuditMessageType(string(text))
+	if err != nil {
+		return err
+	}
+	*t = messageType
+	return nil
+}
+
 var auditMessageNameToType = map[string]AuditMessageType{
 {{- range $recordType, $recordName := .RecordNames }}
 	"{{ $recordName }}": {{ $recordType }},
@@ -112,6 +121,8 @@ var auditMessageNameToType = map[string]AuditMessageType{
 // GetAuditMessageType accepts a type name and returns its numerical
 // representation. If the name is unknown and error is returned.
 func GetAuditMessageType(name string) (AuditMessageType, error) {
+	name = strings.ToUpper(name)
+
 	typ, found := auditMessageNameToType[name]
 	if found {
 		return typ, nil

@@ -8,9 +8,21 @@
       "record_type": "config_change",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "attrs": {
+      "tags": [
+        "pam"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset"
+        },
+        "action": "changed-audit-configuration",
+        "object": {
+          "type": "audit-config",
+          "primary": "add_rule"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "unset"
         },
         "selinux": {
@@ -20,12 +32,7 @@
           "user": "system_u"
         }
       },
-      "action": "changed-audit-configuration",
-      "thing": {
-        "primary": "add_rule",
-        "what": "audit-config"
-      },
-      "key": "pam",
+      "process": {},
       "data": {
         "list": "4",
         "op": "add_rule"
@@ -41,9 +48,18 @@
       "record_type": "config_change",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset"
+        },
+        "action": "changed-audit-configuration",
+        "object": {
+          "type": "audit-config",
+          "primary": "64"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "unset"
         },
         "selinux": {
@@ -53,11 +69,7 @@
           "user": "system_u"
         }
       },
-      "action": "changed-audit-configuration",
-      "thing": {
-        "primary": "64",
-        "what": "audit-config"
-      },
+      "process": {},
       "data": {
         "audit_backlog_limit": "64",
         "old": "8192"
@@ -73,10 +85,21 @@
       "record_type": "crypto_key_user",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "negotiated-crypto-key",
+        "object": {
+          "type": "user-session",
+          "primary": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
+          "secondary": "96.241.146.97"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "suid": "0",
           "uid": "0"
@@ -89,20 +112,20 @@
           "user": "system_u"
         }
       },
-      "action": "negotiated-crypto-key",
-      "thing": {
-        "primary": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
-        "secondary": "96.241.146.97",
-        "what": "user-session"
+      "process": {
+        "pid": "1299",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "96.241.146.97"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
-        "addr": "96.241.146.97",
-        "exe": "/usr/sbin/sshd",
         "fp": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
         "kind": "server",
         "op": "destroy",
-        "pid": "1299",
         "spid": "1299"
       }
     }
@@ -116,10 +139,21 @@
       "record_type": "crypto_session",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "started-crypto-session",
+        "object": {
+          "type": "user-session",
+          "primary": "96.241.146.97",
+          "secondary": "63927"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "suid": "74",
           "uid": "0"
@@ -132,24 +166,24 @@
           "user": "system_u"
         }
       },
-      "action": "started-crypto-session",
-      "thing": {
-        "primary": "96.241.146.97",
-        "secondary": "63927",
-        "what": "user-session"
+      "process": {
+        "pid": "1298",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "96.241.146.97"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
-        "addr": "96.241.146.97",
         "cipher": "chacha20-poly1305@openssh.com",
         "direction": "from-server",
-        "exe": "/usr/sbin/sshd",
         "ksize": "512",
         "laddr": "10.142.0.2",
         "lport": "22",
         "op": "start",
         "pfs": "curve25519-sha256@libssh.org",
-        "pid": "1298",
         "rport": "63927",
         "spid": "1299"
       }
@@ -164,10 +198,19 @@
       "record_type": "login",
       "result": "success",
       "session": "1",
-      "actor": {
-        "primary": "4294967295",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "4294967295",
+          "secondary": "0"
+        },
+        "action": "changed-login-id-to",
+        "object": {
+          "type": "user-session",
+          "primary": "1000"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "1000",
           "old-auid": "4294967295",
           "uid": "0"
@@ -180,14 +223,11 @@
           "user": "system_u"
         }
       },
-      "action": "changed-login-id-to",
-      "thing": {
-        "primary": "1000",
-        "what": "user-session"
+      "process": {
+        "pid": "1298"
       },
       "data": {
-        "old-ses": "4294967295",
-        "pid": "1298"
+        "old-ses": "4294967295"
       }
     }
   },
@@ -200,10 +240,21 @@
       "record_type": "user_login",
       "result": "fail",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "root"
+        },
+        "action": "logged-in",
+        "object": {
+          "type": "user-session",
+          "primary": "ssh",
+          "secondary": "46.160.144.250"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         },
@@ -215,19 +266,19 @@
           "user": "system_u"
         }
       },
-      "action": "logged-in",
-      "thing": {
-        "primary": "ssh",
-        "secondary": "46.160.144.250",
-        "what": "user-session"
+      "process": {
+        "pid": "18981",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "46.160.144.250"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
         "acct": "root",
-        "addr": "46.160.144.250",
-        "exe": "/usr/sbin/sshd",
         "op": "login",
-        "pid": "18981",
         "terminal": "ssh"
       }
     }
@@ -241,10 +292,20 @@
       "record_type": "user_logout",
       "result": "success",
       "session": "132",
-      "actor": {
-        "primary": "1000",
-        "secondary": "1000",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1000",
+          "secondary": "1000"
+        },
+        "action": "logged-out",
+        "object": {
+          "type": "user-session",
+          "primary": "/dev/pts/1"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "1000",
           "uid": "0"
         },
@@ -256,17 +317,13 @@
           "user": "system_u"
         }
       },
-      "action": "logged-out",
-      "thing": {
-        "primary": "/dev/pts/1",
-        "what": "user-session"
+      "process": {
+        "pid": "2370",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
       "data": {
-        "exe": "/usr/sbin/sshd",
         "id": "1000",
         "op": "login",
-        "pid": "2370",
         "terminal": "/dev/pts/1"
       }
     },
@@ -283,10 +340,22 @@
       "record_type": "syscall",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "38",
-        "attrs": {
+      "tags": [
+        "time-change"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "38"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/ntpd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "38",
           "euid": "38",
@@ -304,24 +373,20 @@
           "user": "system_u"
         }
       },
-      "action": "changed-system-time",
-      "thing": {
-        "what": "system"
+      "process": {
+        "pid": "1075",
+        "ppid": "1",
+        "name": "ntpd",
+        "exe": "/usr/sbin/ntpd"
       },
-      "how": "/usr/sbin/ntpd",
-      "key": "time-change",
       "data": {
         "a0": "7f71508da920",
         "a1": "1",
         "a2": "0",
         "a3": "7f715258624c",
         "arch": "x86_64",
-        "comm": "ntpd",
-        "exe": "/usr/sbin/ntpd",
         "exit": "0",
         "items": "0",
-        "pid": "1075",
-        "ppid": "1",
         "syscall": "adjtimex",
         "tty": "(none)"
       }
@@ -336,10 +401,23 @@
       "record_type": "syscall",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "specialfiles"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "make-device",
+        "object": {
+          "type": "file",
+          "primary": "/run/systemd/sessions/"
+        },
+        "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "0",
           "euid": "0",
@@ -357,11 +435,20 @@
           "user": "system_u"
         }
       },
-      "action": "make-device",
-      "thing": {
-        "primary": "/run/systemd/sessions/",
-        "secondary": "11378",
-        "what": "file",
+      "process": {
+        "pid": "326",
+        "ppid": "1",
+        "name": "systemd-logind",
+        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+        "cwd": "/"
+      },
+      "file": {
+        "path": "/run/systemd/sessions/",
+        "device": "00:00",
+        "inode": "11378",
+        "mode": "0755",
+        "uid": "0",
+        "gid": "0",
         "selinux": {
           "domain": "systemd_logind_sessions_t",
           "level": "s0",
@@ -369,20 +456,13 @@
           "user": "system_u"
         }
       },
-      "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
-      "key": "specialfiles",
       "data": {
         "a0": "7ff61dde1960",
         "a1": "1180",
         "a2": "0",
         "a3": "2",
         "arch": "x86_64",
-        "comm": "systemd-logind",
-        "cwd": "/",
-        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
         "exit": "0",
-        "pid": "326",
-        "ppid": "1",
         "syscall": "mknod",
         "tty": "(none)"
       },
@@ -429,10 +509,23 @@
       "record_type": "syscall",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "mount"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "mounted",
+        "object": {
+          "type": "file",
+          "primary": "/run/user/0"
+        },
+        "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "0",
           "euid": "0",
@@ -450,11 +543,20 @@
           "user": "system_u"
         }
       },
-      "action": "mounted",
-      "thing": {
-        "primary": "/run/user/0",
-        "secondary": "454267",
-        "what": "file",
+      "process": {
+        "pid": "326",
+        "ppid": "1",
+        "name": "systemd-logind",
+        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
+        "cwd": "/"
+      },
+      "file": {
+        "path": "/run/user/0",
+        "device": "00:00",
+        "inode": "454267",
+        "mode": "0700",
+        "uid": "0",
+        "gid": "0",
         "selinux": {
           "domain": "user_tmp_t",
           "level": "s0",
@@ -462,20 +564,13 @@
           "user": "system_u"
         }
       },
-      "how": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
-      "key": "mount",
       "data": {
         "a0": "7ff61c0a7270",
         "a1": "7ff61dddf470",
         "a2": "7ff61c0a7270",
         "a3": "6",
         "arch": "x86_64",
-        "comm": "systemd-logind",
-        "cwd": "/",
-        "exe": "/usr/lib/systemd/systemd-logind;58f98c85 (deleted)",
         "exit": "0",
-        "pid": "326",
-        "ppid": "1",
         "syscall": "mount",
         "tty": "(none)"
       },

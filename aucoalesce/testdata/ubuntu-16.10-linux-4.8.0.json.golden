@@ -8,10 +8,20 @@
       "record_type": "anom_promiscuous",
       "result": "success",
       "session": "1",
-      "actor": {
-        "primary": "1001",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "0"
+        },
+        "action": "changed-promiscuous-mode-on-device",
+        "object": {
+          "type": "network-device",
+          "primary": "ens4"
+        },
+        "how": "/sbin/ifconfig"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "egid": "0",
           "euid": "0",
@@ -23,12 +33,13 @@
           "uid": "0"
         }
       },
-      "action": "changed-promiscuous-mode-on-device",
-      "thing": {
-        "primary": "ens4",
-        "what": "network-device"
+      "process": {
+        "pid": "1926",
+        "ppid": "1852",
+        "title": "ifconfig ens4 -promisc",
+        "name": "ifconfig",
+        "exe": "/sbin/ifconfig"
       },
-      "how": "/sbin/ifconfig",
       "data": {
         "a0": "4",
         "a1": "8914",
@@ -36,15 +47,10 @@
         "a3": "0",
         "arch": "x86_64",
         "auid": "1001",
-        "comm": "ifconfig",
         "dev": "ens4",
-        "exe": "/sbin/ifconfig",
         "exit": "0",
         "gid": "0",
         "old_prom": "256",
-        "pid": "1926",
-        "ppid": "1852",
-        "proctitle": "ifconfig",
         "prom": "0",
         "ses": "1",
         "syscall": "ioctl",
@@ -62,18 +68,25 @@
       "record_type": "config_change",
       "result": "success",
       "session": "67",
-      "actor": {
-        "primary": "1001",
-        "attrs": {
+      "tags": [
+        "container-create"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001"
+        },
+        "action": "changed-audit-configuration",
+        "object": {
+          "type": "audit-config",
+          "primary": "remove_rule"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "1001"
         }
       },
-      "action": "changed-audit-configuration",
-      "thing": {
-        "primary": "remove_rule",
-        "what": "audit-config"
-      },
-      "key": "container-create",
+      "process": {},
       "data": {
         "list": "4",
         "op": "remove_rule"
@@ -89,18 +102,25 @@
       "record_type": "config_change",
       "result": "success",
       "session": "6",
-      "actor": {
-        "primary": "1001",
-        "attrs": {
+      "tags": [
+        "auth"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001"
+        },
+        "action": "changed-audit-configuration",
+        "object": {
+          "type": "audit-config",
+          "primary": "updated_rules"
+        }
+      },
+      "user": {
+        "ids": {
           "auid": "1001"
         }
       },
-      "action": "changed-audit-configuration",
-      "thing": {
-        "primary": "updated_rules",
-        "what": "audit-config"
-      },
-      "key": "auth",
+      "process": {},
       "data": {
         "list": "4",
         "op": "updated_rules",
@@ -117,10 +137,23 @@
       "record_type": "syscall",
       "result": "success",
       "session": "11",
-      "actor": {
-        "primary": "1001",
-        "secondary": "1001",
-        "attrs": {
+      "tags": [
+        "user_commands"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "1001"
+        },
+        "action": "executed",
+        "object": {
+          "type": "file",
+          "primary": "/bin/uname"
+        },
+        "how": "/bin/uname"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "egid": "1002",
           "euid": "1001",
@@ -132,14 +165,26 @@
           "uid": "1001"
         }
       },
-      "action": "executed",
-      "thing": {
-        "primary": "/bin/uname",
-        "secondary": "155",
-        "what": "file"
+      "process": {
+        "pid": "10043",
+        "ppid": "10027",
+        "title": "uname -a",
+        "name": "uname",
+        "exe": "/bin/uname",
+        "cwd": "/home/andrew_kroh",
+        "args": [
+          "uname",
+          "-a"
+        ]
       },
-      "how": "/bin/uname",
-      "key": "user_commands",
+      "file": {
+        "path": "/bin/uname",
+        "device": "00:00",
+        "inode": "155",
+        "mode": "0755",
+        "uid": "0",
+        "gid": "0"
+      },
       "data": {
         "a0": "10812c8",
         "a1": "1070208",
@@ -147,14 +192,7 @@
         "a3": "59a",
         "arch": "x86_64",
         "argc": "2",
-        "cmdline": "\"uname\" \"-a\"",
-        "comm": "uname",
-        "cwd": "/home/andrew_kroh",
-        "exe": "/bin/uname",
         "exit": "0",
-        "pid": "10043",
-        "ppid": "10027",
-        "proctitle": "uname",
         "syscall": "execve",
         "tty": "pts0"
       },
@@ -193,10 +231,20 @@
       "record_type": "netfilter_cfg",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "loaded-firewall-rule-to",
+        "object": {
+          "type": "firewall",
+          "primary": "filter"
+        },
+        "how": "/sbin/xtables-multi"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "0",
           "euid": "0",
@@ -208,26 +256,22 @@
           "uid": "0"
         }
       },
-      "action": "loaded-firewall-rule-to",
-      "thing": {
-        "primary": "filter",
-        "what": "firewall"
+      "process": {
+        "pid": "9709",
+        "ppid": "9708",
+        "title": "/sbin/iptables -w -I sshguard -s 45.76.145.152 -j DROP",
+        "name": "iptables",
+        "exe": "/sbin/xtables-multi"
       },
-      "how": "/sbin/xtables-multi",
       "data": {
         "a0": "4",
         "a1": "0",
         "a2": "40",
         "a3": "562bf7914100",
         "arch": "x86_64",
-        "comm": "iptables",
         "entries": "7",
-        "exe": "/sbin/xtables-multi",
         "exit": "0",
         "family": "2",
-        "pid": "9709",
-        "ppid": "9708",
-        "proctitle": "/sbin/iptables",
         "syscall": "setsockopt",
         "table": "filter",
         "tty": "(none)"
@@ -243,24 +287,30 @@
       "record_type": "service_start",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "started-service",
+        "object": {
+          "type": "service",
+          "primary": "rsyslog"
+        },
+        "how": "/lib/systemd/systemd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "started-service",
-      "thing": {
-        "primary": "rsyslog",
-        "what": "service"
-      },
-      "how": "/lib/systemd/systemd",
-      "data": {
-        "comm": "systemd",
-        "exe": "/lib/systemd/systemd",
+      "process": {
         "pid": "1",
+        "name": "systemd",
+        "exe": "/lib/systemd/systemd"
+      },
+      "data": {
         "unit": "rsyslog"
       }
     }
@@ -274,25 +324,31 @@
       "record_type": "user_end",
       "result": "success",
       "session": "10",
-      "actor": {
-        "primary": "0",
-        "secondary": "root",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "0",
+          "secondary": "root"
+        },
+        "action": "ended-session",
+        "object": {
+          "type": "user-session",
+          "primary": "cron"
+        },
+        "how": "/usr/sbin/cron"
+      },
+      "user": {
+        "ids": {
           "auid": "0",
           "uid": "0"
         }
       },
-      "action": "ended-session",
-      "thing": {
-        "primary": "cron",
-        "what": "user-session"
+      "process": {
+        "pid": "9945",
+        "exe": "/usr/sbin/cron"
       },
-      "how": "/usr/sbin/cron",
       "data": {
         "acct": "root",
-        "exe": "/usr/sbin/cron",
         "op": "PAM:session_close",
-        "pid": "9945",
         "terminal": "cron"
       }
     },
@@ -309,27 +365,38 @@
       "record_type": "user_login",
       "result": "fail",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "(invalid user)",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "(invalid user)"
+        },
+        "action": "logged-in",
+        "object": {
+          "type": "user-session",
+          "primary": "sshd",
+          "secondary": "179.38.151.221"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "uid": "0"
         }
       },
-      "action": "logged-in",
-      "thing": {
-        "primary": "sshd",
-        "secondary": "179.38.151.221",
-        "what": "user-session"
+      "process": {
+        "pid": "12635",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "179.38.151.221"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
         "acct": "(invalid user)",
-        "addr": "179.38.151.221",
-        "exe": "/usr/sbin/sshd",
         "op": "login",
-        "pid": "12635",
         "terminal": "sshd"
       }
     }
@@ -343,28 +410,39 @@
       "record_type": "user_login",
       "result": "success",
       "session": "36",
-      "actor": {
-        "primary": "1001",
-        "secondary": "1001",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "1001"
+        },
+        "action": "logged-in",
+        "object": {
+          "type": "user-session",
+          "primary": "/dev/pts/1",
+          "secondary": "72.83.230.100"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "uid": "0"
         }
       },
-      "action": "logged-in",
-      "thing": {
-        "primary": "/dev/pts/1",
-        "secondary": "72.83.230.100",
-        "what": "user-session"
+      "process": {
+        "pid": "11396",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "72.83.230.100"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
-        "addr": "72.83.230.100",
-        "exe": "/usr/sbin/sshd",
         "hostname": "72.83.230.100",
         "id": "1001",
         "op": "login",
-        "pid": "11396",
         "terminal": "/dev/pts/1"
       }
     }
@@ -378,28 +456,39 @@
       "record_type": "user_start",
       "result": "success",
       "session": "11",
-      "actor": {
-        "primary": "1001",
-        "secondary": "andrew_kroh",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "andrew_kroh"
+        },
+        "action": "started-session",
+        "object": {
+          "type": "user-session",
+          "primary": "ssh",
+          "secondary": "72.83.230.100"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "uid": "0"
         }
       },
-      "action": "started-session",
-      "thing": {
-        "primary": "ssh",
-        "secondary": "72.83.230.100",
-        "what": "user-session"
+      "process": {
+        "pid": "9950",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
+      "source": {
+        "ip": "72.83.230.100"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
         "acct": "andrew_kroh",
-        "addr": "72.83.230.100",
-        "exe": "/usr/sbin/sshd",
         "hostname": "72.83.230.100",
         "op": "PAM:session_open",
-        "pid": "9950",
         "terminal": "ssh"
       }
     }
@@ -413,10 +502,24 @@
       "record_type": "syscall",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "net"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "accepted-connection-from",
+        "object": {
+          "type": "socket",
+          "primary": "72.83.230.100",
+          "secondary": "58140"
+        },
+        "how": "/usr/sbin/sshd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "0",
           "euid": "0",
@@ -428,33 +531,32 @@
           "uid": "0"
         }
       },
-      "action": "accepted-connection-from",
-      "thing": {
-        "primary": "72.83.230.100",
-        "secondary": "58140",
-        "what": "socket"
+      "process": {
+        "pid": "1663",
+        "ppid": "1",
+        "title": "(sshd)",
+        "name": "sshd",
+        "exe": "/usr/sbin/sshd"
       },
-      "how": "/usr/sbin/sshd",
-      "key": "net",
+      "source": {
+        "ip": "72.83.230.100",
+        "port": "58140"
+      },
+      "network": {
+        "direction": "incoming"
+      },
       "data": {
         "a0": "3",
         "a1": "7ffd0dc80040",
         "a2": "7ffd0dc7ffd0",
         "a3": "0",
         "arch": "x86_64",
-        "comm": "sshd",
-        "exe": "/usr/sbin/sshd",
         "exit": "5",
-        "pid": "1663",
-        "ppid": "1",
-        "proctitle": "(sshd)",
+        "socket_addr": "72.83.230.100",
+        "socket_family": "ipv4",
+        "socket_port": "58140",
         "syscall": "accept",
         "tty": "(none)"
-      },
-      "socket": {
-        "addr": "72.83.230.100",
-        "family": "ipv4",
-        "port": "58140"
       }
     }
   },
@@ -467,10 +569,22 @@
       "record_type": "syscall",
       "result": "success",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "112",
-        "attrs": {
+      "tags": [
+        "time-change"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "112"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/ntpd"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "116",
           "euid": "112",
@@ -482,24 +596,20 @@
           "uid": "112"
         }
       },
-      "action": "changed-system-time",
-      "thing": {
-        "what": "system"
+      "process": {
+        "pid": "1596",
+        "ppid": "1",
+        "title": "/usr/sbin/ntpd -p /var/run/ntpd.pid -g -c /var/lib/ntp/ntp.conf.dhcp -u 112:116",
+        "name": "ntpd",
+        "exe": "/usr/sbin/ntpd"
       },
-      "how": "/usr/sbin/ntpd",
-      "key": "time-change",
       "data": {
         "a0": "5614c63c1160",
         "a1": "2001",
         "a2": "5614c63c1160",
         "a3": "0",
         "arch": "x86_64",
-        "comm": "ntpd",
-        "exe": "/usr/sbin/ntpd",
         "exit": "0",
-        "pid": "1596",
-        "ppid": "1",
-        "proctitle": "/usr/sbin/ntpd",
         "syscall": "adjtimex",
         "tty": "(none)"
       }
@@ -514,10 +624,24 @@
       "record_type": "syscall",
       "result": "fail",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "0",
-        "attrs": {
+      "tags": [
+        "net"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "connected-to",
+        "object": {
+          "type": "socket",
+          "primary": "169.254.169.254",
+          "secondary": "80"
+        },
+        "how": "google_ip_forwa"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "egid": "0",
           "euid": "0",
@@ -529,33 +653,32 @@
           "uid": "0"
         }
       },
-      "action": "connected-to",
-      "thing": {
-        "primary": "169.254.169.254",
-        "secondary": "80",
-        "what": "socket"
+      "process": {
+        "pid": "1648",
+        "ppid": "1",
+        "title": "(g_daemon)",
+        "name": "google_ip_forwa",
+        "exe": "/usr/bin/python3.5"
       },
-      "how": "google_ip_forwa",
-      "key": "net",
+      "destination": {
+        "ip": "169.254.169.254",
+        "port": "80"
+      },
+      "network": {
+        "direction": "outgoing"
+      },
       "data": {
         "a0": "5",
         "a1": "7ffc12ac3ab0",
         "a2": "10",
         "a3": "4",
         "arch": "x86_64",
-        "comm": "google_ip_forwa",
-        "exe": "/usr/bin/python3.5",
         "exit": "EINPROGRESS",
-        "pid": "1648",
-        "ppid": "1",
-        "proctitle": "(g_daemon)",
+        "socket_addr": "169.254.169.254",
+        "socket_family": "ipv4",
+        "socket_port": "80",
         "syscall": "connect",
         "tty": "(none)"
-      },
-      "socket": {
-        "addr": "169.254.169.254",
-        "family": "ipv4",
-        "port": "80"
       }
     }
   },
@@ -568,10 +691,22 @@
       "record_type": "syscall",
       "result": "success",
       "session": "140",
-      "actor": {
-        "primary": "1001",
-        "secondary": "1001",
-        "attrs": {
+      "tags": [
+        "net"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1001",
+          "secondary": "1001"
+        },
+        "action": "listen-for-connections",
+        "object": {
+          "type": "socket"
+        },
+        "how": "/lib/systemd/systemd"
+      },
+      "user": {
+        "ids": {
           "auid": "1001",
           "egid": "1002",
           "euid": "1001",
@@ -583,24 +718,20 @@
           "uid": "1001"
         }
       },
-      "action": "listen-for-connections",
-      "thing": {
-        "what": "socket"
+      "process": {
+        "pid": "23492",
+        "ppid": "1",
+        "title": "(systemd)",
+        "name": "systemd",
+        "exe": "/lib/systemd/systemd"
       },
-      "how": "/lib/systemd/systemd",
-      "key": "net",
       "data": {
         "a0": "e",
         "a1": "80",
         "a2": "20",
         "a3": "7ffe900ae940",
         "arch": "x86_64",
-        "comm": "systemd",
-        "exe": "/lib/systemd/systemd",
         "exit": "0",
-        "pid": "23492",
-        "ppid": "1",
-        "proctitle": "(systemd)",
         "syscall": "listen",
         "tty": "(none)"
       }

@@ -8,10 +8,21 @@
       "record_type": "anom_abend",
       "result": "unknown",
       "session": "unset",
-      "actor": {
-        "primary": "unset",
-        "secondary": "48",
-        "attrs": {
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "48"
+        },
+        "action": "crashed-program",
+        "object": {
+          "type": "process",
+          "primary": "httpd",
+          "secondary": "31242"
+        },
+        "how": "11"
+      },
+      "user": {
+        "ids": {
           "auid": "unset",
           "gid": "48",
           "uid": "48"
@@ -23,16 +34,11 @@
           "user": "system_u"
         }
       },
-      "action": "crashed-program",
-      "thing": {
-        "primary": "httpd",
-        "secondary": "31242",
-        "what": "process"
-      },
-      "how": "11",
-      "data": {
-        "comm": "httpd",
+      "process": {
         "pid": "31242",
+        "name": "httpd"
+      },
+      "data": {
         "reason": "memory violation",
         "sig": "11"
       }

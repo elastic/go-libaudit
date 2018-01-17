@@ -75,8 +75,9 @@ const (
 // AuditClient is a client for communicating with the Linux kernels audit
 // interface over netlink.
 type AuditClient struct {
-	Netlink     NetlinkSendReceiver
-	pendingAcks []uint32
+	Netlink         NetlinkSendReceiver
+	pendingAcks     []uint32
+	clearPIDOnClose bool
 }
 
 // NewMulticastAuditClient creates a new AuditClient that binds to the multicast
@@ -292,6 +293,7 @@ func (c *AuditClient) SetPID(wm WaitMode) error {
 		Mask: AuditStatusPID,
 		PID:  uint32(os.Getpid()),
 	}
+	c.clearPIDOnClose = true
 	return c.set(status, wm)
 }
 
@@ -370,6 +372,13 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 
 // Close closes the AuditClient and frees any associated resources.
 func (c *AuditClient) Close() error {
+	// Unregister from the kernel for a clean exit.
+	status := AuditStatus{
+		Mask: AuditStatusPID,
+		PID:  0,
+	}
+	c.set(status, NoWait)
+
 	return c.Netlink.Close()
 }
 

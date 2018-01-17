@@ -397,32 +397,35 @@ func (c *AuditClient) WaitForPendingACKs() error {
 // sequence number. The caller should inspect the returned message's type,
 // flags, and error code.
 func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
+	var msg syscall.NetlinkMessage
 	var msgs []syscall.NetlinkMessage
 	var err error
 
-	// Retry the non-blocking read multiple times until a response is received.
-	for i := 0; i < 10; i++ {
-		msgs, err = c.Netlink.Receive(true, parseNetlinkAuditMessage)
-		if err != nil {
-			switch err {
-			case syscall.EINTR:
-				continue
-			case syscall.EAGAIN:
-				time.Sleep(50 * time.Millisecond)
-				continue
-			default:
-				return nil, errors.Wrap(err, "error receiving audit reply")
+	for receiveMore := true; receiveMore; {
+		// Retry the non-blocking read multiple times until a response is received.
+		for i := 0; i < 10; i++ {
+			msgs, err = c.Netlink.Receive(true, parseNetlinkAuditMessage)
+			if err != nil {
+				switch err {
+				case syscall.EINTR:
+					continue
+				case syscall.EAGAIN:
+					time.Sleep(50 * time.Millisecond)
+					continue
+				default:
+					return nil, errors.Wrap(err, "error receiving audit reply")
+				}
 			}
+			break
 		}
 
-		break
+		if len(msgs) == 0 {
+			return nil, errors.New("no reply received")
+		}
+		msg = msgs[0]
+		// Skip audit event that sneak between the request/response
+		receiveMore = msg.Header.Seq == 0 && seq != 0
 	}
-
-	if len(msgs) == 0 {
-		return nil, errors.New("no reply received")
-	}
-	msg := msgs[0]
-
 	if msg.Header.Seq != seq {
 		return nil, errors.Errorf("unexpected sequence number for reply (expected %v but got %v)",
 			seq, msg.Header.Seq)

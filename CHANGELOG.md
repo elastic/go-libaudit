@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added WaitForPendingACKs to receive pending ACK messages from the kernel. #14
+- The AuditClient will unregister with the kernel if `SetPID` has been called. #19
  
 ### Changed
 

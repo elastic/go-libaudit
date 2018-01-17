@@ -17,6 +17,7 @@
 package libaudit
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -26,8 +27,7 @@ import (
 	"testing"
 	"time"
 
-	"encoding/base64"
-
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -483,12 +483,13 @@ func TestAuditClientReceive(t *testing.T) {
 	// Depending on the kernel version, it will reply with an AUDIT_REPLACE (1329)
 	// message, followed by an AUDIT_CONFIG_CHANGE (1305) message, followed
 	// by an ACK. Older kernels seem to not send the AUDIT_CONFIG_CHANGE message.
-	err = client.SetPID(NoWait)
-	if err != nil {
+	if err = client.SetPID(WaitForReply); err == nil {
 		t.Fatal("set pid failed:", err)
+	} else if errors.Cause(err) != syscall.EEXIST {
+		t.Fatal("expected second SetPID call to result in EEXISTS but got", err)
 	}
 
-	// Expect at least 2 messages caused by our previous call.
+	// Expect at least 1 message caused by our previous call (CONFIG_CHANGE).
 	var msgCount int
 	for i := 0; i < 10; i++ {
 		msg, err := client.Receive(true)
@@ -502,7 +503,7 @@ func TestAuditClientReceive(t *testing.T) {
 			msgCount++
 		}
 	}
-	assert.True(t, msgCount >= 2, "expected at least two messages")
+	assert.True(t, msgCount >= 1, "expected at least one messages")
 }
 
 func TestAuditStatusMask(t *testing.T) {

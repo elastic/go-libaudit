@@ -18,6 +18,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - auparse - The `cmdline` key is no longer created for EXECVE records. #17
 - aucoalesce - Changed the event format to have objects for user, process, file,
   and network data. #17
+- Fixed an issue when an audit notification is received while waiting for the
+  response to a control command.
 
 ### Deprecated
 

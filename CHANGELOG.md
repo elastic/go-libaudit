@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.0.7]
  
 ### Added
 
@@ -20,10 +20,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   and network data. #17
 - Fixed an issue when an audit notification is received while waiting for the
   response to a control command.
-
-### Deprecated
-
-### Removed
 
 ## [0.0.6]
 

@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- auparse - Fixed an issue where the name value was not being hex decoded from
+  PATH records. #20
+
 ### Deprecated
 
 ### Removed

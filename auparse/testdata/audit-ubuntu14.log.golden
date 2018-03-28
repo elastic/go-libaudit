@@ -1,0 +1,19 @@
+[
+  {
+    "@timestamp": "2018-03-22T22:40:53.536Z",
+    "record_type": "path",
+    "sequence": 1428931,
+    "raw_msg": "audit(1521758453.536:1428931): item=0 name=2F73686172652F67656E6572616C2F706174685F7265646163746564 inode=1442434 dev=fc:01 mode=042775 ouid=10067 ogid=7003 rdev=00:00 nametype=NORMAL",
+    "data": {
+      "dev": "fc:01",
+      "inode": "1442434",
+      "item": "0",
+      "mode": "042775",
+      "name": "/share/general/path_redacted",
+      "nametype": "NORMAL",
+      "ogid": "7003",
+      "ouid": "10067",
+      "rdev": "00:00"
+    }
+  }
+]

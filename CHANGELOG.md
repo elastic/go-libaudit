@@ -2,19 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-
-### Added
+## [0.1.1]
 
 - rules - Detect s390 or s390x as the runtime architecture (GOOS) and
   automatically use the appropriate syscall name to number table without
   requiring the rule to explicitly specify an arch (`-F arch=s390x`). #23
-
-### Changed
-
-### Deprecated
-
-### Removed
 
 ## [0.1.0]
 

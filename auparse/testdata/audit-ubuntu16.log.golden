@@ -35,5 +35,21 @@
       "terminal": "/dev/pts/1",
       "uid": "0"
     }
+  },
+  {
+    "@timestamp": "2018-04-25T13:28:53.08Z",
+    "record_type": "avc",
+    "sequence": 61207,
+    "raw_msg": "audit(1524662933.080:61207): apparmor=\"DENIED\" operation=\"ptrace\" profile=\"docker-default\" pid=5571 comm=\"metricbeat\" requested_mask=\"trace\" denied_mask=\"trace\" peer=\"unconfined\"",
+    "data": {
+      "apparmor": "DENIED",
+      "comm": "metricbeat",
+      "denied_mask": "trace",
+      "operation": "ptrace",
+      "peer": "unconfined",
+      "pid": "5571",
+      "profile": "docker-default",
+      "requested_mask": "trace"
+    }
   }
 ]

@@ -158,6 +158,9 @@ func TestParseLogLineFromFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal("glob failed", err)
 	}
+	if len(files) == 0 {
+		t.Fatal("no files found")
+	}
 
 	for _, name := range files {
 		f, err := os.Open(name)
@@ -214,6 +217,7 @@ type StoredAuditMessage struct {
 	RawMessage string            `json:"raw_msg"`
 	Tags       []string          `json:"keys,omitempty"`
 	Data       map[string]string `json:"data"`
+	Error      string            `json:"error,omitempty"`
 }
 
 func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
@@ -222,7 +226,10 @@ func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
 	}
 
 	// Ensure raw message has been parsed.
-	msg.Data()
+	var errorMsg string
+	if _, err := msg.Data(); err != nil {
+		errorMsg = err.Error()
+	}
 
 	return &StoredAuditMessage{
 		Timestamp:  msg.Timestamp,
@@ -231,6 +238,7 @@ func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
 		RawMessage: msg.RawData,
 		Tags:       msg.tags,
 		Data:       msg.data,
+		Error:      errorMsg,
 	}
 }
 

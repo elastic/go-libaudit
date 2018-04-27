@@ -250,9 +250,10 @@ var (
 	// value pairs.
 	kvRegex = regexp.MustCompile(`([a-z0-9_-]+)=((?:[^"'\s]+)|'(?:\\'|[^'])*'|"(?:\\"|[^"])*")`)
 
-	// avcMessageRegex matches the beginning of AVC messages to parse the
-	// seresult and seperms parameters. Example: "avc:  denied  { read } for  "
-	avcMessageRegex = regexp.MustCompile(`avc:\s+(\w+)\s+\{\s*(.*)\s*\}\s+for\s+`)
+	// avcMessageRegex matches the beginning of SELinux AVC messages to parse
+	// the seresult and seperms parameters.
+	// Example: "avc:  denied  { read } for  "
+	selinuxAVCMessageRegex = regexp.MustCompile(`avc:\s+(\w+)\s+\{\s*(.*)\s*\}\s+for\s+`)
 )
 
 // normalizeAuditMessage fixes some of the peculiarities of certain audit
@@ -260,7 +261,14 @@ var (
 func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 	switch typ {
 	case AUDIT_AVC:
-		i := avcMessageRegex.FindStringSubmatchIndex(msg)
+		i := selinuxAVCMessageRegex.FindStringSubmatchIndex(msg)
+		if i == nil {
+			// It's a different type of AVC (e.g. AppArmor) and doesn't require
+			// normalization to make it parsable.
+			return msg, nil
+		}
+
+		// This selinux AVC regex match should return three pairs.
 		if len(i) != 3*2 {
 			return "", errParseFailure
 		}

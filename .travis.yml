@@ -6,9 +6,11 @@ go:
 go_import_path: github.com/elastic/go-libaudit
 
 install:
+- go get -u github.com/elastic/go-licenser
 - go get -d -t ./...
 
 script:
+- go-licenser -d
 - >
   find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read &&
   echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2 && exit 1 || true

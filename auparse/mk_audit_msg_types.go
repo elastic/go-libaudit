@@ -159,9 +159,9 @@ var tmpl = template.Must(template.New("message_types").Parse(fileTemplate))
 
 var (
 	headers = []string{
-		`https://raw.githubusercontent.com/linux-audit/audit-kernel/v4.7/include/uapi/linux/audit.h`,
-		`https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/libaudit.h`,
-		`https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/msg_typetab.h`,
+		`https://raw.githubusercontent.com/torvalds/linux/v4.16/include/uapi/linux/audit.h`,
+		`https://raw.githubusercontent.com/linux-audit/audit-userspace/4d933301b1835cafa08b9e9ef705c8fb6c96cb62/lib/libaudit.h`,
+		`https://raw.githubusercontent.com/linux-audit/audit-userspace/4d933301b1835cafa08b9e9ef705c8fb6c96cb62/lib/msg_typetab.h`,
 	}
 )
 
@@ -258,7 +258,7 @@ func run() error {
 	for _, url := range headers {
 		f, err := DownloadFile(url, tmp)
 		if err != nil {
-			return err
+			return fmt.Errorf("download failed for %v: %v", url, err)
 		}
 		files = append(files, f)
 	}

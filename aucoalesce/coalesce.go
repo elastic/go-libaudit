@@ -429,7 +429,22 @@ func applyNormalization(event *Event) {
 		syscall := event.Data["syscall"]
 		norm = syscallNorms[syscall]
 	} else {
-		norm = recordTypeNorms[event.Type.String()]
+		norms := recordTypeNorms[event.Type.String()]
+		switch len(norms) {
+		case 0:
+			// No normalization found.
+		case 1:
+			norm = norms[0]
+		default:
+			for _, n := range norms {
+				for _, f := range n.HasFields.Values {
+					if _, found := event.Data[f]; !found {
+						continue
+					}
+				}
+				norm = n
+			}
+		}
 	}
 	if norm == nil {
 		event.Warnings = append(event.Warnings, errors.New("no normalization found for event"))

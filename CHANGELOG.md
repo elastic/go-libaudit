@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- auparse - Fixed parsing of apparmor AVC messages. #25
+
 ### Deprecated
 
 ### Removed

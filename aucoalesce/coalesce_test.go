@@ -62,6 +62,7 @@ func newTestEventOutput(testName string, event *Event) testEventOutput {
 	for _, err := range event.Warnings {
 		errs = append(errs, err.Error())
 	}
+	sort.Strings(errs)
 	return testEventOutput{testName, event, errs}
 }
 

@@ -1,0 +1,187 @@
+[
+  {
+    "test_name": "AVC_AppArmor",
+    "event": {
+      "@timestamp": "2018-04-25T13:28:53.08Z",
+      "sequence": 61207,
+      "category": "mac-decision",
+      "record_type": "avc",
+      "result": "success",
+      "session": "unset",
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "1000"
+        },
+        "action": "violated-apparmor-policy",
+        "object": {
+          "type": "policy",
+          "primary": "ptrace",
+          "secondary": "trace"
+        },
+        "how": "/usr/share/metricbeat/metricbeat"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "1000",
+          "euid": "1000",
+          "fsgid": "1000",
+          "fsuid": "1000",
+          "gid": "1000",
+          "sgid": "1000",
+          "suid": "1000",
+          "uid": "1000"
+        }
+      },
+      "process": {
+        "pid": "5571",
+        "ppid": "5552",
+        "title": "metricbeat -e -system.hostfs=/hostfs -strict.perms=false",
+        "name": "metricbeat",
+        "exe": "/usr/share/metricbeat/metricbeat"
+      },
+      "data": {
+        "a0": "3",
+        "a1": "c4206cb400",
+        "a2": "200",
+        "a3": "0",
+        "apparmor": "DENIED",
+        "arch": "x86_64",
+        "denied_mask": "trace",
+        "exit": "193",
+        "operation": "ptrace",
+        "peer": "unconfined",
+        "profile": "docker-default",
+        "requested_mask": "trace",
+        "syscall": "read",
+        "tty": "(none)"
+      }
+    },
+    "warnings": [
+      "duplicate key (comm) from AVC message",
+      "duplicate key (pid) from AVC message"
+    ]
+  },
+  {
+    "test_name": "AVC_AppArmor_unlink",
+    "event": {
+      "@timestamp": "2018-04-27T17:13:26.224Z",
+      "sequence": 162937,
+      "category": "mac-decision",
+      "record_type": "avc",
+      "result": "success",
+      "session": "unset",
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "violated-apparmor-policy",
+        "object": {
+          "type": "policy",
+          "primary": "unlink",
+          "secondary": "d"
+        },
+        "how": "/usr/bin/apt-get"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "65534",
+          "euid": "100",
+          "fsgid": "65534",
+          "fsuid": "100",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        }
+      },
+      "process": {
+        "pid": "26024",
+        "ppid": "25963",
+        "title": "apt-get update",
+        "name": "apt-get",
+        "exe": "/usr/bin/apt-get",
+        "cwd": "/"
+      },
+      "data": {
+        "a0": "5611cb79a690",
+        "a1": "7efee76cc723",
+        "a2": "9",
+        "a3": "0",
+        "apparmor": "AUDIT",
+        "arch": "x86_64",
+        "exit": "0",
+        "fsuid": "100",
+        "name": "/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj",
+        "operation": "unlink",
+        "ouid": "100",
+        "profile": "docker-nginx",
+        "requested_mask": "d",
+        "syscall": "unlink",
+        "tty": "pts0"
+      },
+      "paths": [
+        {
+          "cap_fe": "0",
+          "cap_fi": "0000000000000000",
+          "cap_fp": "0000000000000000",
+          "cap_fver": "0",
+          "dev": "00:2e",
+          "inode": "116",
+          "item": "0",
+          "mode": "040755",
+          "name": "/var/lib/apt/lists/partial/",
+          "nametype": "PARENT",
+          "ogid": "0",
+          "ouid": "100",
+          "rdev": "00:00"
+        },
+        {
+          "cap_fe": "0",
+          "cap_fi": "0000000000000000",
+          "cap_fp": "0000000000000000",
+          "cap_fver": "0",
+          "dev": "08:01",
+          "inode": "585781",
+          "item": "1",
+          "mode": "0100600",
+          "name": "/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj",
+          "nametype": "DELETE",
+          "ogid": "65534",
+          "ouid": "100",
+          "rdev": "00:00"
+        },
+        {
+          "cap_fe": "0",
+          "cap_fi": "0000000000000000",
+          "cap_fp": "0000000000000000",
+          "cap_fver": "0",
+          "dev": "08:01",
+          "inode": "585779",
+          "item": "2",
+          "mode": "040755",
+          "nametype": "PARENT",
+          "ogid": "0",
+          "ouid": "100",
+          "rdev": "00:00"
+        }
+      ]
+    },
+    "warnings": [
+      "duplicate key (apparmor) from AVC message",
+      "duplicate key (comm) from AVC message",
+      "duplicate key (comm) from AVC message",
+      "duplicate key (fsuid) from AVC message",
+      "duplicate key (name) from AVC message",
+      "duplicate key (operation) from AVC message",
+      "duplicate key (ouid) from AVC message",
+      "duplicate key (pid) from AVC message",
+      "duplicate key (pid) from AVC message",
+      "duplicate key (profile) from AVC message",
+      "duplicate key (requested_mask) from AVC message"
+    ]
+  }
+]

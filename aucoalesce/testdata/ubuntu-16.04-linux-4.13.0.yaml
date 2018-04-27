@@ -1,0 +1,16 @@
+---
+tests:
+  AVC_AppArmor: |
+    type=AVC msg=audit(1524662933.080:61207): apparmor="DENIED" operation="ptrace" profile="docker-default" pid=5571 comm="metricbeat" requested_mask="trace" denied_mask="trace" peer="unconfined"
+    type=SYSCALL msg=audit(1524662933.080:61207): arch=c000003e syscall=0 success=yes exit=193 a0=3 a1=c4206cb400 a2=200 a3=0 items=0 ppid=5552 pid=5571 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="metricbeat" exe="/usr/share/metricbeat/metricbeat" key=(null)
+    type=PROCTITLE msg=audit(1524662933.080:61207): proctitle=6D657472696362656174002D65002D73797374656D2E686F737466733D2F686F73746673002D7374726963742E7065726D733D66616C7365
+
+  AVC_AppArmor_unlink: |
+    type=AVC msg=audit(1524849206.224:162937): apparmor="AUDIT" operation="unlink" profile="docker-nginx" name="/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj" pid=26024 comm="apt-get" requested_mask="d" fsuid=100 ouid=100
+    type=AVC msg=audit(1524849206.224:162937): apparmor="AUDIT" operation="unlink" profile="docker-nginx" name="/var/lib/docker/aufs/diff/8087092ad17fa7433455dccab4f52b438ae032d22bf40a8d098c7235cfad53d8/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj" pid=26024 comm="apt-get" requested_mask="d" fsuid=100 ouid=100
+    type=SYSCALL msg=audit(1524849206.224:162937): arch=c000003e syscall=87 success=yes exit=0 a0=5611cb79a690 a1=7efee76cc723 a2=9 a3=0 items=3 ppid=25963 pid=26024 auid=4294967295 uid=0 gid=0 euid=100 suid=0 fsuid=100 egid=65534 sgid=0 fsgid=65534 tty=pts0 ses=4294967295 comm="apt-get" exe="/usr/bin/apt-get" key=(null)
+    type=CWD msg=audit(1524849206.224:162937): cwd="/"
+    type=PATH msg=audit(1524849206.224:162937): item=0 name="/var/lib/apt/lists/partial/" inode=116 dev=00:2e mode=040755 ouid=100 ogid=0 rdev=00:00 nametype=PARENT cap_fp=0000000000000000 cap_fi=0000000000000000 cap_fe=0 cap_fver=0
+    type=PATH msg=audit(1524849206.224:162937): item=1 name="/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj" inode=585781 dev=08:01 mode=0100600 ouid=100 ogid=65534 rdev=00:00 nametype=DELETE cap_fp=0000000000000000 cap_fi=0000000000000000 cap_fe=0 cap_fver=0
+    type=PATH msg=audit(1524849206.224:162937): item=2 name=(null) inode=585779 dev=08:01 mode=040755 ouid=100 ogid=0 rdev=00:00 nametype=PARENT cap_fp=0000000000000000 cap_fi=0000000000000000 cap_fe=0 cap_fver=0
+    type=PROCTITLE msg=audit(1524849206.224:162937): proctitle=6170742D67657400757064617465

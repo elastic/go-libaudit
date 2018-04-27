@@ -25,7 +25,7 @@ import (
 
 var (
 	syscallNorms    map[string]*Normalization
-	recordTypeNorms map[string]*Normalization
+	recordTypeNorms map[string][]*Normalization
 )
 
 func init() {
@@ -69,6 +69,7 @@ type Normalization struct {
 	RecordTypes Strings        `yaml:"record_types"`
 	Syscalls    Strings        `yaml:"syscalls"`
 	SourceIP    Strings        `yaml:"source_ip"`
+	HasFields   Strings        `yaml:"has_fields"`
 }
 
 type SubjectMapping struct {
@@ -83,32 +84,33 @@ type ObjectMapping struct {
 	PathIndex          int     `yaml:"path_index"`
 }
 
-type HowMapping struct {
-	FieldName string `yaml:"field"`
-}
-
-func LoadNormalizationConfig(b []byte) (syscalls map[string]*Normalization, recordTypes map[string]*Normalization, err error) {
+func LoadNormalizationConfig(b []byte) (syscalls map[string]*Normalization, recordTypes map[string][]*Normalization, err error) {
 	c := &NormalizationConfig{}
 	if err := yaml.Unmarshal(b, c); err != nil {
 		return nil, nil, err
 	}
 
 	syscalls = map[string]*Normalization{}
-	recordTypes = map[string]*Normalization{}
+	recordTypes = map[string][]*Normalization{}
 
 	for i := range c.Normalizations {
 		norm := c.Normalizations[i]
 		for _, syscall := range norm.Syscalls.Values {
 			if _, found := syscalls[syscall]; found {
-				return nil, nil, fmt.Errorf("duplication mappings for sycall %v", syscall)
+				return nil, nil, fmt.Errorf("duplication mappings for syscall %v", syscall)
 			}
 			syscalls[syscall] = &norm
 		}
 		for _, recordType := range norm.RecordTypes.Values {
-			if _, found := recordTypes[recordType]; found {
-				return nil, nil, fmt.Errorf("duplication mappings for record_type %v", recordType)
+			norms, found := recordTypes[recordType]
+			if found {
+				for _, n := range norms {
+					if len(n.HasFields.Values) == 0 {
+						return nil, nil, fmt.Errorf("duplication mappings for record_type %v without has_fields qualifier", recordType)
+					}
+				}
 			}
-			recordTypes[recordType] = &norm
+			recordTypes[recordType] = append(norms, &norm)
 		}
 	}
 

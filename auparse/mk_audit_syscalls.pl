@@ -22,7 +22,7 @@ sub fmt {
     print "\t\t$num: \"$name\",\n";
 }
 
-my $base_url = "https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib";
+my $base_url = "https://raw.githubusercontent.com/linux-audit/audit-userspace/4d933301b1835cafa08b9e9ef705c8fb6c96cb62/lib";
 my @tables = (
     "aarch64",
     "arm",
@@ -34,12 +34,9 @@ my @tables = (
     "x86_64",
 );
 
-`curl -s -O https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/x86_64_table.h`;
-`curl -s -O https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/x86_64_table.h`;
-
 sub downloadTable {
     my ($arch) = @_;
-    `curl -s -O https://raw.githubusercontent.com/linux-audit/audit-userspace/990aa27ccd02f9743c4f4049887ab89678ab362a/lib/${arch}_table.h`;
+    `curl -s -O ${base_url}/${arch}_table.h`;
 }
 
 sub readTable {

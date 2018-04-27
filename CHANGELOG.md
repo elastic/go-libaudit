@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - auparse - Fixed parsing of apparmor AVC messages. #25
+- aucoalesce - Cache UID/GID values for one minute. #24
 
 ### Deprecated
 

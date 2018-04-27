@@ -26,8 +26,10 @@ import (
 func TestUIDLookup(t *testing.T) {
 	uid := os.Getuid()
 	user := userLookup.LookupUID(strconv.Itoa(uid))
+	user = userLookup.LookupUID(strconv.Itoa(uid))
 	gid := os.Getgid()
 	group := groupLookup.LookupGID(strconv.Itoa(gid))
+	group = groupLookup.LookupGID(strconv.Itoa(gid))
 
 	t.Log(user, group)
 }

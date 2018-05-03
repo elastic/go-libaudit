@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added better error messages for when `NewAuditClient` fails due to the
+  Linux kernel not supporting auditing (CONFIG_AUDIT=n). #32
+
 ### Changed
 
 ### Deprecated

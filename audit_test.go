@@ -35,8 +35,7 @@ import (
 )
 
 // This can be run inside of Docker with:
-// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit \
-//   --pid=host --privileged golang:1.8.3 /bin/bash
+// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit --pid=host --privileged golang:1.10.1 /bin/bash
 
 var (
 	hexdump = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")

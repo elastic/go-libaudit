@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- AuditClient `Close()` is now safe to call more than once. #35
+
 ### Deprecated
 
 ### Removed

@@ -35,7 +35,7 @@ import (
 )
 
 // This can be run inside of Docker with:
-// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit --pid=host --privileged golang:1.10.1 /bin/bash
+// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit --pid=host --privileged golang:1.10.2 /bin/bash
 
 var (
 	hexdump = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")
@@ -506,6 +506,56 @@ func TestAuditClientReceive(t *testing.T) {
 		}
 	}
 	assert.True(t, msgCount >= 1, "expected at least one messages")
+}
+
+func TestAuditClientClose(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to set audit port id")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	// Open a secondary client to verify that audit PID value.
+	observer, err := NewAuditClient(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer observer.Close()
+
+	// Start the testing.
+	client, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+
+	err = client.SetPID(WaitForReply)
+	if err != nil {
+		t.Fatal("set pid failed:", err, " (Did you stop auditd?)")
+	}
+
+	// Validate the PID.
+	status, err := observer.GetStatus()
+	if err != nil {
+		t.Fatal("failed to get audit status", err)
+	}
+	assert.NotZero(t, status.PID)
+
+	// Close will clear the PID to 0.
+	if err := client.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Validate the PID is cleared.
+	status, err = observer.GetStatus()
+	if err != nil {
+		t.Fatal("failed to get audit status", err)
+	}
+	assert.EqualValues(t, 0, status.PID)
 }
 
 func TestAuditStatusMask(t *testing.T) {

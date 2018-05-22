@@ -24,6 +24,7 @@ import (
 	"encoding/binary"
 	"io"
 	"os"
+	"sync"
 	"syscall"
 	"time"
 	"unsafe"
@@ -81,6 +82,7 @@ type AuditClient struct {
 	Netlink         NetlinkSendReceiver
 	pendingAcks     []uint32
 	clearPIDOnClose bool
+	closeOnce       sync.Once
 }
 
 // NewMulticastAuditClient creates a new AuditClient that binds to the multicast
@@ -378,16 +380,27 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 	}, nil
 }
 
-// Close closes the AuditClient and frees any associated resources.
+// Close closes the AuditClient and frees any associated resources. If the audit
+// PID was set it will be cleared (set 0). Any invocations beyond the first
+// become no-ops.
 func (c *AuditClient) Close() error {
-	// Unregister from the kernel for a clean exit.
-	status := AuditStatus{
-		Mask: AuditStatusPID,
-		PID:  0,
-	}
-	c.set(status, NoWait)
+	var err error
 
-	return c.Netlink.Close()
+	// Only unregister and close the socket once.
+	c.closeOnce.Do(func() {
+		if c.clearPIDOnClose {
+			// Unregister from the kernel for a clean exit.
+			status := AuditStatus{
+				Mask: AuditStatusPID,
+				PID:  0,
+			}
+			c.set(status, NoWait)
+		}
+
+		err = c.Netlink.Close()
+	})
+
+	return err
 }
 
 // WaitForPendingACKs waits for acknowledgements messages for operations

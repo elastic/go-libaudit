@@ -356,6 +356,23 @@ func (c *AuditClient) SetFailure(fm FailureMode, wm WaitMode) error {
 	return c.set(status, wm)
 }
 
+// SetBacklogWaitTime sets the time that the kernel will wait for a buffer in
+// the backlog queue to become available before dropping the event. This has
+// the side-effect of blocking the thread that was invoking the syscall being
+// audited.
+// waitTime is measured in jiffies, default in kernel is 60*HZ (60 seconds).
+// A value of 0 disables the wait time completely, causing the failure mode
+// to be invoked immediately when the backlog queue is full.
+// Attempting to set a negative value or a value 10x larger than the default
+// will fail with EINVAL.
+func (c *AuditClient) SetBacklogWaitTime(waitTime int32, wm WaitMode) error {
+	status := AuditStatus{
+		Mask:            AuditStatusBacklogWaitTime,
+		BacklogWaitTime: uint32(waitTime),
+	}
+	return c.set(status, wm)
+}
+
 // RawAuditMessage is a raw audit message received from the kernel.
 type RawAuditMessage struct {
 	Type auparse.AuditMessageType
@@ -518,6 +535,19 @@ const (
 	AuditStatusRateLimit
 	AuditStatusBacklogLimit
 	AuditStatusBacklogWaitTime
+)
+
+// AuditFeatureBitmap is a mask used to indicate which features are currently
+// supported by the audit subsystem.
+type AuditFeatureBitmap uint32
+
+const (
+	AuditFeatureBitmapBacklogLimit = 1 << iota
+	AuditFeatureBitmapBacklogWaitTime
+	AuditFeatureBitmapExecutablePath
+	AuditFeatureBitmapExcludeExtend
+	AuditFeatureBitmapSessionIDFilter
+	AuditFeatureBitmapLostReset
 )
 
 var sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))

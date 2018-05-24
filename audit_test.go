@@ -363,6 +363,14 @@ func TestAuditClientSetBacklogLimit(t *testing.T) {
 		t.Skip("must be root to set rate limit")
 	}
 
+	status, err := getStatus(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.FeatureBitmap&AuditFeatureBitmapBacklogLimit == 0 {
+		t.Skip("backlog limit feature not supported in current kernel")
+	}
+
 	var dumper io.WriteCloser
 	if *hexdump {
 		dumper = hex.Dumper(os.Stdout)
@@ -382,7 +390,7 @@ func TestAuditClientSetBacklogLimit(t *testing.T) {
 	}
 	t.Log("SetBacklogLimit complete")
 
-	status, err := getStatus(t)
+	status, err = getStatus(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -482,13 +490,21 @@ func TestAuditClientReceive(t *testing.T) {
 		t.Fatal("set pid failed:", err, " (Did you stop auditd?)")
 	}
 
-	// Depending on the kernel version, it will reply with an AUDIT_REPLACE (1329)
-	// message, followed by an AUDIT_CONFIG_CHANGE (1305) message, followed
-	// by an ACK. Older kernels seem to not send the AUDIT_CONFIG_CHANGE message.
-	if err = client.SetPID(WaitForReply); err == nil {
-		t.Fatal("set pid failed:", err)
-	} else if errors.Cause(err) != syscall.EEXIST {
-		t.Fatal("expected second SetPID call to result in EEXISTS but got", err)
+	kMajor, kMinor, err := kernelVersion()
+	if err != nil {
+		t.Fatal("get kernel version failed:", err)
+	}
+	// Setting a new PID when an audit process is already registered only fails
+	// in Linux kernel version 4.11 and up.
+	if kMajor > 4 || kMajor == 4 && kMinor >= 11 {
+		// Depending on the kernel version, it will reply with an AUDIT_REPLACE (1329)
+		// message, followed by an AUDIT_CONFIG_CHANGE (1305) message, followed
+		// by an ACK. Older kernels seem to not send the AUDIT_CONFIG_CHANGE message.
+		if err = client.SetPID(WaitForReply); err == nil {
+			t.Fatal("set pid (overwrite) didn't fail as expected.")
+		} else if errors.Cause(err) != syscall.EEXIST {
+			t.Fatal("expected second SetPID call to result in EEXISTS but got", err)
+		}
 	}
 
 	// Expect at least 1 message caused by our previous call (CONFIG_CHANGE).
@@ -560,4 +576,73 @@ func TestAuditWaitForPendingACKs(t *testing.T) {
 
 	t.Log("WaitForPendingACKs complete")
 
+}
+
+func TestAuditClientSetBacklogWaitTime(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to set backlog wait time")
+	}
+
+	status, err := getStatus(t)
+	if status.FeatureBitmap&AuditFeatureBitmapBacklogWaitTime == 0 {
+		t.Skip("backlog wait time feature not supported in current kernel")
+	}
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	for _, waitValue := range []int32{0, 500} {
+		msg := fmt.Sprintf("[wait time = %d]", waitValue)
+		err = c.SetBacklogWaitTime(waitValue, WaitForReply)
+		if err != nil {
+			t.Fatal(err, msg)
+		}
+		t.Log("SetBacklogWaitTime complete", msg)
+
+		status, err := getStatus(t)
+		if err != nil {
+			t.Fatal(err, msg)
+		}
+		assert.EqualValues(t, waitValue, status.BacklogWaitTime, msg)
+	}
+}
+
+func TestAuditFeatureBitmap(t *testing.T) {
+	assert.EqualValues(t, 0x01, AuditFeatureBitmapBacklogLimit)
+	assert.EqualValues(t, 0x02, AuditFeatureBitmapBacklogWaitTime)
+	assert.EqualValues(t, 0x04, AuditFeatureBitmapExecutablePath)
+	assert.EqualValues(t, 0x08, AuditFeatureBitmapExcludeExtend)
+	assert.EqualValues(t, 0x10, AuditFeatureBitmapSessionIDFilter)
+	assert.EqualValues(t, 0x20, AuditFeatureBitmapLostReset)
+}
+
+func extractDecimalNumber(s []int8, pos int) (value int, nextPos int) {
+	const aZero, aNine int8 = 0x30, 0x39
+	for value = 0; ; pos++ {
+		c := s[pos]
+		if c >= aZero && c <= aNine {
+			value = value*10 + int(c-aZero)
+		} else {
+			return value, pos + 1
+		}
+	}
+}
+
+func kernelVersion() (major int, minor int, err error) {
+	var info syscall.Utsname
+	if err = syscall.Uname(&info); err != nil {
+		return 0, 0, err
+	}
+	s := info.Release[:]
+	major, pos := extractDecimalNumber(s, 0)
+	minor, _ = extractDecimalNumber(s, pos)
+	return major, minor, nil
 }

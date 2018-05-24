@@ -120,16 +120,8 @@ func newAuditClient(netlinkGroups uint32, resp io.Writer) (*AuditClient, error) 
 
 // GetStatus returns the current status of the kernel's audit subsystem.
 func (c *AuditClient) GetStatus() (*AuditStatus, error) {
-	msg := syscall.NetlinkMessage{
-		Header: syscall.NlMsghdr{
-			Type:  AuditGet,
-			Flags: syscall.NLM_F_REQUEST | syscall.NLM_F_ACK,
-		},
-		Data: nil,
-	}
-
 	// Send AUDIT_GET message to the kernel.
-	seq, err := c.Netlink.Send(msg)
+	seq, err := c.GetStatusAsync(true)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed sending request")
 	}
@@ -160,11 +152,30 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 	}
 
 	replyStatus := &AuditStatus{}
-	if err := replyStatus.fromWireFormat(reply.Data); err != nil {
+	if err := replyStatus.FromWireFormat(reply.Data); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal reply")
 	}
 
 	return replyStatus, nil
+}
+
+// GetStatusAsync sends a request for the status of the kernel's audit subsystem
+// and returns without waiting for a response.
+func (c *AuditClient) GetStatusAsync(requireACK bool) (seq uint32, err error) {
+	var flags uint16 = syscall.NLM_F_REQUEST
+	if requireACK {
+		flags |= syscall.NLM_F_ACK
+	}
+	msg := syscall.NetlinkMessage{
+		Header: syscall.NlMsghdr{
+			Type:  AuditGet,
+			Flags: flags,
+		},
+		Data: nil,
+	}
+
+	// Send AUDIT_GET message to the kernel.
+	return c.Netlink.Send(msg)
 }
 
 // GetRules returns a list of audit rules (in binary format).
@@ -548,6 +559,7 @@ const (
 	AuditStatusRateLimit
 	AuditStatusBacklogLimit
 	AuditStatusBacklogWaitTime
+	AuditStatusLost
 )
 
 // AuditFeatureBitmap is a mask used to indicate which features are currently
@@ -591,11 +603,11 @@ func (s AuditStatus) toWireFormat() []byte {
 	return buf.Bytes()
 }
 
-// fromWireFormat unmarshals the given buffer to an AuditStatus object. Due to
+// FromWireFormat unmarshals the given buffer to an AuditStatus object. Due to
 // changes in the audit_status struct in the kernel source this method does
 // not return an error if the buffer is smaller than the sizeof our AuditStatus
 // struct.
-func (s *AuditStatus) fromWireFormat(buf []byte) error {
+func (s *AuditStatus) FromWireFormat(buf []byte) error {
 	fields := []interface{}{
 		&s.Mask,
 		&s.Enabled,

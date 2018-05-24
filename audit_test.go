@@ -674,6 +674,63 @@ func TestAuditFeatureBitmap(t *testing.T) {
 	assert.EqualValues(t, 0x20, AuditFeatureBitmapLostReset)
 }
 
+func TestAuditClientGetStatusAsync(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to get audit status")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	for _, withACK := range []bool{true, false} {
+		seq, err := c.GetStatusAsync(withACK)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if withACK {
+			// Get the ack message which is a NLMSG_ERROR type whose error code is SUCCESS.
+			ack, err := c.getReply(seq)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if ack.Header.Type != syscall.NLMSG_ERROR {
+				t.Fatalf("unexpected ACK to GET, got type=%d", ack.Header.Type)
+			}
+
+			if err = ParseNetlinkError(ack.Data); err != nil {
+				t.Fatal(err)
+			}
+		}
+
+		reply, err := c.getReply(seq)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if reply.Header.Type != AuditGet {
+			t.Fatalf("unexpected reply to GET, got type=%d", reply.Header.Type)
+		}
+
+		replyStatus := &AuditStatus{}
+		if err := replyStatus.FromWireFormat(reply.Data); err != nil {
+			t.Fatal(err)
+		}
+
+		t.Logf("Status: %+v", replyStatus)
+	}
+}
+
 func extractDecimalNumber(s []int8, pos int) (value int, nextPos int) {
 	const aZero, aNine int8 = 0x30, 0x39
 	for value = 0; ; pos++ {

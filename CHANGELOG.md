@@ -6,6 +6,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+
+## [0.3.0]
+
+### Added
+
 - Added support for setting the kernel's backlog wait time via the new
   SetBacklogWaitTime function. #34
 - New method `GetStatusAsync` to perform asynchronous status checks. #37

@@ -32,6 +32,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/elastic/go-libaudit/rule"
+	"github.com/elastic/go-libaudit/rule/flags"
 )
 
 // This can be run inside of Docker with:
@@ -728,6 +731,39 @@ func TestAuditClientGetStatusAsync(t *testing.T) {
 		}
 
 		t.Logf("Status: %+v", replyStatus)
+	}
+}
+
+func TestRuleParsing(t *testing.T) {
+	for idx, line := range []string{
+		"-a always,exit -F arch=b64 -S execve,execveat -F key=exec",
+		"-a never,exit -F arch=b64 -S connect,accept,bind -F key=external-access",
+		"-w /etc/group -p wa",
+		"-w /etc/passwd -p rx",
+		"-w /etc/gshadow -p rwxa",
+		"-w /tmp/test -p rwa",
+		"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -F key=access",
+		"-a never,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -F key=access",
+		"-a always,exit -F arch=b32 -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+		"-a always,exit -F arch=b64 -S open -F key=key -F uid=1111 -F gid=333 -F exit=-151111 -F filetype=fifo",
+		"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
+		"-a always,user -F uid=root",
+		"-a always,task -F uid=root",
+	} {
+		msg := fmt.Sprintf("parsing line #%d: `%s`", idx, line)
+		r, err := flags.Parse(line)
+		if err != nil {
+			t.Fatal(err, msg)
+		}
+		data, err := rule.Build(r)
+		if err != nil {
+			t.Fatal(err, msg)
+		}
+		cmdline, err := rule.ToCommandLine(data, true)
+		if err != nil {
+			t.Fatal(err, msg)
+		}
+		assert.Equal(t, line, cmdline, msg)
 	}
 }
 

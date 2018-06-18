@@ -58,50 +58,50 @@ func TestBuild(t *testing.T) {
 func TestAddFlag(t *testing.T) {
 	t.Run("exit", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addList(rule, "exit"))
+		assert.NoError(t, rule.setList("exit"))
 		assert.EqualValues(t, exitFilter, rule.flags)
 	})
 
 	t.Run("task", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addList(rule, "task"))
+		assert.NoError(t, rule.setList("task"))
 		assert.EqualValues(t, taskFilter, rule.flags)
 	})
 
 	t.Run("user", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addList(rule, "user"))
+		assert.NoError(t, rule.setList("user"))
 		assert.EqualValues(t, userFilter, rule.flags)
 	})
 
 	t.Run("exclude", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addList(rule, "exclude"))
+		assert.NoError(t, rule.setList("exclude"))
 		assert.EqualValues(t, excludeFilter, rule.flags)
 	})
 
 	t.Run("invalid", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.Error(t, addList(rule, "invalid"))
+		assert.Error(t, rule.setList("invalid"))
 	})
 }
 
 func TestAddAction(t *testing.T) {
 	t.Run("always", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addAction(rule, "always"))
+		assert.NoError(t, rule.setAction("always"))
 		assert.EqualValues(t, alwaysAction, rule.action)
 	})
 
 	t.Run("never", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.NoError(t, addAction(rule, "never"))
+		assert.NoError(t, rule.setAction("never"))
 		assert.EqualValues(t, neverAction, rule.action)
 	})
 
 	t.Run("invalid", func(t *testing.T) {
 		rule := &ruleData{}
-		assert.Error(t, addAction(rule, "invalid"))
+		assert.Error(t, rule.setAction("invalid"))
 	})
 }
 

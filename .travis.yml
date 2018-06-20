@@ -15,6 +15,7 @@ script:
   find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read &&
   echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2 && exit 1 || true
 - go test -v $(go list ./... | grep -v /vendor/)
+- GOARCH=386 go test -v $(go list ./... | grep -v /vendor/)
 - mkdir -p build/bin
 - go build -o build/bin/audit ./cmd/audit/
 - go build -o build/bin/auparse ./cmd/auparse/

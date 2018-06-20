@@ -749,6 +749,7 @@ func TestRuleParsing(t *testing.T) {
 		"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
 		"-a always,user -F uid=root",
 		"-a always,task -F uid=root",
+		"-a always,exit -S mount -F pid=1234",
 	} {
 		msg := fmt.Sprintf("parsing line #%d: `%s`", idx, line)
 		r, err := flags.Parse(line)

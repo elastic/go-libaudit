@@ -206,7 +206,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			default:
 				return "", errors.New("invalid arch for b32")
 			}
-		} else if r.arch != "b64" {
+		} else if len(r.arch) > 0 && r.arch != "b64" {
 			arch = r.arch
 		}
 		syscallTable, ok := auparse.AuditSyscalls[arch]

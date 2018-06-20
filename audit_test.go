@@ -637,6 +637,9 @@ func TestAuditClientSetBacklogWaitTime(t *testing.T) {
 	}
 
 	status, err := getStatus(t)
+	if err != nil || status == nil {
+		t.Skipf("audit status not available: %v", err)
+	}
 	if status.FeatureBitmap&AuditFeatureBitmapBacklogWaitTime == 0 {
 		t.Skip("backlog wait time feature not supported in current kernel")
 	}

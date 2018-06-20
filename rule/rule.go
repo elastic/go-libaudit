@@ -197,6 +197,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 		}
 		if r.arch == "b32" {
 			switch arch {
+			case "i386", "arm", "ppc":
 			case "aarch64":
 				arch = "arm"
 			case "x86_64":
@@ -204,7 +205,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			case "ppc64", "ppc64le":
 				arch = "ppc"
 			default:
-				return "", errors.New("invalid arch for b32")
+				return "", fmt.Errorf("invalid arch for b32: '%s'", arch)
 			}
 		} else if len(r.arch) > 0 && r.arch != "b64" {
 			arch = r.arch

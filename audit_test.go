@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"syscall"
 	"testing"
 	"time"
@@ -637,6 +638,9 @@ func TestAuditClientSetBacklogWaitTime(t *testing.T) {
 	}
 
 	status, err := getStatus(t)
+	if err != nil || status == nil {
+		t.Skipf("audit status not available: %v", err)
+	}
 	if status.FeatureBitmap&AuditFeatureBitmapBacklogWaitTime == 0 {
 		t.Skip("backlog wait time feature not supported in current kernel")
 	}
@@ -735,21 +739,63 @@ func TestAuditClientGetStatusAsync(t *testing.T) {
 }
 
 func TestRuleParsing(t *testing.T) {
-	for idx, line := range []string{
-		"-a always,exit -F arch=b64 -S execve,execveat -F key=exec",
-		"-a never,exit -F arch=b64 -S connect,accept,bind -F key=external-access",
-		"-w /etc/group -p wa",
-		"-w /etc/passwd -p rx",
-		"-w /etc/gshadow -p rwxa",
-		"-w /tmp/test -p rwa",
-		"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -F key=access",
-		"-a never,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -F key=access",
-		"-a always,exit -F arch=b32 -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
-		"-a always,exit -F arch=b64 -S open -F key=key -F uid=1111 -F gid=333 -F exit=-151111 -F filetype=fifo",
-		"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
-		"-a always,user -F uid=root",
-		"-a always,task -F uid=root",
-	} {
+	var rules []string
+	switch runtime.GOARCH {
+	case "386":
+		rules = []string{
+			"-a always,exit -F arch=b32 -S execve,execveat -F key=exec",
+			"-a never,exit -F arch=b32 -S bind,connect,accept4 -F key=external-access",
+			"-w /etc/group -p wa",
+			"-w /etc/passwd -p rx",
+			"-w /etc/gshadow -p rwxa",
+			"-w /tmp/test -p rwa",
+			"-a always,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EACCES -F key=access",
+			"-a never,exit -F arch=b32 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EPERM -F key=access",
+			"-a always,exit -F arch=b32 -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+			"-a always,exit -F arch=b32 -S open -F key=key -F uid=1111 -F gid=333 -F exit=-151111 -F filetype=fifo",
+			"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
+			"-a always,user -F uid=root",
+			"-a always,task -F uid=root",
+			"-a always,exit -S mount -F pid=1234",
+		}
+	case "amd64":
+		rules = []string{
+			"-a always,exit -F arch=b64 -S execve,execveat -F key=exec",
+			"-a never,exit -F arch=b64 -S connect,accept,bind -F key=external-access",
+			"-w /etc/group -p wa",
+			"-w /etc/passwd -p rx",
+			"-w /etc/gshadow -p rwxa",
+			"-w /tmp/test -p rwa",
+			"-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -F key=access",
+			"-a never,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -F key=access",
+			"-a always,exit -F arch=b32 -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+			"-a always,exit -F arch=b64 -S open -F key=key -F uid=1111 -F gid=333 -F exit=-151111 -F filetype=fifo",
+			"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
+			"-a always,user -F uid=root",
+			"-a always,task -F uid=root",
+			"-a always,exit -S mount -F pid=1234",
+		}
+	default:
+		// Can't have multiple syscall testing as ordering of individual syscalls
+		// will vary between platforms (sorted by syscall id)
+		rules = []string{
+			"-a always,exit -S execve -F key=exec",
+			"-w /etc/group -p wa",
+			"-w /etc/passwd -p rx",
+			"-w /etc/gshadow -p rwxa",
+			"-w /tmp/test -p rwa",
+			"-a always,exit -S all -F exit=-EACCES -F key=access",
+			"-a never,exit -S all -F exit=-EPERM -F key=access",
+			"-a always,exit -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+			"-a always,exit -S open -F key=key -F uid=1111 -F gid=333 -F exit=-151111 -F filetype=fifo",
+			"-a never,exclude -F msgtype=GRP_CHAUTHTOK",
+			"-a always,user -F uid=root",
+			"-a always,task -F uid=root",
+			"-a always,exit -S mount -F pid=1234",
+		}
+	}
+	t.Logf("checking %d rules", len(rules))
+	for idx, line := range rules {
 		msg := fmt.Sprintf("parsing line #%d: `%s`", idx, line)
 		r, err := flags.Parse(line)
 		if err != nil {

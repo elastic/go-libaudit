@@ -362,7 +362,7 @@ func TestAddFilter(t *testing.T) {
 		}
 		assert.EqualValues(t, arg3Field, rule.fields[0])
 		assert.EqualValues(t, equalOperator, rule.fieldFlags[0])
-		assert.EqualValues(t, math.MaxUint32, rule.values[0])
+		assert.EqualValues(t, uint32(math.MaxUint32), rule.values[0])
 	})
 
 	t.Run("arg_min_int32", func(t *testing.T) {

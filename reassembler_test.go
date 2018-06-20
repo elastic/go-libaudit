@@ -96,7 +96,7 @@ func TestReassembler(t *testing.T) {
 }
 
 type eventMeta struct {
-	seq   int
+	seq   uint
 	count int
 }
 

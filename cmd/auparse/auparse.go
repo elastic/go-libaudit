@@ -176,9 +176,12 @@ func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) {
 	default:
 		sm := event.Summary
 		s.output.Write([]byte("---\n"))
-		s.output.Write([]byte(fmt.Sprintf(`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
+		fmt.Fprintf(
+			s.output,
+			`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
 			event.Timestamp, event.Sequence, event.Category, event.Type, sm.Actor.Primary, sm.Actor.Secondary,
-			sm.Action, sm.Object.Primary, sm.Object.Secondary, sm.How, event.Tags)))
+			sm.Action, sm.Object.Primary, sm.Object.Secondary, sm.How, event.Tags,
+		)
 	}
 }
 
@@ -193,7 +196,11 @@ func (s *streamHandler) outputSingleMessage(m *auparse.AuditMessage) {
 			log.WithError(err).Error("failed to marshal message to YAML")
 		}
 	default:
-		s.output.Write([]byte(fmt.Sprintf("type=%v msg=%v\n", m.RecordType, m.RawData)))
+		fmt.Fprintf(
+			s.output,
+			"type=%v msg=%v\n",
+			m.RecordType, m.RawData,
+		)
 	}
 }
 

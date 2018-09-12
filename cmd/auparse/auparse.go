@@ -96,7 +96,7 @@ func processLogs() error {
 	}
 	defer output.Close()
 
-	reassembler, err := libaudit.NewReassembler(5, 2*time.Second, &streamHandler{})
+	reassembler, err := libaudit.NewReassembler(5, 2*time.Second, &streamHandler{output})
 	if err != nil {
 		return errors.Wrap(err, "failed to create reassmbler")
 	}
@@ -132,21 +132,23 @@ func processLogs() error {
 	return nil
 }
 
-type streamHandler struct{}
+type streamHandler struct {
+	output io.Writer
+}
 
 func (s *streamHandler) ReassemblyComplete(msgs []*auparse.AuditMessage) {
-	outputMultipleMessages(msgs)
+	s.outputMultipleMessages(msgs)
 }
 
 func (s *streamHandler) EventsLost(count int) {
 	log.Infof("Detected the loss of %v sequences.", count)
 }
 
-func outputMultipleMessages(msgs []*auparse.AuditMessage) {
+func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) {
 	if !*interpret {
-		fmt.Println("---")
+		s.output.Write([]byte("---\n"))
 		for _, m := range msgs {
-			outputSingleMessage(m)
+			s.outputSingleMessage(m)
 		}
 		return
 	}
@@ -163,52 +165,61 @@ func outputMultipleMessages(msgs []*auparse.AuditMessage) {
 
 	switch *format {
 	case "json":
-		if err := printJSON(event); err != nil {
+		if err := s.printJSON(event); err != nil {
 			log.WithError(err).Error("failed to marshal event to JSON")
 		}
 	case "yaml":
-		fmt.Println("---")
-		if err := printYAML(event); err != nil {
+		s.output.Write([]byte("---\n"))
+		if err := s.printYAML(event); err != nil {
 			log.WithError(err).Error("failed to marshal message to YAML")
 		}
 	default:
 		sm := event.Summary
-		fmt.Println("---")
-		fmt.Printf(`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
+		s.output.Write([]byte("---\n"))
+		fmt.Fprintf(
+			s.output,
+			`time="%v" sequence=%v category=%v type=%v actor=%v/%v action=%v thing=%v/%v how=%v tags=%v`+"\n",
 			event.Timestamp, event.Sequence, event.Category, event.Type, sm.Actor.Primary, sm.Actor.Secondary,
-			sm.Action, sm.Object.Primary, sm.Object.Secondary, sm.How, event.Tags)
+			sm.Action, sm.Object.Primary, sm.Object.Secondary, sm.How, event.Tags,
+		)
 	}
 }
 
-func outputSingleMessage(m *auparse.AuditMessage) {
+func (s *streamHandler) outputSingleMessage(m *auparse.AuditMessage) {
 	switch *format {
 	case "json":
-		if err := printJSON(m.ToMapStr()); err != nil {
+		if err := s.printJSON(m.ToMapStr()); err != nil {
 			log.WithError(err).Error("failed to marshal message to JSON")
 		}
 	case "yaml":
-		if err := printYAML(m.ToMapStr()); err != nil {
+		if err := s.printYAML(m.ToMapStr()); err != nil {
 			log.WithError(err).Error("failed to marshal message to YAML")
 		}
 	default:
-		fmt.Printf("type=%v msg=%v\n", m.RecordType, m.RawData)
+		fmt.Fprintf(
+			s.output,
+			"type=%v msg=%v\n",
+			m.RecordType, m.RawData,
+		)
 	}
 }
 
-func printJSON(v interface{}) error {
+func (s *streamHandler) printJSON(v interface{}) error {
 	jsonBytes, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(jsonBytes))
+	s.output.Write(jsonBytes)
+	s.output.Write([]byte("\n"))
 	return nil
 }
 
-func printYAML(v interface{}) error {
+func (s *streamHandler) printYAML(v interface{}) error {
 	yamlBytes, err := yaml.Marshal(v)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(yamlBytes))
+	s.output.Write(yamlBytes)
+	s.output.Write([]byte("\n"))
 	return nil
 }

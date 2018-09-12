@@ -202,7 +202,8 @@ func (s *streamHandler) printJSON(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	s.output.Write(append(jsonBytes, []byte("\n")...))
+	s.output.Write(jsonBytes)
+	s.output.Write([]byte("\n"))
 	return nil
 }
 
@@ -211,6 +212,7 @@ func (s *streamHandler) printYAML(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	s.output.Write(append(yamlBytes, []byte("\n")...))
+	s.output.Write(yamlBytes)
+	s.output.Write([]byte("\n"))
 	return nil
 }

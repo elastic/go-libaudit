@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
+
 	"github.com/elastic/go-libaudit"
 	"github.com/pkg/errors"
 )

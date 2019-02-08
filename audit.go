@@ -32,10 +32,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/auparse"
+	"github.com/elastic/go-libaudit/sys"
 )
 
 var (
-	byteOrder = GetEndian()
+	byteOrder = sys.GetEndian()
 )
 
 const (

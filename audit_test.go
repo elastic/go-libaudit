@@ -21,6 +21,7 @@ package libaudit
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -36,6 +37,7 @@ import (
 
 	"github.com/elastic/go-libaudit/rule"
 	"github.com/elastic/go-libaudit/rule/flags"
+	"github.com/elastic/go-libaudit/sys"
 )
 
 // This can be run inside of Docker with:
@@ -152,6 +154,10 @@ func TestListRules(t *testing.T) {
 }
 
 func TestAddRule(t *testing.T) {
+	if sys.GetEndian() != binary.LittleEndian {
+		t.Skip("testRule is for little endian, but test machine is big endian")
+	}
+
 	if os.Geteuid() != 0 {
 		t.Skip("must be root to get audit status")
 	}
@@ -177,6 +183,10 @@ func TestAddRule(t *testing.T) {
 }
 
 func TestAddDuplicateRule(t *testing.T) {
+	if sys.GetEndian() != binary.LittleEndian {
+		t.Skip("testRule is for little endian, but test machine is big endian")
+	}
+
 	if os.Geteuid() != 0 {
 		t.Skip("must be root to get audit status")
 	}
@@ -831,7 +841,13 @@ func kernelVersion() (major int, minor int, err error) {
 		return 0, 0, err
 	}
 	s := info.Release[:]
-	major, pos := extractDecimalNumber(s, 0)
-	minor, _ = extractDecimalNumber(s, pos)
+	// As all major non-Intel architecture return []uint8 instead of []int8 for Utsname.Release following conversion is required
+	temp := make([]int8, len(s))
+	for index, num := range s {
+		temp[index] = int8(num)
+	}
+
+	major, pos := extractDecimalNumber(temp, 0)
+	minor, _ = extractDecimalNumber(temp, pos)
 	return major, minor, nil
 }

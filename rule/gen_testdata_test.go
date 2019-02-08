@@ -22,6 +22,7 @@ package rule_test
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"flag"
 	"io/ioutil"
 	"os"
@@ -34,6 +35,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/elastic/go-libaudit"
+	"github.com/elastic/go-libaudit/sys"
 )
 
 var update = flag.Bool("update", false, "update .golden.yml files")
@@ -47,6 +49,10 @@ var update = flag.Bool("update", false, "update .golden.yml files")
 // The kernel version and auditctl version used to generate the golden data
 // are stored as comments in the YAML file header.
 func TestUpdateGoldenData(t *testing.T) {
+	if sys.GetEndian() != binary.LittleEndian {
+		t.Skip("golden test data is for little endian, but test machine is big endian")
+	}
+
 	if !*update {
 		t.SkipNow()
 	}

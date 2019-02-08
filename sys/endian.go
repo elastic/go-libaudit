@@ -17,7 +17,7 @@
 
 // +build linux
 
-package libaudit
+package sys
 
 import (
 	"encoding/binary"

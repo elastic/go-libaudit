@@ -27,7 +27,7 @@ import (
 	"syscall"
 
 	"github.com/pkg/errors"
-	
+
 	"github.com/elastic/go-libaudit/sys"
 )
 

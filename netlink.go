@@ -26,8 +26,9 @@ import (
 	"sync/atomic"
 	"syscall"
 
-	"github.com/elastic/go-libaudit/sys"
 	"github.com/pkg/errors"
+	
+	"github.com/elastic/go-libaudit/sys"
 )
 
 // Generic Netlink Client

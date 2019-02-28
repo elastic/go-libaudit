@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Added support for big endian. #48
+
 ### Removed
 
 ## [0.4.0]

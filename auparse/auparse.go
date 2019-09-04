@@ -185,7 +185,7 @@ func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 		RecordType: typ,
 		Timestamp:  timestamp,
 		Sequence:   seq,
-		offset:     indexOfMessage(message[end:]),
+		offset:     end + indexOfMessage(message[end:]),
 		RawData:    message,
 	}
 	return msg, nil
@@ -232,17 +232,12 @@ func parseAuditHeader(line []byte) (time.Time, uint32, int, error) {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
 
-	return tm, uint32(sequence), end, nil
+	return tm, uint32(sequence), end + 1, nil
 }
 
 func indexOfMessage(msg string) int {
 	return strings.IndexFunc(msg, func(r rune) bool {
-		switch r {
-		case ':', ' ':
-			return true
-		default:
-			return false
-		}
+		return r != ':' && r != ' '
 	})
 }
 

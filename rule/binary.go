@@ -24,7 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/elastic/go-libaudit/sys"
+	"github.com/elastic/go-libaudit/v2/sys"
 )
 
 const (

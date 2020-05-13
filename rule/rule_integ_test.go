@@ -31,9 +31,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
-	"github.com/elastic/go-libaudit/rule"
-	"github.com/elastic/go-libaudit/rule/flags"
-	"github.com/elastic/go-libaudit/sys"
+	"github.com/elastic/go-libaudit/v2/rule"
+	"github.com/elastic/go-libaudit/v2/rule/flags"
+	"github.com/elastic/go-libaudit/v2/sys"
 )
 
 var tempDir = "/tmp/audit-test"

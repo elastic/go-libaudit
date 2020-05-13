@@ -28,7 +28,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/elastic/go-libaudit/auparse"
+	"github.com/elastic/go-libaudit/v2/auparse"
 )
 
 func TestBuild(t *testing.T) {

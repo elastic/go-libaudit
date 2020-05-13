@@ -34,8 +34,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/elastic/go-libaudit"
-	"github.com/elastic/go-libaudit/sys"
+	"github.com/elastic/go-libaudit/v2"
+	"github.com/elastic/go-libaudit/v2/sys"
 )
 
 var update = flag.Bool("update", false, "update .golden.yml files")

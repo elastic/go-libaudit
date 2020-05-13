@@ -6,9 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Vagrantfile for development ease. #61
+
 ### Changed
 
 - Added support for big endian. #48
+- Added semantic versioning support via go modules. #61
 
 ### Removed
 

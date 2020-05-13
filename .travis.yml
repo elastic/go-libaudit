@@ -6,7 +6,7 @@ go:
 go_import_path: github.com/elastic/go-libaudit
 
 install:
-  - go get -u github.com/elastic/go-licenser
+  - GO111MODULE=off go get -u github.com/elastic/go-licenser
   - go get -d -t ./...
 
 script:

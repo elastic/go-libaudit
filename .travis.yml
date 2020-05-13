@@ -12,7 +12,7 @@ install:
 script:
   - go mod download
   - go mod verify
-  - go mod tidy && [ -z "$(git status --porcelain go.mod go.sum)" ] || echo "Go module manifest changed. Run 'go mod tidy'" 1>&2 && exit 1
+  - go mod tidy && [ -z "$(git status --porcelain go.mod go.sum)" ] || (echo "Go module manifest changed. Run 'go mod tidy'" 1>&2 && exit 1)
   - go-licenser -d
   - >
     find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read &&

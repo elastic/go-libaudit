@@ -78,6 +78,7 @@ normalizations:
     object:
       what: file
     syscalls:
+      # creat - open and possibly create a file
       - creat
     ecs:
       <<: *ecs-file
@@ -86,8 +87,11 @@ normalizations:
     object:
       what: file
     syscalls:
+      # fallocate - manipulate file space
       - fallocate
+      # truncate - truncate a file to a specified length
       - truncate
+      # ftruncate - truncate a file to a specified length
       - ftruncate
     ecs:
       <<: *ecs-file
@@ -98,21 +102,27 @@ normalizations:
     object:
       what: file
     syscalls:
+      # open - open and possibly create a file
       - open
+      # openat - open and possibly create a file
       - openat
+      # readlink - read value of a symbolic link
       - readlink
+      # readlinkat - read value of a symbolic link
       - readlinkat
     ecs: *ecs-file
   - action: read-file
     object:
       what: file
     syscalls:
+      # read - read from a file descriptor
       - read
     ecs: *ecs-file
   - action: wrote-to-file
     object:
       what: file
     syscalls:
+      # write - write to a file descriptor
       - write
     ecs:
       <<: *ecs-file
@@ -121,11 +131,17 @@ normalizations:
     object:
       what: file
     syscalls:
+      # setxattr - set an extended attribute value
       - setxattr
+      # fsetxattr - set an extended attribute value
       - fsetxattr
+      # lsetxattr - set an extended attribute value
       - lsetxattr
+      # removexattr - remove an extended attribute
       - removexattr
+      # fremovexattr - remove an extended attribute
       - fremovexattr
+      # lremovexattr - remove an extended attribute
       - lremovexattr
     ecs:
       <<: *ecs-file
@@ -134,8 +150,11 @@ normalizations:
     object:
       what: file
     syscalls:
+      # chmod - change permissions of a file
       - chmod
+      # fchmod - change permissions of a file
       - fchmod
+      # fchmodat - change permissions of a file
       - fchmodat
     ecs:
       <<: *ecs-file
@@ -144,9 +163,13 @@ normalizations:
     object:
       what: file
     syscalls:
+      # chown - change ownership of a file
       - chown
+      # fchown - change ownership of a file
       - fchown
+      # fchownat - change ownership of a file
       - fchownat
+      # lchown - change ownership of a file
       - lchown
     ecs:
       <<: *ecs-file
@@ -158,7 +181,9 @@ normalizations:
     record_types:
       - KERN_MODULE
     syscalls:
+      # finit_module - load a kernel module
       - finit_module
+      # init_module - load a kernel module
       - init_module
     ecs:
       category: driver
@@ -167,6 +192,7 @@ normalizations:
     object:
       what: file
     syscalls:
+      # delete_module - unload a kernel module
       - delete_module
     ecs:
       <<: *ecs-file
@@ -176,7 +202,9 @@ normalizations:
       what: file
       path_index: 1
     syscalls:
+      # mkdir - create a directory
       - mkdir
+      # mkdirat - create a directory
       - mkdirat
     ecs:
       <<: *ecs-file
@@ -186,6 +214,7 @@ normalizations:
       what: filesystem
       path_index: 1
     syscalls:
+      # mount - mount filesystem
       - mount
     ecs:
       <<: *ecs-file
@@ -197,8 +226,11 @@ normalizations:
       what: file
       path_index: 2
     syscalls:
+      # rename - change the name or location of a file
       - rename
+      # renameat - change the name or location of a file
       - renameat
+      # renameat2 - change the name or location of a file
       - renameat2
     ecs:
       <<: *ecs-file
@@ -207,29 +239,41 @@ normalizations:
     object:
       what: file
     syscalls:
+      # access - check user's permissions for a file
       - access
+      # faccessat - check user's permissions for a file
       - faccessat
-      - newfstatat
+      # fstatat - get file status
+      - fstatat
+      # stat - get file status
       - stat
+      # fstat - get file status
       - fstat
+      # lstat - get file status
       - lstat
-      - stat64
+      # getxattr - retrieve an extended attribute value
       - getxattr
+      # lgetxattr - retrieve an extended attribute value
       - lgetxattr
+      # fgetxattr - retrieve an extended attribute value
       - fgetxattr
     ecs: *ecs-file
   - action: checked-filesystem-metadata-of
     object:
       what: filesystem
     syscalls:
+      # statfs - get filesystem statistics
       - statfs
+      # fstatfs - get filesystem statistics
       - fstatfs
     ecs: *ecs-file
   - action: symlinked
     object:
       what: file
     syscalls:
+      # symlink - make a new name for a file
       - symlink
+      # symlinkat - make a new name for a file
       - symlinkat
     ecs:
       <<: *ecs-file
@@ -240,6 +284,9 @@ normalizations:
     object:
       what: filesystem
     syscalls:
+      # umount - unmount filesystem
+      - umount
+      # umount2 - unmount filesystem
       - umount2
     ecs:
       <<: *ecs-file
@@ -249,8 +296,11 @@ normalizations:
     object:
       what: file
     syscalls:
+      # rmdir - delete a directory
       - rmdir
+      # unlink - delete a name and possibly the file it refers to
       - unlink
+      # unlinkat - delete a name and possibly the file it refers to
       - unlinkat
     ecs:
       <<: *ecs-file
@@ -259,17 +309,24 @@ normalizations:
     object:
       what: file
     syscalls:
+      # utime - change file last access and modification times
       - utime
+      # utimes - change file last access and modification times
       - utimes
+      # futimesat - change timestamps of a file relative to a \ directory file descriptor
       - futimesat
+      # futimens - change file timestamps with nanosecond precision
       - futimens
+      # utimensat - change file timestamps with nanosecond precision
       - utimensat
     ecs: *ecs-file
   - action: executed
     object:
       what: file
     syscalls:
+      # execve - execute program
       - execve
+      # execveat - execute program relative to a directory file descriptor
       - execveat
     ecs:
       <<: *ecs-process
@@ -278,6 +335,7 @@ normalizations:
     object:
       what: socket
     syscalls:
+      # listen- listen for connections on a socket
       - listen
     ecs:
       <<: *ecs-network
@@ -286,7 +344,9 @@ normalizations:
     object:
       what: socket
     syscalls:
+      # accept - accept a connection on a socket
       - accept
+      # accept4 - accept a connection on a socket
       - accept4
     ecs:
       <<: *ecs-network
@@ -297,6 +357,7 @@ normalizations:
     object:
       what: socket
     syscalls:
+      # bind -bind a name to a socket
       - bind
     ecs:
       <<: *ecs-network
@@ -315,24 +376,39 @@ normalizations:
     object:
       what: socket
     syscalls:
+      # recv - receive a message from a socket
+      - recv
+      # recvfrom - receive a message from a socket
       - recvfrom
+      # recvmsg - receive a message from a socket
       - recvmsg
+      # recvmmsg - receive multiple messages on a socket
+      - recvmmsg
     ecs:
       <<: *ecs-network
   - action: sent-to
     object:
       what: socket
     syscalls:
+      # send - send a message on a socket
+      - send
+      # sendto - send a message on a socket
       - sendto
+      # sendmsg - send a message on a socket
       - sendmsg
+      # sendmmsg - send multiple messages on a socket
+      - sendmmsg
     ecs:
       <<: *ecs-network
   - action: killed-pid
     object:
       what: process
     syscalls:
+      # kill - send signal to a process
       - kill
+      # tkill - send a signal to a thread
       - tkill
+      # tgkill - send a signal to a thread
       - tgkill
     ecs:
       <<: *ecs-process
@@ -342,15 +418,25 @@ normalizations:
       what: process
     how: syscall
     syscalls:
+      # setuid - set user identity
       - setuid
+      # seteuid - set effective user or group ID
       - seteuid
+      # setfsuid - set user identity used for filesystem checks
       - setfsuid
+      # setreuid - set real and/or effective user or group ID
       - setreuid
-      - setresuid
+      # setgid - set group identity
       - setgid
+      # setegid - set effective user or group ID
       - setegid
+      # setfsgid - set group identity used for filesystem checks
       - setfsgid
+      # setregid - set real and/or effective user or group ID
       - setregid
+      # setresuid - set real, effective and saved user or group ID
+      - setresuid
+      # setresgid - set real, effective and saved user or group ID
       - setresgid
     ecs:
       <<: *ecs-process
@@ -359,9 +445,13 @@ normalizations:
     object:
       what: system
     syscalls:
+      # settimeofday - get / set time
       - settimeofday
+      # clock_settime - clock and time functions
       - clock_settime
+      # stime - set time
       - stime
+      # adjtimex - tune kernel clock
       - adjtimex
     ecs:
       <<: *ecs-host
@@ -370,7 +460,9 @@ normalizations:
     object:
       what: file
     syscalls:
+      # mknod - create a special or ordinary file
       - mknod
+      # mknodat - create a special or ordinary file
       - mknodat
     ecs:
       <<: *ecs-file
@@ -379,7 +471,9 @@ normalizations:
     object:
       what: system
     syscalls:
+      # sethostname - get/set hostname
       - sethostname
+      # setdomainname - get/set NIS domain name
       - setdomainname
     ecs:
       <<: *ecs-host
@@ -388,7 +482,11 @@ normalizations:
     object:
       what: memory
     syscalls:
+      # mmap - map or unmap files or devices into memory
       - mmap
+      # mmap2 - map files or devices into memory
+      - mmap2
+      # brk - change data segment size
       - brk
     ecs: *ecs-process
   - action: adjusted-scheduling-policy-of
@@ -396,12 +494,361 @@ normalizations:
       what: process
     how: syscall
     syscalls:
+      # sched_setparam - set and get scheduling parameters
       - sched_setparam
+      # sched_setscheduler - set and get scheduling policy/parameters
       - sched_setscheduler
+      # sched_setattr - set and get scheduling policy and attributes
       - sched_setattr
     ecs:
       <<: *ecs-process
       type: change
+
+  # Currently unhandled
+  # this list comes from parsing linux man pages at https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git
+
+  # sigaction - examine and change a signal action
+  # rt_sigaction - examine and change a signal action
+  # pread - read from or write to a file descriptor at a given offset
+  # pwrite - read from or write to a file descriptor at a given offset
+  # s390_guarded_storage - operations with z/Architecture guarded storage facility
+  # sched_getattr - set and get scheduling policy and attributes
+  # getrusage - get resource usage
+  # flock - apply or remove an advisory lock on an open file
+  # pidfd_getfd - obtain a duplicate of another process's file descriptor
+  # clock_nanosleep - high-resolution sleep with specifiable clock
+  # getpagesize - get memory page size
+  # pidfd_open - obtain a file descriptor that refers to a process
+  # splice - splice data to/from a pipe
+  # getresuid - get real, effective and saved user/group IDs
+  # getresgid - get real, effective and saved user/group IDs
+  # remap_file_pages - create a nonlinear file mapping
+  # io_cancel - cancel an outstanding asynchronous I/O operation
+  # prctl - operations on a process or thread
+  # clock_getres - clock and time functions
+  # clock_gettime - clock and time functions
+  # getgroups - get/set list of supplementary group IDs
+  # setgroups - get/set list of supplementary group IDs
+  # vmsplice - splice user pages to/from a pipe
+  # epoll_create - open an epoll file descriptor
+  # epoll_create1 - open an epoll file descriptor
+  # posix_fadvise - predeclare an access pattern for file data
+  # sigwaitinfo - synchronously wait for queued signals
+  # sigtimedwait - synchronously wait for queued signals
+  # rt_sigtimedwait - synchronously wait for queued signals
+  # sigreturn - return from signal handler and cleanup stack frame
+  # rt_sigreturn - return from signal handler and cleanup stack frame
+  # getrandom - obtain a series of random bytes
+  # keyctl - manipulate the kernel's key management facility
+  # sched_getscheduler - set and get scheduling policy/parameters
+  # mbind - set memory policy for a memory range
+  # getpriority - get/set program scheduling priority
+  # setpriority - get/set program scheduling priority
+  # inotify_init - initialize an inotify instance
+  # inotify_init1 - initialize an inotify instance
+  # semctl - System V semaphore control operations
+  # gethostname - get/set hostname
+  # ptrace - process trace
+  # sysctl - read/write system parameters
+  # getpeername - get name of connected peer socket
+  # fork - create a child process
+  # query_module - query the kernel for various bits pertaining to modules
+  # ioctl_list - list of ioctl calls in Linux/i386 kernel
+  # msgget - get a System V message queue identifier
+  # spu_create - create a new spu context
+  # subpage_prot - define a subpage protection for an address range
+  # quotactl - manipulate disk quotas
+  # nfsservctl - syscall interface to kernel nfs daemon
+  # openat2 - open and possibly create a file (extended)
+  # getrlimit - get/set resource limits
+  # setrlimit - get/set resource limits
+  # prlimit - get/set resource limits
+  # tee - duplicating pipe content
+  # shmget - allocates a System V shared memory segment
+  # create_module - create a loadable module entry
+  # gettimeofday - get / set time
+  # timer_create - create a POSIX per-process timer
+  # fanotify_mark - add, remove, or modify an fanotify mark on a filesystem object
+  # pipe - create pipe
+  # pipe2 - create pipe
+  # intro - introduction to system calls
+  # lookup_dcookie - return a directory entry's path
+  # sysfs - get filesystem type information
+  # s390_runtime_instr - enable/disable s390 CPU run-time instrumentation
+  # setns - reassociate thread with a namespace
+  # set_mempolicy - set default NUMA memory policy for a thread and its children
+  # nice - change process priority
+  # io_setup - create an asynchronous I/O context
+  # mincore - determine whether pages are resident in memory
+  # ioctl_console - ioctls for console terminal and virtual consoles
+  # poll - wait for some event on a file descriptor
+  # ppoll - wait for some event on a file descriptor
+  # capget - set/get capabilities of thread(s)
+  # capset - set/get capabilities of thread(s)
+  # ioctl_tty - ioctls for terminals and serial lines
+  # iopl - change I/O privilege level
+  # io_getevents - read asynchronous I/O events from the completion queue
+  # process_vm_readv - transfer data between process address spaces
+  # process_vm_writev - transfer data between process address spaces
+  # pciconfig_read - pci device information handling
+  # pciconfig_write - pci device information handling
+  # pciconfig_iobase - pci device information handling
+  # sbrk - change data segment size
+  # set_tid_address - set pointer to thread ID
+  # pkey_alloc - allocate or free a protection key
+  # pkey_free - allocate or free a protection key
+  # select - synchronous I/O multiplexing
+  # pselect - synchronous I/O multiplexing
+  # kexec_load - load a new kernel for later execution
+  # kexec_file_load - load a new kernel for later execution
+  # personality - set the process execution domain
+  # ioctl_getfsmap - retrieve the physical layout of the filesystem
+  # inotify_rm_watch - remove an existing watch from an inotify instance
+  # perf_event_open - set up performance monitoring
+  # timer_getoverrun - get overrun count for a POSIX per-process timer
+  # wait3 - wait for process to change state, BSD style
+  # wait4 - wait for process to change state, BSD style
+  # link - make a new name for a file
+  # linkat - make a new name for a file
+  # sched_rr_get_interval - get the SCHED_RR interval for the named process
+  # munmap - map or unmap files or devices into memory
+  # socketcall - socket system calls
+  # mremap - remap a virtual memory address
+  # vfork - create a child process and block parent
+  # seccomp - operate on Secure Computing state of the process
+  # request_key - request a key from the kernel's key management facility
+  # syscall - indirect system call
+  # kcmp - compare two processes to determine if they share a kernel resource
+  # readdir - read directory entry
+  # ioperm - set port input/output permissions
+  # spu_run - execute an SPU context
+  # reboot - reboot or enable/disable Ctrl-Alt-Del
+  # readahead - initiate file readahead into page cache
+  # sched_getparam - set and get scheduling parameters
+  # acct - switch process accounting on or off
+  # sigsuspend - wait for a signal
+  # rt_sigsuspend - wait for a signal
+  # exit_group - exit all threads in a process
+  # socket - create an endpoint for communication
+  # ioctl_userfaultfd - create a file descriptor for handling page faults in user space
+  # sched_get_priority_max - get static priority range
+  # sched_get_priority_min  - get static priority range
+  # getdents - get directory entries
+  # getdents64 - get directory entries
+  # select - synchronous I/O multiplexing
+  # pselect - synchronous I/O multiplexing
+  # FD_CLR - synchronous I/O multiplexing
+  # FD_ISSET - synchronous I/O multiplexing
+  # FD_SET - synchronous I/O multiplexing
+  # FD_ZERO - synchronous I/O multiplexing
+  # alloc_hugepages - allocate or free huge pages
+  # free_hugepages - allocate or free huge pages
+  # fsync - synchronize a file's in-core state with storage device
+  # fdatasync - synchronize a file's in-core state with storage device
+  # syscalls - Linux system calls
+  # memfd_create - create an anonymous file
+  # modify_ldt - get or set a per-process LDT entry
+  # get_kernel_syms - retrieve exported kernel and module symbols
+  # lseek - reposition read/write file offset
+  # shmat - System V shared memory operations
+  # shmdt - System V shared memory operations
+  # timer_delete - delete a POSIX per-process timer
+  # perfmonctl - interface to IA-64 performance monitoring unit
+  # move_pages - move individual pages of a process to another node
+  # chdir - change working directory
+  # fchdir - change working directory
+  # time - get time in seconds
+  # _exit - terminate the calling process
+  # _Exit - terminate the calling process
+  # s390_sthyi - emulate STHYI instruction
+  # io_submit - submit asynchronous I/O blocks for processing
+  # mlock - lock and unlock memory
+  # mlock2 - lock and unlock memory
+  # munlock - lock and unlock memory
+  # mlockall - lock and unlock memory
+  # munlockall - lock and unlock memory
+  # umask - set file mode creation mask
+  # arch_prctl - set architecture-specific thread state
+  # uselib - load shared library
+  # sendfile - transfer data between file descriptors
+  # shmctl - System V shared memory control
+  # epoll_wait - wait for an I/O event on an epoll file descriptor
+  # epoll_pwait - wait for an I/O event on an epoll file descriptor
+  # sigaltstack - set and/or get signal stack context
+  # ioctl - control device
+  # signalfd - create a file descriptor for accepting signals
+  # unshare - disassociate parts of the process execution context
+  # chroot - change root directory
+  # madvise - give advice about use of memory
+  # gettid - get thread identification
+  # getsockname - get socket name
+  # io_destroy - destroy an asynchronous I/O context
+  # setup - setup devices and filesystems, mount root filesystem
+  # ntp_adjtime - tune kernel clock
+  # semget - get a System V semaphore set identifier
+  # getuid - get user identity
+  # geteuid - get user identity
+  # _syscall - invoking a system call without library support (OBSOLETE)
+  # sched_setaffinity - \ set and get a thread's CPU affinity mask
+  # sched_getaffinity - \ set and get a thread's CPU affinity mask
+  # cacheflush - flush contents of instruction and/or data cache
+  # pivot_root - change the root mount
+  # msgctl - System V message control operations
+  # ioctl_fat - manipulating the FAT filesystem
+  # setpgid - set/get process group
+  # getpgid - set/get process group
+  # setpgrp - set/get process group
+  # getpgrp - set/get process group
+  # socketpair - create a pair of connected sockets
+  # bdflush - start, flush, or tune buffer-dirty-flush daemon
+  # alarm - set an alarm clock for delivery of a signal
+  # timer_settime - arm/disarm and fetch state of POSIX per-process timer
+  # timer_gettime - arm/disarm and fetch state of POSIX per-process timer
+  # add_key - add a key to the kernel's key management facility
+  # rt_sigqueueinfo - queue a signal and data
+  # rt_tgsigqueueinfo - queue a signal and data
+  # userfaultfd - create a file descriptor for handling page faults in user space
+  # semop - System V semaphore operations
+  # semtimedop - System V semaphore operations
+  # getgid - get group identity
+  # getegid - get group identity
+  # getpid - get process identification
+  # getppid - get process identification
+  # sigprocmask - examine and change blocked signals
+  # rt_sigprocmask - examine and change blocked signals
+  # uname - get name and information about current kernel
+  # statx - get file status (extended)
+  # ioctl_ficlonerange - share some the data of one file with another file
+  # ioctl_ficlone - share some the data of one file with another file
+  # mq_getsetattr - get/set message queue attributes
+  # ioprio_get - get/set I/O scheduling class and priority
+  # ioprio_set - get/set I/O scheduling class and priority
+  # epoll_ctl - control interface for an epoll file descriptor
+  # sync - commit filesystem caches to disk
+  # syncfs - commit filesystem caches to disk
+  # setsid - creates a session and sets the process group ID
+  # shutdown - shut down part of a full-duplex connection
+  # getsid - get session ID
+  # get_thread_area - manipulate thread-local storage information
+  # set_thread_area - manipulate thread-local storage information
+  # timerfd_create - timers that notify via file descriptors
+  # timerfd_settime - timers that notify via file descriptors
+  # timerfd_gettime - timers that notify via file descriptors
+  # ioctl_fideduperange - share some the data of one file with another file
+  # name_to_handle_at - obtain handle for a pathname and open file via a handle
+  # open_by_handle_at - obtain handle for a pathname and open file via a handle
+  # futex - fast user-space locking
+  # ioctl_ns - ioctl() operations for Linux namespaces
+  # pidfd_send_signal - send a signal to a process specified by a file descriptor
+  # clone - create a child process
+  # __clone2 - create a child process
+  # clone3 - create a child process
+  # times - get process times
+  # sysinfo - return system information
+  # ipc - System V IPC system calls
+  # eventfd - create a file descriptor for event notification
+  # wait - wait for process to change state
+  # waitpid - wait for process to change state
+  # waitid - wait for process to change state
+  # getdomainname - get/set NIS domain name
+  # idle - make process 0 idle
+  # inotify_add_watch - add a watch to an initialized inotify instance
+  # get_mempolicy - retrieve NUMA memory policy for a thread
+  # bpf - perform a command on an extended BPF map or program
+  # getsockopt - get and set options on sockets
+  # setsockopt - get and set options on sockets
+  # getitimer - get or set value of an interval timer
+  # setitimer - get or set value of an interval timer
+  # membarrier - issue memory barriers on a set of threads
+  # mprotect - set protection on a region of memory
+  # pkey_mprotect - set protection on a region of memory
+  # getcpu - determine CPU and NUMA node on which the calling thread is running
+  # ioctl_fslabel - get or set a filesystem label
+  # listxattr - list extended attribute names
+  # llistxattr - list extended attribute names
+  # flistxattr - list extended attribute names
+  # _llseek - reposition read/write file offset
+  # fcntl - manipulate file descriptor
+  # ustat - get filesystem statistics
+  # signal - ANSI C signal handling
+  # nanosleep - high-resolution sleep
+  # connect - initiate a connection on a socket
+  # vm86old - enter virtual 8086 mode
+  # vm86 - enter virtual 8086 mode
+  # fanotify_init - create and initialize fanotify group
+  # afs_syscall - unimplemented system calls
+  # break - unimplemented system calls
+  # fattach - unimplemented system calls
+  # fdetach - unimplemented system calls
+  # ftime - unimplemented system calls
+  # getmsg - unimplemented system calls
+  # getpmsg - unimplemented system calls
+  # gtty - unimplemented system calls
+  # isastream - unimplemented system calls
+  # lock - unimplemented system calls
+  # madvise1 - unimplemented system calls
+  # mpx - unimplemented system calls
+  # prof - unimplemented system calls
+  # profil - unimplemented system calls
+  # putmsg - unimplemented system calls
+  # putpmsg - unimplemented system calls
+  # security - unimplemented system calls
+  # stty - unimplemented system calls
+  # tuxcall - unimplemented system calls
+  # ulimit - unimplemented system calls
+  # vserver - unimplemented system calls
+  # outb - port I/O
+  # outw - port I/O
+  # outl - port I/O
+  # outsb - port I/O
+  # outsw - port I/O
+  # outsl - port I/O
+  # inb - port I/O
+  # inw - port I/O
+  # inl - port I/O
+  # insb - port I/O
+  # insw - port I/O
+  # insl - port I/O
+  # outb_p - port I/O
+  # outw_p - port I/O
+  # outl_p - port I/O
+  # inb_p - port I/O
+  # inw_p - port I/O
+  # inl_p - port I/O
+  # migrate_pages - move all pages in a process to another set of nodes
+  # restart_syscall - restart a system call after interruption by a stop signal
+  # close - close a file descriptor
+  # msgrcv - System V message queue operations
+  # msgsnd - System V message queue operations
+  # readv - read or write data into multiple buffers
+  # writev - read or write data into multiple buffers
+  # preadv - read or write data into multiple buffers
+  # pwritev - read or write data into multiple buffers
+  # preadv2 - read or write data into multiple buffers
+  # pwritev2 - read or write data into multiple buffers
+  # syslog - read and/or clear kernel message ring buffer; set console_loglevel
+  # klogctl - read and/or clear kernel message ring buffer; set console_loglevel
+  # sched_yield - yield the processor
+  # vhangup - virtually hangup the current terminal
+  # ioctl_iflags - ioctl() operations for inode flags
+  # sgetmask - manipulation of signal mask (obsolete)
+  # ssetmask - manipulation of signal mask (obsolete)
+  # sync_file_range - sync a file segment with disk
+  # copy_file_range - Copy a range of data from one file to another
+  # sigpending - examine pending signals
+  # rt_sigpending - examine pending signals
+  # getunwind - copy the unwind data to caller's buffer
+  # msync - synchronize a file with a memory map
+  # get_robust_list - get/set list of robust futexes
+  # set_robust_list - get/set list of robust futexes
+  # dup - duplicate a file descriptor
+  # dup2 - duplicate a file descriptor
+  # dup3 - duplicate a file descriptor
+  # s390_pci_mmio_write - transfer data to/from PCI MMIO memory page
+  # s390_pci_mmio_read - transfer data to/from PCI MMIO memory page
+  # pause - wait for signal
+  # swapon - start/stop swapping to file/device
+  # swapoff - start/stop swapping to file/device
 
   # Record type normalizations
   # Useful links:

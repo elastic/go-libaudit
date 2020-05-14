@@ -100,7 +100,6 @@
             "process"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -146,7 +145,6 @@
             "process"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -251,7 +249,6 @@
             "process"
           ],
           "type": [
-            "info",
             "creation"
           ]
         }
@@ -358,7 +355,6 @@
             "process"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -465,7 +461,6 @@
             "authentication"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -522,7 +517,6 @@
             "authentication"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -722,7 +716,6 @@
             "host"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -866,8 +859,6 @@
             "network"
           ],
           "type": [
-            "connection",
-            "info",
             "start"
           ]
         }

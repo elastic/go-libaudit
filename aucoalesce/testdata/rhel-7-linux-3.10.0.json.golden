@@ -43,7 +43,6 @@
             "process"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -91,7 +90,6 @@
             "process"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -318,7 +316,6 @@
             "authentication"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -374,7 +371,6 @@
             "authentication"
           ],
           "type": [
-            "info",
             "end"
           ]
         }
@@ -449,7 +445,6 @@
             "host"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -568,7 +563,6 @@
             "file"
           ],
           "type": [
-            "info",
             "creation"
           ]
         }
@@ -677,7 +671,6 @@
             "file"
           ],
           "type": [
-            "info",
             "creation"
           ]
         }

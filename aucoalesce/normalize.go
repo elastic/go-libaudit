@@ -52,7 +52,7 @@ type Strings struct {
 func (s *Strings) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var singleValue string
 	if err := unmarshal(&singleValue); err == nil {
-		s.Values = append(s.Values, singleValue)
+		s.Values = []string{singleValue}
 		return nil
 	}
 

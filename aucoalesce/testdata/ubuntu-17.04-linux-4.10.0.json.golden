@@ -201,7 +201,6 @@
             "process"
           ],
           "type": [
-            "info",
             "creation"
           ]
         }
@@ -402,7 +401,6 @@
             "process"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -564,7 +562,6 @@
             "authentication"
           ],
           "type": [
-            "info",
             "start"
           ]
         }
@@ -860,7 +857,6 @@
             "file"
           ],
           "type": [
-            "info",
             "change"
           ]
         }
@@ -960,7 +956,6 @@
             "file"
           ],
           "type": [
-            "info",
             "deletion"
           ]
         }

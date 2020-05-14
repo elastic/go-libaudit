@@ -173,7 +173,15 @@
         }
       ],
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "deletion"
+          ],
+          "outcome": "success"
+        }
       }
     },
     "warnings": [

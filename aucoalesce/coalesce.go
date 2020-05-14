@@ -38,6 +38,7 @@ const modeBlockDevice = 060000
 type ECSEvent struct {
 	Category []string `json:"category,omitempty" yaml:"category,omitempty"`
 	Type     []string `json:"type,omitempty" yaml:"type,omitempty"`
+	Outcome  string   `json:"outcome,omitempty" yaml:"outcome,omitempty"`
 }
 
 type Event struct {
@@ -437,10 +438,14 @@ func addFieldsToEventData(msg *auparse.AuditMessage, event *Event) {
 func applyNormalization(event *Event) {
 	setHowDefaults(event)
 
+	var syscallNorm *Normalization
+	if syscall, ok := event.Data["syscall"]; ok {
+		syscallNorm = syscallNorms[syscall]
+	}
+
 	var norm *Normalization
 	if event.Type == auparse.AUDIT_SYSCALL {
-		syscall := event.Data["syscall"]
-		norm = syscallNorms[syscall]
+		norm = syscallNorm
 	} else {
 		norms := recordTypeNorms[event.Type.String()]
 		switch len(norms) {
@@ -466,6 +471,13 @@ func applyNormalization(event *Event) {
 
 	event.ECS.Event.Category = norm.ECS.Category.Values
 	event.ECS.Event.Type = norm.ECS.Type.Values
+
+	hasAdditionalNormalization := syscallNorm != nil && syscallNorm != norm
+	if hasAdditionalNormalization {
+		event.ECS.Event.Category = append(event.ECS.Event.Category, syscallNorm.ECS.Category.Values...)
+		event.ECS.Event.Type = append(event.ECS.Event.Type, syscallNorm.ECS.Type.Values...)
+		event.ECS.Event.Outcome = event.Result
+	}
 
 	event.Summary.Action = norm.Action
 

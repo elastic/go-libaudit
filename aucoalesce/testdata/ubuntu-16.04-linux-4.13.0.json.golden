@@ -13,8 +13,12 @@
           "primary": "unset",
           "secondary": "1000"
         },
-        "action": "violated-selinux-policy",
-        "object": {},
+        "action": "violated-apparmor-policy",
+        "object": {
+          "type": "policy",
+          "primary": "ptrace",
+          "secondary": "trace"
+        },
         "how": "/usr/share/metricbeat/metricbeat"
       },
       "user": {
@@ -59,10 +63,7 @@
     },
     "warnings": [
       "duplicate key (comm) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "failed to set object primary using keys=[tcontext] because they were not found",
-      "failed to set object secondary using keys=[tclass] because they were not found",
-      "failed to set subject primary using keys=[scontext] because they were not found"
+      "duplicate key (pid) from AVC message"
     ]
   },
   {
@@ -79,8 +80,12 @@
           "primary": "unset",
           "secondary": "0"
         },
-        "action": "violated-selinux-policy",
-        "object": {},
+        "action": "violated-apparmor-policy",
+        "object": {
+          "type": "policy",
+          "primary": "unlink",
+          "secondary": "d"
+        },
         "how": "/usr/bin/apt-get"
       },
       "user": {
@@ -182,10 +187,7 @@
       "duplicate key (pid) from AVC message",
       "duplicate key (pid) from AVC message",
       "duplicate key (profile) from AVC message",
-      "duplicate key (requested_mask) from AVC message",
-      "failed to set object primary using keys=[tcontext] because they were not found",
-      "failed to set object secondary using keys=[tclass] because they were not found",
-      "failed to set subject primary using keys=[scontext] because they were not found"
+      "duplicate key (requested_mask) from AVC message"
     ]
   }
 ]

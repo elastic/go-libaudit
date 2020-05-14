@@ -890,15 +890,6 @@ normalizations:
 
   # Policy events
 
-  # AUDIT_AVC - SE Linux avc denial or grant (apparmor)
-  - record_types: AVC
-    action: violated-apparmor-policy
-    object:
-      primary: operation
-      secondary: [requested_mask, denied_mask, capname]
-      what: policy
-    has_fields:
-      - apparmor
   # AUDIT_AVC - SE Linux avc denial or grant (selinux)
   - record_types: AVC
     action: violated-selinux-policy
@@ -909,6 +900,15 @@ normalizations:
       secondary: tclass
     has_fields:
       - seresult
+  # AUDIT_AVC - SE Linux avc denial or grant (apparmor)
+  - record_types: AVC
+    action: violated-apparmor-policy
+    object:
+      primary: operation
+      secondary: [requested_mask, denied_mask, capname]
+      what: policy
+    has_fields:
+      - apparmor
   # AUDIT_FS_RELABEL - Filesystem relabeled
   - record_types: FS_RELABEL
     action: relabeled-filesystem

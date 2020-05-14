@@ -245,8 +245,12 @@ normalizations:
       - faccessat
       # fstatat - get file status
       - fstatat
+      # newfstatat - get file status
+      - newfstatat
       # stat - get file status
       - stat
+      # stat64 - get file status
+      - stat64
       # fstat - get file status
       - fstat
       # lstat - get file status
@@ -637,10 +641,6 @@ normalizations:
   # getdents64 - get directory entries
   # select - synchronous I/O multiplexing
   # pselect - synchronous I/O multiplexing
-  # FD_CLR - synchronous I/O multiplexing
-  # FD_ISSET - synchronous I/O multiplexing
-  # FD_SET - synchronous I/O multiplexing
-  # FD_ZERO - synchronous I/O multiplexing
   # alloc_hugepages - allocate or free huge pages
   # free_hugepages - allocate or free huge pages
   # fsync - synchronize a file's in-core state with storage device

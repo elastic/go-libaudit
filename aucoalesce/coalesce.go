@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/go-libaudit/auparse"
+	"github.com/elastic/go-libaudit/v2/auparse"
 	"github.com/pkg/errors"
 )
 

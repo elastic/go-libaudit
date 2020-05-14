@@ -32,8 +32,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
-	"github.com/elastic/go-libaudit"
-	"github.com/elastic/go-libaudit/auparse"
+	"github.com/elastic/go-libaudit/v2"
+	"github.com/elastic/go-libaudit/v2/auparse"
 )
 
 var (

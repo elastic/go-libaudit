@@ -35,9 +35,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/elastic/go-libaudit/rule"
-	"github.com/elastic/go-libaudit/rule/flags"
-	"github.com/elastic/go-libaudit/sys"
+	"github.com/elastic/go-libaudit/v2/rule"
+	"github.com/elastic/go-libaudit/v2/rule/flags"
+	"github.com/elastic/go-libaudit/v2/sys"
 )
 
 // This can be run inside of Docker with:

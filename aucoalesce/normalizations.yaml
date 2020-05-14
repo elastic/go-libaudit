@@ -109,6 +109,14 @@ normalizations:
     syscalls:
       - read
     ecs: *ecs-file
+  - action: wrote-to-file
+    object:
+      what: file
+    syscalls:
+      - write
+    ecs:
+      <<: *ecs-file
+      type: change
   - action: changed-file-attributes-of
     object:
       what: file

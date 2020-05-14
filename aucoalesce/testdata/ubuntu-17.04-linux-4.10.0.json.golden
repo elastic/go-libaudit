@@ -674,12 +674,16 @@
         "tty": "(none)"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
-    },
-    "warnings": [
-      "no normalization found for event"
-    ]
+    }
   },
   {
     "test_name": "getsockname syscall",
@@ -735,12 +739,16 @@
         "tty": "(none)"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
-    },
-    "warnings": [
-      "no normalization found for event"
-    ]
+    }
   },
   {
     "test_name": "rename syscall",

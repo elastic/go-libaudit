@@ -440,7 +440,10 @@ func applyNormalization(event *Event) {
 
 	var syscallNorm *Normalization
 	if syscall, ok := event.Data["syscall"]; ok {
-		syscallNorm = syscallNorms[syscall]
+		syscallNorm, ok = syscallNorms[syscall]
+		if !ok {
+			syscallNorm = syscallNorms["*"] // get the default to add some basic categorization
+		}
 	}
 
 	var norm *Normalization
@@ -476,7 +479,9 @@ func applyNormalization(event *Event) {
 	if hasAdditionalNormalization {
 		event.ECS.Event.Category = append(event.ECS.Event.Category, syscallNorm.ECS.Category.Values...)
 		event.ECS.Event.Type = append(event.ECS.Event.Type, syscallNorm.ECS.Type.Values...)
-		event.ECS.Event.Outcome = event.Result
+		if event.Result == "fail" {
+			event.ECS.Event.Outcome = "failure"
+		}
 	}
 
 	event.Summary.Action = norm.Action

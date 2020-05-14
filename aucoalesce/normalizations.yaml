@@ -71,6 +71,9 @@ macros:
 #   object - what was the "thing" involved in the action (e.g. process, socket)
 #   how    - how was the action performed (e.g. exe or terminal)
 normalizations:
+  - ecs: *ecs-process
+    syscalls:
+      - '*' # this is a catch all
   - action: opened-file
     object:
       what: file
@@ -99,8 +102,13 @@ normalizations:
       - openat
       - readlink
       - readlinkat
-    ecs:
-      <<: *ecs-file
+    ecs: *ecs-file
+  - action: read-file
+    object:
+      what: file
+    syscalls:
+      - read
+    ecs: *ecs-file
   - action: changed-file-attributes-of
     object:
       what: file
@@ -201,16 +209,14 @@ normalizations:
       - getxattr
       - lgetxattr
       - fgetxattr
-    ecs:
-      <<: *ecs-file
+    ecs: *ecs-file
   - action: checked-filesystem-metadata-of
     object:
       what: filesystem
     syscalls:
       - statfs
       - fstatfs
-    ecs:
-      <<: *ecs-file
+    ecs: *ecs-file
   - action: symlinked
     object:
       what: file
@@ -250,8 +256,7 @@ normalizations:
       - futimesat
       - futimens
       - utimensat
-    ecs:
-      <<: *ecs-file
+    ecs: *ecs-file
   - action: executed
     object:
       what: file
@@ -377,8 +382,7 @@ normalizations:
     syscalls:
       - mmap
       - brk
-    ecs:
-      <<: *ecs-process
+    ecs: *ecs-process
   - action: adjusted-scheduling-policy-of
     object:
       what: process
@@ -536,25 +540,21 @@ normalizations:
   - <<: *macro-user-session
     record_types: CRED_ACQ
     action: acquired-credentials
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_CRED_DISP - User credential disposed
   - <<: *macro-user-session
     record_types: CRED_DISP
     action: disposed-credentials
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_CRED_REFR - User credential refreshed
   - <<: *macro-user-session
     record_types: CRED_REFR
     action: refreshed-credentials
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_GRP_AUTH - Authentication for group password
   - record_types: GRP_AUTH
     action: authenticated-to-group
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_LOGIN - Define the login id and information
   - record_types: LOGIN
     action: changed-login-id-to
@@ -571,27 +571,23 @@ normalizations:
   - <<: *macro-user-session
     record_types: USER_ACCT
     action: was-authorized
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_USER_AUTH - User system access authentication
   - <<: *macro-user-session
     record_types: USER_AUTH
     action: authenticated
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_USER_END - User session end
   - <<: *macro-user-session
     record_types: USER_END
     action: ended-session
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_USER_ERR - User acct state error
   - <<: *macro-user-session
     record_types: USER_ERR
     action: error
     source_ip: [addr]
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
   # AUDIT_USER_LOGIN - User has logged in
   - <<: *macro-user-session
     record_types: USER_LOGIN
@@ -619,8 +615,7 @@ normalizations:
     record_types: USER_START
     action: started-session
     source_ip: [addr]
-    ecs:
-      <<: *ecs-auth
+    ecs: *ecs-auth
 
   # Host virtualization events
 
@@ -631,41 +626,34 @@ normalizations:
       primary: op
       secondary: vm
       what: virtual-machine
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_CREATE - Creation of guest image
   - record_types: VIRT_CREATE
     action: created-vm-image
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_DESTROY - Destruction of guest image
   - record_types: VIRT_DESTROY
     action: deleted-vm-image
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_INTEGRITY_CHECK - Guest integrity results
   - record_types: VIRT_INTEGRITY_CHECK
     action: checked-integrity-of
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_MACHINE_ID - Binding of label to VM
   - record_types: VIRT_MACHINE_ID
     action: assigned-vm-id
     object:
       primary: vm
       what: virtual-machine
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_MIGRATE_IN - Inbound guest migration info
   - record_types: VIRT_MIGRATE_IN
     action: migrated-vm-from
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_MIGRATE_OUT - Outbound guest migration info
   - record_types: VIRT_MIGRATE_OUT
     action: migrated-vm-to
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
   # AUDIT_VIRT_RESOURCE - Resource assignment
   - record_types: VIRT_RESOURCE
     action: assigned-vm-resource
@@ -673,8 +661,7 @@ normalizations:
       primary: resrc
       secondary: vm
       what: virtual-machine
-    ecs:
-      <<: *ecs-host
+    ecs: *ecs-host
 
   # Userspace process events
 
@@ -693,13 +680,11 @@ normalizations:
   # AUDIT_TEST - Used for test success messages
   - record_types: TEST
     action: sent-test
-    ecs:
-      <<: *ecs-process
+    ecs: *ecs-process
   # AUDIT_TRUSTED_APP - Trusted app msg - freestyle text
   - record_types: TRUSTED_APP
     action: unknown
-    ecs:
-      <<: *ecs-process
+    ecs: *ecs-process
   # AUDIT_USER_CMD - User shell command and args
   - record_types: USER_CMD
     action: ran-command
@@ -825,8 +810,7 @@ normalizations:
     action: audit-error
     object:
       what: service
-    ecs:
-      <<: *ecs-process
+    ecs: *ecs-process
   # AUDIT_DAEMON_RECONFIG - Auditd should reconfigure
   - record_types: DAEMON_RECONFIG
     action: reconfigured-auditd
@@ -862,8 +846,7 @@ normalizations:
   # AUDIT_KERNEL - Asynchronous audit record. NOT A REQUEST.
   - record_types: KERNEL
     action: initialized-audit-subsystem
-    ecs:
-      <<: *ecs-process
+    ecs: *ecs-process
 
   # Configuration change events
 
@@ -1017,10 +1000,12 @@ normalizations:
       what: user-session
     record_types: CRYPTO_KEY_USER
     source_ip: [addr]
+    ecs: *ecs-process
   - action: crypto-officer-logged-in
     record_types: CRYPTO_LOGIN
   - action: crypto-officer-logged-out
     record_types: CRYPTO_LOGOUT
+    ecs: *ecs-process
   - <<: *macro-user-session
     action: started-crypto-session
     object:
@@ -1028,6 +1013,7 @@ normalizations:
       secondary: [rport]
     record_types: CRYPTO_SESSION
     source_ip: [addr]
+    ecs: *ecs-process
   - action: access-result
     record_types: DAC_CHECK
 
@@ -1041,6 +1027,11 @@ normalizations:
       secondary: pid
       what: process
     how: sig
+    ecs:
+      # consider adding an anomaly category when we introduce
+      # to ECS
+      <<: *ecs-process
+      type: end
   # AUDIT_ANOM_EXEC - Execution of file
   - record_types: ANOM_EXEC
     action: attempted-execution-of-forbidden-program
@@ -1048,6 +1039,11 @@ normalizations:
       primary: cmd
       what: process
     how: terminal
+    ecs:
+      # consider adding an anomaly category when we introduce
+      # to ECS
+      <<: *ecs-process
+      type: start
   # AUDIT_ANOM_LINK - Suspicious use of file links
   - record_types: ANOM_LINK
     action: used-suspcious-link

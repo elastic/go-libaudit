@@ -43,7 +43,14 @@
         "sig": "11"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "end"
+          ]
+        }
       }
     }
   }

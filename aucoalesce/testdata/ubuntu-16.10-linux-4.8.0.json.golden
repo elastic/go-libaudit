@@ -58,7 +58,14 @@
         "uid": "0"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -310,7 +317,14 @@
         "tty": "(none)"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },

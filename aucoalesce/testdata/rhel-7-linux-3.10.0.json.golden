@@ -149,7 +149,14 @@
         "spid": "1299"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -211,7 +218,14 @@
         "spid": "1299"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },

@@ -58,7 +58,14 @@
         "tty": "(none)"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -179,8 +186,7 @@
           ],
           "type": [
             "deletion"
-          ],
-          "outcome": "success"
+          ]
         }
       }
     },

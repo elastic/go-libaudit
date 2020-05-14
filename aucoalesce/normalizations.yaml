@@ -555,6 +555,18 @@ normalizations:
     action: authenticated-to-group
     ecs:
       <<: *ecs-auth
+  # AUDIT_LOGIN - Define the login id and information
+  - record_types: LOGIN
+    action: changed-login-id-to
+    subject:
+      primary: [old_auid, old-auid]
+      secondary: uid
+    object:
+      primary: auid
+      what: user-session
+    ecs:
+      <<: *ecs-auth
+      type: start
   # AUDIT_USER_ACCT - User system access authorization
   - <<: *macro-user-session
     record_types: USER_ACCT
@@ -1131,15 +1143,6 @@ normalizations:
 
   # Various
 
-  # AUDIT_LOGIN - Define the login id and information
-  - record_types: LOGIN
-    action: changed-login-id-to
-    subject:
-      primary: [old_auid, old-auid]
-      secondary: uid
-    object:
-      primary: auid
-      what: user-session
   # AUDIT_USER - Message from userspace -- deprecated
   - record_types: USER
     action: sent-message

@@ -256,7 +256,14 @@
         "old-ses": "4294967295"
       },
       "ecs": {
-        "event": {}
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },

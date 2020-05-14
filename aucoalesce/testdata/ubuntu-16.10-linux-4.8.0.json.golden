@@ -256,7 +256,7 @@
             "process"
           ],
           "type": [
-            "creation"
+            "start"
           ]
         }
       }

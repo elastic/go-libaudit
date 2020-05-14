@@ -171,8 +171,8 @@ normalizations:
       - mkdir
       - mkdirat
     ecs:
-      category: file
-      type: create
+      <<: *ecs-file
+      type: creation
   - action: mounted
     object:
       what: filesystem
@@ -265,7 +265,7 @@ normalizations:
       - execveat
     ecs:
       <<: *ecs-process
-      type: creation
+      type: start
   - action: listen-for-connections
     object:
       what: socket

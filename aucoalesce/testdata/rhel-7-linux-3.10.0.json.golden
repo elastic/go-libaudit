@@ -36,6 +36,17 @@
       "data": {
         "list": "4",
         "op": "add_rule"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info",
+            "change"
+          ]
+        }
       }
     }
   },
@@ -73,6 +84,17 @@
       "data": {
         "audit_backlog_limit": "64",
         "old": "8192"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info",
+            "change"
+          ]
+        }
       }
     }
   },
@@ -127,6 +149,9 @@
         "kind": "server",
         "op": "destroy",
         "spid": "1299"
+      },
+      "ecs": {
+        "event": {}
       }
     }
   },
@@ -186,6 +211,9 @@
         "pfs": "curve25519-sha256@libssh.org",
         "rport": "63927",
         "spid": "1299"
+      },
+      "ecs": {
+        "event": {}
       }
     }
   },
@@ -228,6 +256,9 @@
       },
       "data": {
         "old-ses": "4294967295"
+      },
+      "ecs": {
+        "event": {}
       }
     }
   },
@@ -280,6 +311,17 @@
         "acct": "root",
         "op": "login",
         "terminal": "ssh"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info",
+            "start"
+          ]
+        }
       }
     }
   },
@@ -325,6 +367,17 @@
         "id": "1000",
         "op": "login",
         "terminal": "/dev/pts/1"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info",
+            "end"
+          ]
+        }
       }
     },
     "warnings": [
@@ -389,6 +442,17 @@
         "items": "0",
         "syscall": "adjtimex",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "info",
+            "change"
+          ]
+        }
       }
     }
   },
@@ -497,7 +561,18 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "info",
+            "creation"
+          ]
+        }
+      }
     }
   },
   {
@@ -595,7 +670,18 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "info",
+            "creation"
+          ]
+        }
+      }
     }
   }
 ]

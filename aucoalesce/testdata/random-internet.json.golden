@@ -41,6 +41,9 @@
       "data": {
         "reason": "memory violation",
         "sig": "11"
+      },
+      "ecs": {
+        "event": {}
       }
     }
   }

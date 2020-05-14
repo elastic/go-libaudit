@@ -73,6 +73,12 @@ type Normalization struct {
 	Syscalls    Strings        `yaml:"syscalls"`
 	SourceIP    Strings        `yaml:"source_ip"`
 	HasFields   Strings        `yaml:"has_fields"`
+	ECS         ECSMapping     `yaml:"ecs"`
+}
+
+type ECSMapping struct {
+	Category Strings `yaml:"category"`
+	Type     Strings `yaml:"type"`
 }
 
 type SubjectMapping struct {

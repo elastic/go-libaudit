@@ -34,6 +34,12 @@ import (
 // package does not have a constant defined for this.
 const modeBlockDevice = 060000
 
+// ECSEvent contains ECS-specific categorization fields
+type ECSEvent struct {
+	Category []string `json:"category,omitempty" yaml:"category,omitempty"`
+	Type     []string `json:"type,omitempty" yaml:"type,omitempty"`
+}
+
 type Event struct {
 	Timestamp time.Time                `json:"@timestamp"       yaml:"timestamp"`
 	Sequence  uint32                   `json:"sequence"         yaml:"sequence"`
@@ -53,6 +59,10 @@ type Event struct {
 
 	Data  map[string]string   `json:"data,omitempty"  yaml:"data,omitempty"`
 	Paths []map[string]string `json:"paths,omitempty" yaml:"paths,omitempty"`
+
+	ECS struct {
+		Event ECSEvent `json:"event" yaml:"event"`
+	} `json:"ecs" yaml:"ecs"`
 
 	Warnings []error `json:"-" yaml:"-"`
 }
@@ -453,6 +463,9 @@ func applyNormalization(event *Event) {
 		event.Warnings = append(event.Warnings, errors.New("no normalization found for event"))
 		return
 	}
+
+	event.ECS.Event.Category = norm.ECS.Category.Values
+	event.ECS.Event.Type = norm.ECS.Type.Values
 
 	event.Summary.Action = norm.Action
 

@@ -475,6 +475,11 @@ func applyNormalization(event *Event) {
 	event.ECS.Event.Category = norm.ECS.Category.Values
 	event.ECS.Event.Type = norm.ECS.Type.Values
 
+	// we check to see if the non-AUDIT_SYSCALL event has an associated syscall
+	// from another part of the auditd message log, if it does and we have normalizations
+	// for that syscall, we merge the ECS categorization and type information so that
+	// the event has both enrichment for the record type itself and for the syscall it
+	// captures
 	hasAdditionalNormalization := syscallNorm != nil && syscallNorm != norm
 	if hasAdditionalNormalization {
 		event.ECS.Event.Category = append(event.ECS.Event.Category, syscallNorm.ECS.Category.Values...)

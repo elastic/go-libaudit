@@ -53,6 +53,10 @@ macros:
     category: file
     type: info
 
+  - &ecs-driver
+    category: driver
+    type: info
+
   - &ecs-network
     category: network
     type:
@@ -186,7 +190,7 @@ normalizations:
       # init_module - load a kernel module
       - init_module
     ecs:
-      category: driver
+      <<: *ecs-driver
       type: start
   - action: unloaded-kernel-module
     object:
@@ -195,7 +199,7 @@ normalizations:
       # delete_module - unload a kernel module
       - delete_module
     ecs:
-      <<: *ecs-file
+      <<: *ecs-driver
       type: end
   - action: created-directory
     object:
@@ -776,45 +780,6 @@ normalizations:
   # vm86old - enter virtual 8086 mode
   # vm86 - enter virtual 8086 mode
   # fanotify_init - create and initialize fanotify group
-  # afs_syscall - unimplemented system calls
-  # break - unimplemented system calls
-  # fattach - unimplemented system calls
-  # fdetach - unimplemented system calls
-  # ftime - unimplemented system calls
-  # getmsg - unimplemented system calls
-  # getpmsg - unimplemented system calls
-  # gtty - unimplemented system calls
-  # isastream - unimplemented system calls
-  # lock - unimplemented system calls
-  # madvise1 - unimplemented system calls
-  # mpx - unimplemented system calls
-  # prof - unimplemented system calls
-  # profil - unimplemented system calls
-  # putmsg - unimplemented system calls
-  # putpmsg - unimplemented system calls
-  # security - unimplemented system calls
-  # stty - unimplemented system calls
-  # tuxcall - unimplemented system calls
-  # ulimit - unimplemented system calls
-  # vserver - unimplemented system calls
-  # outb - port I/O
-  # outw - port I/O
-  # outl - port I/O
-  # outsb - port I/O
-  # outsw - port I/O
-  # outsl - port I/O
-  # inb - port I/O
-  # inw - port I/O
-  # inl - port I/O
-  # insb - port I/O
-  # insw - port I/O
-  # insl - port I/O
-  # outb_p - port I/O
-  # outw_p - port I/O
-  # outl_p - port I/O
-  # inb_p - port I/O
-  # inw_p - port I/O
-  # inl_p - port I/O
   # migrate_pages - move all pages in a process to another set of nodes
   # restart_syscall - restart a system call after interruption by a stop signal
   # close - close a file descriptor

@@ -56,6 +56,16 @@
         "requested_mask": "trace",
         "syscall": "read",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -168,7 +178,17 @@
           "ouid": "100",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "deletion"
+          ]
+        }
+      }
     },
     "warnings": [
       "duplicate key (apparmor) from AVC message",

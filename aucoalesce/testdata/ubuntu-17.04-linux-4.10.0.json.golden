@@ -34,6 +34,16 @@
         "acct": "root",
         "op": "PAM:setcred",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -75,6 +85,16 @@
         "acct": "root",
         "op": "PAM:setcred",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -174,7 +194,17 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "start"
+          ]
+        }
+      }
     }
   },
   {
@@ -212,6 +242,16 @@
         "acct": "root",
         "op": "PAM:accounting",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -253,6 +293,16 @@
         "acct": "root",
         "op": "PAM:authentication",
         "terminal": "/dev/pts/0"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -294,6 +344,17 @@
         "acct": "akroh",
         "op": "PAM:chauthtok",
         "terminal": "pts/0"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "iam"
+          ],
+          "type": [
+            "user",
+            "change"
+          ]
+        }
       }
     },
     "warnings": [
@@ -333,6 +394,16 @@
       "data": {
         "cmd": "su",
         "terminal": "pts/0"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },
@@ -371,6 +442,16 @@
         "acct": "root",
         "op": "PAM:session_close",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -419,6 +500,16 @@
         "hostname": "185.56.82.22",
         "op": "PAM:bad_ident",
         "terminal": "ssh"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -464,6 +555,16 @@
         "acct": "(invalid user)",
         "op": "login",
         "terminal": "sshd"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },
@@ -502,6 +603,16 @@
         "acct": "root",
         "op": "PAM:session_open",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -561,11 +672,18 @@
         "socket_port": "60192",
         "syscall": "getpeername",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
-    },
-    "warnings": [
-      "no normalization found for event"
-    ]
+    }
   },
   {
     "test_name": "getsockname syscall",
@@ -619,11 +737,18 @@
         "socket_port": "53989",
         "syscall": "getsockname",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
-    },
-    "warnings": [
-      "no normalization found for event"
-    ]
+    }
   },
   {
     "test_name": "rename syscall",
@@ -733,7 +858,17 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "change"
+          ]
+        }
+      }
     }
   },
   {
@@ -822,7 +957,17 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "file"
+          ],
+          "type": [
+            "deletion"
+          ]
+        }
+      }
     }
   }
 ]

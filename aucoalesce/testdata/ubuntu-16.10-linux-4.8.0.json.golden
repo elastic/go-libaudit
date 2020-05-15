@@ -56,6 +56,16 @@
         "syscall": "ioctl",
         "tty": "pts0",
         "uid": "0"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -90,6 +100,16 @@
       "data": {
         "list": "4",
         "op": "remove_rule"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "change"
+          ]
+        }
       }
     }
   },
@@ -125,6 +145,16 @@
         "list": "4",
         "op": "updated_rules",
         "path": "/etc/gshadow"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "change"
+          ]
+        }
       }
     }
   },
@@ -219,7 +249,17 @@
           "ouid": "0",
           "rdev": "00:00"
         }
-      ]
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "start"
+          ]
+        }
+      }
     }
   },
   {
@@ -275,6 +315,16 @@
         "syscall": "setsockopt",
         "table": "filter",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -312,6 +362,16 @@
       },
       "data": {
         "unit": "rsyslog"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },
@@ -350,6 +410,16 @@
         "acct": "root",
         "op": "PAM:session_close",
         "terminal": "cron"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     },
     "warnings": [
@@ -398,6 +468,16 @@
         "acct": "(invalid user)",
         "op": "login",
         "terminal": "sshd"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },
@@ -444,6 +524,16 @@
         "id": "1001",
         "op": "login",
         "terminal": "/dev/pts/1"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   },
@@ -490,6 +580,16 @@
         "hostname": "72.83.230.100",
         "op": "PAM:session_open",
         "terminal": "ssh"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "authentication"
+          ],
+          "type": [
+            "info"
+          ]
+        }
       }
     }
   },
@@ -557,6 +657,17 @@
         "socket_port": "58140",
         "syscall": "accept",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "network"
+          ],
+          "type": [
+            "connection",
+            "start"
+          ]
+        }
       }
     }
   },
@@ -612,6 +723,16 @@
         "exit": "0",
         "syscall": "adjtimex",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "change"
+          ]
+        }
       }
     }
   },
@@ -679,6 +800,17 @@
         "socket_port": "80",
         "syscall": "connect",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "network"
+          ],
+          "type": [
+            "connection",
+            "start"
+          ]
+        }
       }
     }
   },
@@ -734,6 +866,16 @@
         "exit": "0",
         "syscall": "listen",
         "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "network"
+          ],
+          "type": [
+            "start"
+          ]
+        }
       }
     }
   }

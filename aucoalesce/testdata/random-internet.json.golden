@@ -41,6 +41,16 @@
       "data": {
         "reason": "memory violation",
         "sig": "11"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "end"
+          ]
+        }
       }
     }
   }

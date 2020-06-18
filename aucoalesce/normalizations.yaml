@@ -914,7 +914,7 @@ normalizations:
         - change
   # AUDIT_ROLE_REMOVE - Admin removed user from role
   - record_types: ROLE_REMOVE
-    action: removed-use-role-from
+    action: removed-user-role-from
     object:
       primary: [id, acct]
       what: account

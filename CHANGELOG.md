@@ -8,12 +8,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Vagrantfile for development ease. #61
+- Added enrichment of arch, syscall, and sig to type=SECCOMP messages. #64
 
 ### Changed
 
 - Added support for big endian. #48
 - Added semantic versioning support via go modules. #61
 - Add ECS categorization support for events by record type and syscall. #62
+- Added ECS categorization support for events by record type and syscall. #62
+- Fixed a typo in the action value associated with ROLE_REMOVE messages. #65
+- Fixed a typo in the action value associated with ANOM_LINK messages. #66
+- Fixed spelling of anomaly in aucoalesce package. #67
 - Added `SetImmutable` to the audit client for marking the audit settings
   as immutable within the kernel. #55 #68
 

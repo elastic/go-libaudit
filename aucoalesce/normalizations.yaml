@@ -914,7 +914,7 @@ normalizations:
         - change
   # AUDIT_ROLE_REMOVE - Admin removed user from role
   - record_types: ROLE_REMOVE
-    action: removed-use-role-from
+    action: removed-user-role-from
     object:
       primary: [id, acct]
       what: account
@@ -1466,7 +1466,7 @@ normalizations:
       type: start
   # AUDIT_ANOM_LINK - Suspicious use of file links
   - record_types: ANOM_LINK
-    action: used-suspcious-link
+    action: used-suspicious-link
   # AUDIT_ANOM_LOGIN_FAILURES - Failed login limit reached
   - <<: *macro-user-session
     record_types: ANOM_LOGIN_FAILURES

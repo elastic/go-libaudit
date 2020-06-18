@@ -356,5 +356,26 @@
       "a4": "trainer5",
       "argc": "5"
     }
+  },
+  {
+    "@timestamp": "2015-06-08T17:48:47.186Z",
+    "record_type": "seccomp",
+    "sequence": 10262,
+    "raw_msg": "audit(1433785727.186:10262): auid=20003 uid=22 gid=22 ses=21 pid=11217 comm=\"sshd\" exe=\"/usr/sbin/sshd\" sig=31 arch=40000003 syscall=132 compat=0 ip=0xb7670aac code=0x0",
+    "data": {
+      "arch": "i386",
+      "auid": "20003",
+      "code": "0x0",
+      "comm": "sshd",
+      "compat": "0",
+      "exe": "/usr/sbin/sshd",
+      "gid": "22",
+      "ip": "0xb7670aac",
+      "pid": "11217",
+      "ses": "21",
+      "sig": "SIGSYS",
+      "syscall": "getpgid",
+      "uid": "22"
+    }
   }
 ]

@@ -34,9 +34,9 @@ const (
 	EventTypeUserLogin
 	EventTypeAuditDaemon
 	EventTypeMACDecision
-	EventTypeAnomoly
+	EventTypeAnomaly
 	EventTypeIntegrity
-	EventTypeAnomolyResponse
+	EventTypeAnomalyResponse
 	EventTypeMAC
 	EventTypeCrypto
 	EventTypeVirt
@@ -55,9 +55,9 @@ var auditEventTypeNames = map[AuditEventType]string{
 	EventTypeUserLogin:       "user-login",
 	EventTypeAuditDaemon:     "audit-daemon",
 	EventTypeMACDecision:     "mac-decision",
-	EventTypeAnomoly:         "anomoly",
+	EventTypeAnomaly:         "anomaly",
 	EventTypeIntegrity:       "integrity",
-	EventTypeAnomolyResponse: "anomaly-response",
+	EventTypeAnomalyResponse: "anomaly-response",
 	EventTypeMAC:             "mac",
 	EventTypeCrypto:          "crypto",
 	EventTypeVirt:            "virt",
@@ -120,9 +120,9 @@ func GetAuditEventType(t AuditMessageType) AuditEventType {
 	case t >= AUDIT_ANOM_PROMISCUOUS && t <= AUDIT_LAST_KERN_ANOM_MSG,
 		t >= AUDIT_ANOM_LOGIN_FAILURES && t <= AUDIT_ANOM_RBAC_FAIL,
 		t >= AUDIT_ANOM_CRYPTO_FAIL && t <= AUDIT_LAST_ANOM_MSG:
-		return EventTypeAnomoly
+		return EventTypeAnomaly
 	case t >= AUDIT_RESP_ANOMALY && t <= AUDIT_LAST_ANOM_RESP:
-		return EventTypeAnomolyResponse
+		return EventTypeAnomalyResponse
 	case t >= AUDIT_MAC_POLICY_LOAD && t <= AUDIT_LAST_SELINUX,
 		t >= AUDIT_AA && t <= AUDIT_APPARMOR_AUDIT,
 		t >= AUDIT_APPARMOR_HINT && t <= AUDIT_APPARMOR_STATUS,

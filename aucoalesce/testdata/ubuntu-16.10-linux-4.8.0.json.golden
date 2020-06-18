@@ -4,7 +4,7 @@
     "event": {
       "@timestamp": "2017-04-21T00:32:22.981Z",
       "sequence": 753,
-      "category": "anomoly",
+      "category": "anomaly",
       "record_type": "anom_promiscuous",
       "result": "success",
       "session": "1",

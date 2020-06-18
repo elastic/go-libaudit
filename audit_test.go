@@ -44,8 +44,9 @@ import (
 // docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit --pid=host --privileged golang:1.10.2 /bin/bash
 
 var (
-	hexdump = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")
-	list    = flag.Bool("l", false, "dump rules")
+	hexdump   = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")
+	list      = flag.Bool("l", false, "dump rules")
+	immutable = flag.Bool("immutable", false, "test setting kernel as immutable (requires reboot to undo)")
 )
 
 // testRule is a base64 representation of the following rule.
@@ -746,6 +747,39 @@ func TestAuditClientGetStatusAsync(t *testing.T) {
 
 		t.Logf("Status: %+v", replyStatus)
 	}
+}
+
+func TestAuditClientSetImmutable(t *testing.T) {
+	if os.Geteuid() != 0 {
+		t.Skip("must be root to enable audit")
+	}
+	if !*immutable {
+		t.Skip("use -immutable to test SetImmutable")
+	}
+
+	var dumper io.WriteCloser
+	if *hexdump {
+		dumper = hex.Dumper(os.Stdout)
+		defer dumper.Close()
+	}
+
+	c, err := NewAuditClient(dumper)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	err = c.SetImmutable(WaitForReply)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("SetImmutable complete")
+
+	status, err := getStatus(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.EqualValues(t, 2, status.Enabled)
 }
 
 func TestRuleParsing(t *testing.T) {

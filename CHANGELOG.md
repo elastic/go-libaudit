@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added semantic versioning support via go modules. #61
 - Added ECS categorization support for events by record type and syscall. #62
 - Fixed a typo in the action value associated with ROLE_REMOVE messages. #65
+- Fixed a typo in the action value associated with ANOM_LINK messages. #66
 
 ### Removed
 

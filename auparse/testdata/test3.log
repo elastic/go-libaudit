@@ -14,3 +14,4 @@ type=PROCTITLE msg=audit(1451781471.394:194438): proctitle="bash"
 type=PROCTITLE msg=audit(1451781471.394:194440): proctitle=737368643A206275726E205B707269765D
 type=ADD_GROUP msg=audit(1451781471.602:194894): pid=1321 uid=0 auid=1000 ses=1 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='op=add-group acct="frodo" exe="/usr/sbin/useradd" hostname=? addr=? terminal=pts/0 res=success'
 type=EXECVE msg=audit(1507304439.922:1865): argc=5 a0="useradd" a1="-u" a2="3005" a3="-m" a4="trainer5"
+type=SECCOMP msg=audit(1433785727.186:10262): auid=20003 uid=22 gid=22 ses=21 pid=11217 comm="sshd" exe="/usr/sbin/sshd" sig=31 arch=40000003 syscall=132 compat=0 ip=0xb7670aac code=0x0

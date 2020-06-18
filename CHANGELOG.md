@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Vagrantfile for development ease. #61
+- Added enrichment of arch, syscall, and sig to type=SECCOMP messages. #64
 
 ### Changed
 

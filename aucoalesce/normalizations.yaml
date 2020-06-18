@@ -1466,7 +1466,7 @@ normalizations:
       type: start
   # AUDIT_ANOM_LINK - Suspicious use of file links
   - record_types: ANOM_LINK
-    action: used-suspcious-link
+    action: used-suspicious-link
   # AUDIT_ANOM_LOGIN_FAILURES - Failed login limit reached
   - <<: *macro-user-session
     record_types: ANOM_LOGIN_FAILURES

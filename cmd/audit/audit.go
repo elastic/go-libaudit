@@ -42,6 +42,7 @@ var (
 	diag        = fs.String("diag", "", "dump raw information from kernel to file")
 	rate        = fs.Uint("rate", 0, "rate limit in kernel (default 0, no rate limit)")
 	backlog     = fs.Uint("backlog", 8192, "backlog limit")
+	immutable   = fs.Bool("immutable", false, "make kernel audit settings immutable (requires reboot to undo)")
 	receiveOnly = fs.Bool("ro", false, "receive only using multicast, requires kernel 3.16+")
 )
 
@@ -125,6 +126,13 @@ func read() error {
 			log.Debugf("setting backlog limit in kernel to %v", *backlog)
 			if err = client.SetBacklogLimit(uint32(*backlog), libaudit.NoWait); err != nil {
 				return errors.Wrap(err, "failed to set backlog limit")
+			}
+		}
+
+		if status.Enabled != 2 {
+			log.Debugf("setting kernel settings as immutable")
+			if err = client.SetImmutable(libaudit.NoWait); err != nil {
+				return errors.Wrap(err, "failed to set kernel as immutable")
 			}
 		}
 

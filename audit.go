@@ -364,6 +364,19 @@ func (c *AuditClient) SetEnabled(enabled bool, wm WaitMode) error {
 	return c.set(status, wm)
 }
 
+// SetImmutable is used to lock the audit configuration so that it can't be
+// changed. Locking the configuration is intended to be the last command you
+// issue. Any attempt to change the configuration in this mode will be
+// audited and denied. The configuration can only be changed by rebooting the
+// machine.
+func (c *AuditClient) SetImmutable(wm WaitMode) error {
+	status := AuditStatus{
+		Mask:    AuditStatusEnabled,
+		Enabled: 2,
+	}
+	return c.set(status, wm)
+}
+
 // SetFailure sets the action that the kernel will perform when the backlog
 // limit is reached or when it encounters an error and cannot proceed.
 func (c *AuditClient) SetFailure(fm FailureMode, wm WaitMode) error {
@@ -587,7 +600,7 @@ var sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
 // https://github.com/linux-audit/audit-kernel/blob/v4.7/include/uapi/linux/audit.h#L413-L427
 type AuditStatus struct {
 	Mask            AuditStatusMask // Bit mask for valid entries.
-	Enabled         uint32          // 1 = enabled, 0 = disabled
+	Enabled         uint32          // 1 = enabled, 0 = disabled, 2 = immutable
 	Failure         uint32          // Failure-to-log action.
 	PID             uint32          // PID of auditd process.
 	RateLimit       uint32          // Messages rate limit (per second).

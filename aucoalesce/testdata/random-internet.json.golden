@@ -4,7 +4,7 @@
     "event": {
       "@timestamp": "2015-02-06T15:03:14.398Z",
       "sequence": 911150,
-      "category": "anomoly",
+      "category": "anomaly",
       "record_type": "anom_abend",
       "result": "unknown",
       "session": "unset",

@@ -23,9 +23,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
 )
 
 //go:generate sh -c "go run mk_audit_msg_types.go && gofmt -s -w zaudit_msg_types.go"
@@ -332,11 +334,16 @@ func enrichData(msg *AuditMessage) error {
 	hexDecode("cwd", msg.fields)
 
 	switch msg.RecordType {
+	case AUDIT_SECCOMP:
+		if err := setSignalName(msg.fields); err != nil {
+			return err
+		}
+		fallthrough
 	case AUDIT_SYSCALL:
 		if err := arch(msg.fields); err != nil {
 			return err
 		}
-		if err := syscall(msg.fields); err != nil {
+		if err := setSyscallName(msg.fields); err != nil {
 			return err
 		}
 		if err := hexDecode("exe", msg.fields); err != nil {
@@ -388,7 +395,7 @@ func arch(data map[string]*field) error {
 	return nil
 }
 
-func syscall(data map[string]*field) error {
+func setSyscallName(data map[string]*field) error {
 	field, found := data["syscall"]
 	if !found {
 		return errors.New("syscall key not found")
@@ -406,6 +413,23 @@ func syscall(data map[string]*field) error {
 
 	if name, found := AuditSyscalls[arch.Value()][syscall]; found {
 		field.Set(name)
+	}
+	return nil
+}
+
+func setSignalName(data map[string]*field) error {
+	field, found := data["sig"]
+	if !found {
+		return errors.New("sig key not found")
+	}
+
+	signalNum, err := strconv.Atoi(field.Value())
+	if err != nil {
+		return errors.Wrap(err, "failed to parse sig")
+	}
+
+	if signalName := unix.SignalName(syscall.Signal(signalNum)); signalName != "" {
+		field.Set(signalName)
 	}
 	return nil
 }

@@ -82,6 +82,7 @@ type ECSFieldMapping struct {
 }
 
 type ECSMapping struct {
+	Kind     string            `yaml:"kind"`
 	Category Strings           `yaml:"category"`
 	Type     Strings           `yaml:"type"`
 	Mappings []ECSFieldMapping `yaml:"mappings"`

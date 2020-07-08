@@ -36,6 +36,7 @@ const modeBlockDevice = 0o60000
 
 // ECSEvent contains ECS-specific categorization fields
 type ECSEvent struct {
+	Kind     string   `json:"kind,omitempty" yaml:"kind,omitempty"`
 	Category []string `json:"category,omitempty" yaml:"category,omitempty"`
 	Type     []string `json:"type,omitempty" yaml:"type,omitempty"`
 	Outcome  string   `json:"outcome,omitempty" yaml:"outcome,omitempty"`
@@ -488,6 +489,7 @@ func applyNormalization(event *Event) {
 		return
 	}
 
+	event.ECS.Event.Kind = norm.ECS.Kind
 	event.ECS.Event.Category = norm.ECS.Category.Values
 	event.ECS.Event.Type = norm.ECS.Type.Values
 

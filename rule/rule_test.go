@@ -133,6 +133,19 @@ func TestAddSyscall(t *testing.T) {
 			assert.EqualValues(t, openSyscallNum, rule.syscalls[0])
 		}
 	})
+
+	t.Run("open", func(t *testing.T) {
+		rule := &ruleData{
+			arch: "ppc64le",
+		}
+		if err := addSyscall(rule, "open"); err != nil {
+			t.Fatal(err)
+		}
+		if assert.Len(t, rule.syscalls, 1) {
+			const openSyscallNum = 5
+			assert.EqualValues(t, openSyscallNum, rule.syscalls[0])
+		}
+	})
 }
 
 func TestAddFilter(t *testing.T) {
@@ -333,6 +346,16 @@ func TestAddFilter(t *testing.T) {
 		assert.EqualValues(t, archField, rule.fields[0])
 		assert.EqualValues(t, equalOperator, rule.fieldFlags[0])
 		assert.EqualValues(t, auparse.AUDIT_ARCH_X86_64, rule.values[0])
+	})
+
+	t.Run("arch_ppc64le", func(t *testing.T) {
+		rule := &ruleData{}
+		if err := addFilter(rule, "arch", "=", "ppc64le"); err != nil {
+			t.Fatalf("%+v", err)
+		}
+		assert.EqualValues(t, archField, rule.fields[0])
+		assert.EqualValues(t, equalOperator, rule.fieldFlags[0])
+		assert.EqualValues(t, auparse.AUDIT_ARCH_PPC64LE, rule.values[0])
 	})
 
 	t.Run("perm", func(t *testing.T) {

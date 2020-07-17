@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fixed syscall lookup for ppc64 and ppc64le. [#71](https://github.com/elastic/go-libaudit/pull/71)
+
 ### Removed
 
 ### Deprecated

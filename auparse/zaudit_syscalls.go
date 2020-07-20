@@ -2737,3 +2737,13 @@ var AuditSyscalls = map[string]map[int]string{
 		332: "statx",
 	},
 }
+
+func init() {
+	// Add "aliases" to ppc for ppc64 and ppc64le. They share the same tables.
+	ppcTable, found := AuditSyscalls["ppc"]
+	if !found {
+		panic("missing ppc syscall table")
+	}
+	AuditSyscalls["ppc64"] = ppcTable
+	AuditSyscalls["ppc64le"] = ppcTable
+}

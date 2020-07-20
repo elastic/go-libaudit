@@ -9,11 +9,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Fixed syscall lookup for ppc64 and ppc64le. [#71](https://github.com/elastic/go-libaudit/pull/71)
-
 ### Removed
 
 ### Deprecated
+
+## [2.0.1]
+
+### Changed
+
+- Fixed syscall lookup for ppc64 and ppc64le. [#71](https://github.com/elastic/go-libaudit/pull/71)
 
 ## [2.0.0]
 
@@ -170,7 +174,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.1
 [2.0.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.0
 [0.4.0]: https://github.com/elastic/go-libaudit/releases/tag/v0.4.0
 [0.3.0]: https://github.com/elastic/go-libaudit/releases/tag/v0.3.0

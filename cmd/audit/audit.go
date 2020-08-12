@@ -26,10 +26,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
-	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/v2"
@@ -38,7 +37,6 @@ import (
 
 var (
 	fs          = flag.NewFlagSet("audit", flag.ExitOnError)
-	debug       = fs.Bool("d", false, "enable debug output to stderr")
 	diag        = fs.String("diag", "", "dump raw information from kernel to file")
 	rate        = fs.Uint("rate", 0, "rate limit in kernel (default 0, no rate limit)")
 	backlog     = fs.Uint("backlog", 8192, "backlog limit")
@@ -46,25 +44,11 @@ var (
 	receiveOnly = fs.Bool("ro", false, "receive only using multicast, requires kernel 3.16+")
 )
 
-func enableLogger() {
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.DebugLevel)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339Nano,
-	})
-}
-
 func main() {
 	fs.Parse(os.Args[1:])
 
-	if *debug {
-		enableLogger()
-	}
-
 	if err := read(); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("error: %v", err)
 	}
 }
 
@@ -85,7 +69,7 @@ func read() error {
 		diagWriter = f
 	}
 
-	log.Debugln("starting netlink client")
+	log.Println("starting netlink client")
 
 	var err error
 	var client *libaudit.AuditClient
@@ -106,37 +90,37 @@ func read() error {
 		if err != nil {
 			return errors.Wrap(err, "failed to get audit status")
 		}
-		log.Infof("received audit status=%+v", status)
+		log.Printf("received audit status=%+v", status)
 
 		if status.Enabled == 0 {
-			log.Debugln("enabling auditing in the kernel")
+			log.Println("enabling auditing in the kernel")
 			if err = client.SetEnabled(true, libaudit.WaitForReply); err != nil {
 				return errors.Wrap(err, "failed to set enabled=true")
 			}
 		}
 
 		if status.RateLimit != uint32(*rate) {
-			log.Debugf("setting rate limit in kernel to %v", *rate)
+			log.Printf("setting rate limit in kernel to %v", *rate)
 			if err = client.SetRateLimit(uint32(*rate), libaudit.NoWait); err != nil {
 				return errors.Wrap(err, "failed to set rate limit to unlimited")
 			}
 		}
 
 		if status.BacklogLimit != uint32(*backlog) {
-			log.Debugf("setting backlog limit in kernel to %v", *backlog)
+			log.Printf("setting backlog limit in kernel to %v", *backlog)
 			if err = client.SetBacklogLimit(uint32(*backlog), libaudit.NoWait); err != nil {
 				return errors.Wrap(err, "failed to set backlog limit")
 			}
 		}
 
 		if status.Enabled != 2 {
-			log.Debugf("setting kernel settings as immutable")
+			log.Printf("setting kernel settings as immutable")
 			if err = client.SetImmutable(libaudit.NoWait); err != nil {
 				return errors.Wrap(err, "failed to set kernel as immutable")
 			}
 		}
 
-		log.Debugf("sending message to kernel registering our PID (%v) as the audit daemon", os.Getpid())
+		log.Printf("sending message to kernel registering our PID (%v) as the audit daemon", os.Getpid())
 		if err = client.SetPID(libaudit.NoWait); err != nil {
 			return errors.Wrap(err, "failed to set audit PID")
 		}

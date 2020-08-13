@@ -23,10 +23,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
@@ -37,7 +37,6 @@ import (
 
 var (
 	fs        = flag.NewFlagSet("auparse", flag.ExitOnError)
-	debug     = fs.Bool("d", false, "enable debug output to stderr")
 	in        = fs.String("in", "-", "input file (defaults to stdin)")
 	out       = fs.String("out", "-", "output file (defaults to stdout)")
 	interpret = fs.Bool("i", false, "interpret and normalize messages")
@@ -45,25 +44,11 @@ var (
 	format    = fs.String("format", "", "output format, possible values - json, yaml, text (default)")
 )
 
-func enableLogger() {
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.DebugLevel)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: time.RFC3339Nano,
-	})
-}
-
 func main() {
 	fs.Parse(os.Args[1:])
 
-	if *debug {
-		enableLogger()
-	}
-
 	if err := processLogs(); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("error: %v", err)
 	}
 }
 
@@ -123,7 +108,7 @@ func processLogs() error {
 
 		auditMsg, err := auparse.ParseLogLine(line)
 		if err != nil {
-			log.WithError(err).Warn("failed to parse message header")
+			log.Printf("failed to parse message header: %v", err)
 		}
 
 		reassembler.PushMessage(auditMsg)
@@ -141,7 +126,7 @@ func (s *streamHandler) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 }
 
 func (s *streamHandler) EventsLost(count int) {
-	log.Infof("Detected the loss of %v sequences.", count)
+	log.Printf("Detected the loss of %v sequences.", count)
 }
 
 func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) {
@@ -155,7 +140,7 @@ func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) {
 
 	event, err := aucoalesce.CoalesceMessages(msgs)
 	if err != nil {
-		log.WithError(err).Warn("failed to coalesce messages")
+		log.Printf("failed to coalesce messages: %v", err)
 		return
 	}
 
@@ -166,12 +151,12 @@ func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) {
 	switch *format {
 	case "json":
 		if err := s.printJSON(event); err != nil {
-			log.WithError(err).Error("failed to marshal event to JSON")
+			log.Printf("failed to marshal event to JSON: %v", err)
 		}
 	case "yaml":
 		s.output.Write([]byte("---\n"))
 		if err := s.printYAML(event); err != nil {
-			log.WithError(err).Error("failed to marshal message to YAML")
+			log.Printf("failed to marshal message to YAML: %v", err)
 		}
 	default:
 		sm := event.Summary
@@ -189,11 +174,11 @@ func (s *streamHandler) outputSingleMessage(m *auparse.AuditMessage) {
 	switch *format {
 	case "json":
 		if err := s.printJSON(m.ToMapStr()); err != nil {
-			log.WithError(err).Error("failed to marshal message to JSON")
+			log.Printf("failed to marshal message to JSON: %v", err)
 		}
 	case "yaml":
 		if err := s.printYAML(m.ToMapStr()); err != nil {
-			log.WithError(err).Error("failed to marshal message to YAML")
+			log.Printf("failed to marshal message to YAML: %v", err)
 		}
 	default:
 		fmt.Fprintf(

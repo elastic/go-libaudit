@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
+- Remove github.com/Sirupsen/logrus dependency from examples. [#73]https://github.com/elastic/go-libaudit/issues/73
+
 ### Deprecated
 
 ## [2.0.1]

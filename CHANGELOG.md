@@ -9,9 +9,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Use ECS recommended values for network direction. [#75](https://github.com/elastic/go-libaudit/issues/75)[#76](https://github.com/elastic/go-libaudit/pull/76)
+  
 ### Removed
 
-- Remove github.com/Sirupsen/logrus dependency from examples. [#73]https://github.com/elastic/go-libaudit/issues/73
+- Remove github.com/Sirupsen/logrus dependency from examples. [#73](https://github.com/elastic/go-libaudit/issues/73)
 
 ### Deprecated
 

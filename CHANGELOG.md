@@ -15,8 +15,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [2.0.2]
 
-### Added
-
 ### Changed
 
 - Use ECS recommended values for network direction. [#75](https://github.com/elastic/go-libaudit/issues/75)[#76](https://github.com/elastic/go-libaudit/pull/76)
@@ -25,7 +23,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Remove github.com/Sirupsen/logrus dependency from examples. [#73](https://github.com/elastic/go-libaudit/issues/73)
 
-### Deprecated
 
 ## [2.0.1]
 
@@ -188,7 +185,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.2
 [2.0.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.1
 [2.0.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.0
 [0.4.0]: https://github.com/elastic/go-libaudit/releases/tag/v0.4.0

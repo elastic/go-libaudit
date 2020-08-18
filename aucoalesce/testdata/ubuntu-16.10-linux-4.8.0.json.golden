@@ -462,7 +462,7 @@
         "ip": "179.38.151.221"
       },
       "network": {
-        "direction": "incoming"
+        "direction": "inbound"
       },
       "data": {
         "acct": "(invalid user)",
@@ -517,7 +517,7 @@
         "ip": "72.83.230.100"
       },
       "network": {
-        "direction": "incoming"
+        "direction": "inbound"
       },
       "data": {
         "hostname": "72.83.230.100",
@@ -573,7 +573,7 @@
         "ip": "72.83.230.100"
       },
       "network": {
-        "direction": "incoming"
+        "direction": "inbound"
       },
       "data": {
         "acct": "andrew_kroh",
@@ -643,7 +643,7 @@
         "port": "58140"
       },
       "network": {
-        "direction": "incoming"
+        "direction": "inbound"
       },
       "data": {
         "a0": "3",
@@ -786,7 +786,7 @@
         "port": "80"
       },
       "network": {
-        "direction": "outgoing"
+        "direction": "outbound"
       },
       "data": {
         "a0": "5",

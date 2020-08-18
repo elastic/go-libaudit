@@ -9,6 +9,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+### Removed
+
+### Deprecated
+
+## [2.0.2]
+
+### Added
+
+### Changed
+
 - Use ECS recommended values for network direction. [#75](https://github.com/elastic/go-libaudit/issues/75)[#76](https://github.com/elastic/go-libaudit/pull/76)
   
 ### Removed

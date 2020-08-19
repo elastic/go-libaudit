@@ -77,6 +77,7 @@ type Normalization struct {
 }
 
 type ECSMapping struct {
+	Kind     string  `yaml:"kind"`
 	Category Strings `yaml:"category"`
 	Type     Strings `yaml:"type"`
 }

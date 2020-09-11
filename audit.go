@@ -265,12 +265,12 @@ func (c *AuditClient) DeleteRule(rule []byte) error {
 	// Send AUDIT_DEL_RULE message to the kernel.
 	seq, err := c.Netlink.Send(msg)
 	if err != nil {
-		return errors.Wrapf(err, "failed sending delete request")
+		return errors.Wrapf(err, "failed sending AUDIT_DEL_RULE request")
 	}
 
 	_, err = c.getReply(seq)
 	if err != nil {
-		return errors.Wrap(err, "failed to get ACK to rule delete request")
+		return errors.Wrap(err, "failed to get ACK to AUDIT_DEL_RULE request")
 	}
 
 	return nil
@@ -289,12 +289,12 @@ func (c *AuditClient) AddRule(rule []byte) error {
 	// Send AUDIT_ADD_RULE message to the kernel.
 	seq, err := c.Netlink.Send(msg)
 	if err != nil {
-		return errors.Wrapf(err, "failed sending delete request")
+		return errors.Wrapf(err, "failed sending AUDIT_ADD_RULE request")
 	}
 
 	ack, err := c.getReply(seq)
 	if err != nil {
-		return errors.Wrap(err, "failed to get ACK to rule delete request")
+		return errors.Wrap(err, "failed to get ACK to AUDIT_ADD_RULE request")
 	}
 
 	if ack.Header.Type != syscall.NLMSG_ERROR {

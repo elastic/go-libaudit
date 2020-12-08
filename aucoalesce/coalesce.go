@@ -21,7 +21,6 @@ package aucoalesce
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -30,27 +29,6 @@ import (
 	"github.com/elastic/go-libaudit/v2/auparse"
 	"github.com/pkg/errors"
 )
-
-var privateIPBlocks []*net.IPNet
-
-func init() {
-	for _, cidr := range []string{
-		"127.0.0.0/8",    // IPv4 loopback
-		"10.0.0.0/8",     // RFC1918
-		"172.16.0.0/12",  // RFC1918
-		"192.168.0.0/16", // RFC1918
-		"169.254.0.0/16", // RFC3927 link-local
-		"::1/128",        // IPv6 loopback
-		"fe80::/10",      // IPv6 link-local
-		"fc00::/7",       // IPv6 unique local addr
-	} {
-		_, block, err := net.ParseCIDR(cidr)
-		if err != nil {
-			panic(fmt.Errorf("parse error on %q: %v", cidr, err))
-		}
-		privateIPBlocks = append(privateIPBlocks, block)
-	}
-}
 
 // modeBlockDevice is the file mode bit representing block devices. This OS
 // package does not have a constant defined for this.
@@ -140,23 +118,15 @@ type Direction uint8
 const (
 	IncomingDir Direction = iota + 1
 	OutgoingDir
-	EgressDir
-	IngressDir
 	InternalDir
 )
 
 func (d Direction) String() string {
 	switch d {
 	case IncomingDir:
-		return "inbound"
-	case OutgoingDir:
-		return "outbound"
-	case EgressDir:
-		return "egress"
-	case IngressDir:
 		return "ingress"
-	case InternalDir:
-		return "internal"
+	case OutgoingDir:
+		return "egress"
 	}
 	return "unknown"
 }
@@ -172,22 +142,6 @@ type Address struct {
 	IP       string `json:"ip,omitempty"       yaml:"ip,omitempty"`       // IPv4 or IPv6 address.
 	Port     string `json:"port,omitempty"     yaml:"port,omitempty"`     // Port number.
 	Path     string `json:"path,omitempty"     yaml:"path,omitempty"`     // Unix socket path.
-}
-
-func (a Address) IsLocal() bool {
-	ip := net.ParseIP(a.IP)
-	if ip == nil {
-		return false
-	}
-	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
-		return true
-	}
-	for _, block := range privateIPBlocks {
-		if block.Contains(ip) {
-			return true
-		}
-	}
-	return false
 }
 
 type Object struct {
@@ -369,18 +323,10 @@ func addSockaddrRecord(sockaddr *auparse.AuditMessage, event *Event) {
 	switch syscall {
 	case "recvfrom", "recvmsg", "accept", "accept4":
 		addAddress(data, &event.Source)
-		if event.Source.IsLocal() {
-			event.Net = &Network{Direction: InternalDir}
-		} else {
-			event.Net = &Network{Direction: IncomingDir}
-		}
+		event.Net = &Network{Direction: IncomingDir}
 	case "connect", "sendto", "sendmsg":
 		addAddress(data, &event.Dest)
-		if event.Dest.IsLocal() {
-			event.Net = &Network{Direction: InternalDir}
-		} else {
-			event.Net = &Network{Direction: OutgoingDir}
-		}
+		event.Net = &Network{Direction: OutgoingDir}
 	default:
 		// These are the other syscalls that contain SOCKADDR, but they
 		// have no clear source or destination:

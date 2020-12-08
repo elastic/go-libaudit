@@ -142,7 +142,7 @@
         "ip": "96.241.146.97"
       },
       "network": {
-        "direction": "inbound"
+        "direction": "ingress"
       },
       "data": {
         "fp": "6d:a3:7f:ed:de:4a:79:f2:aa:49:ec:d1:75:36:97:a3",
@@ -206,7 +206,7 @@
         "ip": "96.241.146.97"
       },
       "network": {
-        "direction": "inbound"
+        "direction": "ingress"
       },
       "data": {
         "cipher": "chacha20-poly1305@openssh.com",
@@ -326,7 +326,7 @@
         "ip": "46.160.144.250"
       },
       "network": {
-        "direction": "inbound"
+        "direction": "ingress"
       },
       "data": {
         "acct": "root",

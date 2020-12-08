@@ -17,6 +17,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [2.1.0]
+
+### Added
+
+- ECS 1.7 `configuration` categorization. [#80](https://github.com/elastic/go-libaudit/pull/80)
+
+### Changed
+
+- Use ingress/egress instead of inbound/outbound for ECS 1.7. [#80](https://github.com/elastic/go-libaudit/pull/80)
+
 ## [2.0.2]
 
 ### Changed
@@ -189,7 +199,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/elastic/go-libaudit/compare/v2.1.0
 [2.0.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.2
 [2.0.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.1
 [2.0.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.0

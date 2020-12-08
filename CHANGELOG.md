@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Split out additional network directions for ECS 1.7. [#80](https://github.com/elastic/go-libaudit/pull/80)
+- Use ingress/egress instead of inbound/outbound for ECS 1.7. [#80](https://github.com/elastic/go-libaudit/pull/80)
 
 ### Removed
 

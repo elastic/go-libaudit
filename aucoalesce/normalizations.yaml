@@ -1179,7 +1179,7 @@ normalizations:
         [op, key, audit_enabled, audit_pid, audit_backlog_limit, audit_failure]
       what: audit-config
     ecs:
-      <<: *ecs-process
+      category: [process, configuration]
       type: change
   # AUDIT_DAEMON_ABORT - Daemon error stop record
   - record_types: DAEMON_ABORT
@@ -1215,8 +1215,8 @@ normalizations:
     object:
       what: service
     ecs:
-      <<: *ecs-process
-      type: stop
+      category: [process, configuration]
+      type: change
   # AUDIT_DAEMON_END - Daemon normal stop record
   - record_types: DAEMON_END
     action: shutdown-audit
@@ -1237,8 +1237,8 @@ normalizations:
     object:
       what: service
     ecs:
-      <<: *ecs-process
-      type: change
+      category: [process, configuration]
+      type: info
   # AUDIT_DAEMON_RESUME - Auditd should resume logging
   - record_types: DAEMON_RESUME
     action: resumed-audit-logging
@@ -1276,18 +1276,27 @@ normalizations:
     object:
       primary: op
       what: system
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_NETFILTER_CFG - Netfilter chain modifications
   - record_types: NETFILTER_CFG
     action: loaded-firewall-rule-to
     object:
       primary: table
       what: firewall
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_FEATURE_CHANGE - audit log listing feature changes
   - record_types: FEATURE_CHANGE
     action: changed-audit-feature
     object:
       primary: feature
       what: system
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_REPLACE - Replace auditd if this packet unanswerd
 
   # TTY events
@@ -1349,17 +1358,26 @@ normalizations:
     object:
       primary: bool
       what: mac-config
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_MAC_POLICY_LOAD - Policy file load
   - record_types: MAC_POLICY_LOAD
     action: loaded-selinux-policy
     object:
       what: mac-config
+    ecs:
+      category: configuration
+      type: access
   # AUDIT_MAC_STATUS - Changed enforcing,permissive,off
   - record_types: MAC_STATUS
     action: changed-selinux-enforcement
     object:
       primary: enforcing
       what: mac-config
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_USER_AVC - User space avc message
   - record_types: USER_AVC
     action: access-permission
@@ -1368,11 +1386,17 @@ normalizations:
     action: changed-mac-configuration
     object:
       what: mac-config
+    ecs:
+      category: configuration
+      type: change
   # AUDIT_USER_MAC_POLICY_LOAD - Userspc daemon loaded polic
   - record_types: USER_MAC_POLICY_LOAD
     action: loaded-mac-policy
     object:
       what: mac-config
+    ecs:
+      category: configuration
+      type: access
   # AUDIT_USER_SELINUX_ERR - SE Linux user space error
   - record_types: USER_SELINUX_ERR
     action: access-error

@@ -7,7 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- ECS 1.7 `configuration` categorization. [#80](https://github.com/elastic/go-libaudit/pull/80)
+
 ### Changed
+
+- Use ingress/egress instead of inbound/outbound for ECS 1.7. [#80](https://github.com/elastic/go-libaudit/pull/80)
 
 ### Removed
 

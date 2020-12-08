@@ -123,9 +123,9 @@ const (
 func (d Direction) String() string {
 	switch d {
 	case IncomingDir:
-		return "inbound"
+		return "ingress"
 	case OutgoingDir:
-		return "outbound"
+		return "egress"
 	}
 	return "unknown"
 }

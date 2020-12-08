@@ -494,7 +494,7 @@
         "ip": "185.56.82.22"
       },
       "network": {
-        "direction": "inbound"
+        "direction": "ingress"
       },
       "data": {
         "hostname": "185.56.82.22",
@@ -549,7 +549,7 @@
         "ip": "31.207.47.36"
       },
       "network": {
-        "direction": "inbound"
+        "direction": "ingress"
       },
       "data": {
         "acct": "(invalid user)",

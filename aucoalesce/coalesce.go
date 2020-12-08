@@ -118,7 +118,6 @@ type Direction uint8
 const (
 	IncomingDir Direction = iota + 1
 	OutgoingDir
-	InternalDir
 )
 
 func (d Direction) String() string {

@@ -104,7 +104,8 @@
       "ecs": {
         "event": {
           "category": [
-            "process"
+            "process",
+            "configuration"
           ],
           "type": [
             "change"
@@ -149,7 +150,8 @@
       "ecs": {
         "event": {
           "category": [
-            "process"
+            "process",
+            "configuration"
           ],
           "type": [
             "change"
@@ -319,9 +321,11 @@
       "ecs": {
         "event": {
           "category": [
+            "configuration",
             "process"
           ],
           "type": [
+            "change",
             "info"
           ]
         }
@@ -786,7 +790,7 @@
         "port": "80"
       },
       "network": {
-        "direction": "outbound"
+        "direction": "internal"
       },
       "data": {
         "a0": "5",

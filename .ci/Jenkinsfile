@@ -31,22 +31,25 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
-    stage('Local') {
-      steps {
-        cleanup()
-        withGoEnv(){
-          dir("${BASE_DIR}"){
-            sh(label: 'local',script: 'make local')
-          }
-        }
-      }
-    }
     stage('Test') {
       steps {
         cleanup()
         withGoEnv(){
           dir("${BASE_DIR}"){
-            sh(label: 'test', script: 'make test')
+            sh(label: 'test', script: '''
+GO111MODULE=off go get -u github.com/elastic/go-licenser
+go get -d -t ./...
+go mod download
+go mod verify
+go mod tidy && [ -z "$(git status --porcelain go.mod go.sum)" ] || (echo "Go module manifest changed. Run 'go mod tidy'" 1>&2 && exit 1)
+go-licenser -d
+find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read && echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2 && exit 1 || true
+go test -v $(go list ./... | grep -v /vendor/)
+GOARCH=386 go test -v $(go list ./... | grep -v /vendor/)
+mkdir -p build/bin
+go build -o build/bin/audit ./cmd/audit/
+go build -o build/bin/auparse ./cmd/auparse/
+''')
           }
         }
       }

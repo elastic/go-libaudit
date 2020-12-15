@@ -21,8 +21,26 @@ if find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read ; then
     exit 1
 fi
 
-go test -v $(go list ./... | grep -v /vendor/)
-GOARCH=386 go test -v $(go list ./... | grep -v /vendor/)
+# Run the tests
+set +e
+mkdir -p build
+go get -v -u github.com/jstemmer/go-junit-report
+export OUT_FILE="build/test-report.out"
+go test -v $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
+status=$?
+go-junit-report > "build/junit.xml" < ${OUT_FILE}
+
+OUT_FILE="build/test-report-386.out"
+GOARCH=386 go test -v $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
+if [ $? -gt 0 ] ; then
+    status=1
+fi
+go-junit-report > "build/junit-386.xml" < ${OUT_FILE}
+if [ $status -gt 0 ] ; then
+    exit 1
+fi
+set -x
+
 mkdir -p build/bin
 go build -o build/bin/audit ./cmd/audit/
 go build -o build/bin/auparse ./cmd/auparse/

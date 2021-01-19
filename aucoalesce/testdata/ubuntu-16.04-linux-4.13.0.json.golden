@@ -65,6 +65,16 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -187,6 +197,16 @@
           "type": [
             "deletion"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },

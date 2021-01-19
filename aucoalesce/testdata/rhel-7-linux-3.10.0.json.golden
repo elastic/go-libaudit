@@ -46,6 +46,16 @@
           "type": [
             "change"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -94,6 +104,16 @@
           "type": [
             "change"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -158,6 +178,16 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -227,6 +257,16 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -279,6 +319,19 @@
           "type": [
             "start"
           ]
+        },
+        "user": {
+          "id": "4294967295",
+          "effective": {
+            "id": "0"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -341,6 +394,19 @@
           "type": [
             "start"
           ]
+        },
+        "user": {
+          "name": "unset",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -396,6 +462,19 @@
           "type": [
             "end"
           ]
+        },
+        "user": {
+          "id": "1000",
+          "effective": {
+            "id": "1000"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -470,6 +549,16 @@
           "type": [
             "change"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -588,6 +677,16 @@
           "type": [
             "creation"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -696,6 +795,16 @@
           "type": [
             "creation"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }

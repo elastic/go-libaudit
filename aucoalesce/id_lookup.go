@@ -30,6 +30,13 @@ const cacheTimeout = time.Minute
 var (
 	userLookup  = NewUserCache(cacheTimeout)
 	groupLookup = NewGroupCache(cacheTimeout)
+
+	// noExpiration = time.Unix(math.MaxInt64, 0)
+	// The above breaks time.Before and time.After due to overflows.
+	// See https://stackoverflow.com/questions/25065055/what-is-the-maximum-time-time-in-go
+	//
+	// Safe alternative:
+	noExpiration = time.Unix(0, 0).Add(math.MaxInt64 - 1)
 )
 
 type stringItem struct {
@@ -41,90 +48,87 @@ func (i *stringItem) isExpired() bool {
 	return time.Now().After(i.timeout)
 }
 
-// UserCache is a cache of UID to username.
-type UserCache struct {
-	expiration time.Duration
-	data       map[string]stringItem
-	mutex      sync.Mutex
+// EntityCache is a cache of IDs and usernames.
+type EntityCache struct {
+	byID, byName stringCache
 }
 
-// NewUserCache returns a new UserCache. UserCache is thread-safe.
-func NewUserCache(expiration time.Duration) *UserCache {
-	return &UserCache{
-		expiration: expiration,
-		data: map[string]stringItem{
-			"0": {timeout: time.Unix(math.MaxInt64, 0), value: "root"},
+// NewUserCache returns a new EntityCache to resolve users. EntityCache is thread-safe.
+func NewUserCache(expiration time.Duration) *EntityCache {
+	return &EntityCache{
+		byID: stringCache{
+			expiration: expiration,
+			data: map[string]stringItem{
+				"0": {timeout: noExpiration, value: "root"},
+			},
+			lookupFn: func(s string) string {
+				user, err := user.LookupId(s)
+				if err != nil {
+					return ""
+				}
+				return user.Username
+			},
+		},
+		byName: stringCache{
+			expiration: expiration,
+			data: map[string]stringItem{
+				"root": {timeout: noExpiration, value: "0"},
+			},
+			lookupFn: func(s string) string {
+				user, err := user.Lookup(s)
+				if err != nil {
+					return ""
+				}
+				return user.Uid
+			},
 		},
 	}
 }
 
-// LookupUID looks up a UID and returns the username associated with it. If
-// no username could be found an empty string is returned. The value will be
+// LookupID looks up an UID/GID and returns the user/group name associated with it. If
+// no name could be found an empty string is returned. The value will be
+// cached for a minute.
+func (c *EntityCache) LookupID(uid string) string {
+	return c.byID.lookup(uid)
+}
+
+// LookupName looks up an user/group name and returns the ID associated with it. If
+// no ID could be found an empty string is returned. The value will be
 // cached for a minute. This requires cgo on Linux.
-func (c *UserCache) LookupUID(uid string) string {
-	if uid == "" || uid == "unset" {
-		return ""
-	}
-
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
-	if item, found := c.data[uid]; found && !item.isExpired() {
-		return item.value
-	}
-
-	// Cache the value (even on error).
-	user, err := user.LookupId(uid)
-	if err != nil {
-		c.data[uid] = stringItem{timeout: time.Now().Add(c.expiration), value: ""}
-		return ""
-	}
-
-	c.data[uid] = stringItem{timeout: time.Now().Add(c.expiration), value: user.Username}
-	return user.Username
+func (c *EntityCache) LookupName(name string) string {
+	return c.byName.lookup(name)
 }
 
-// GroupCache is a cache of GID to group name.
-type GroupCache struct {
-	expiration time.Duration
-	data       map[string]stringItem
-	mutex      sync.Mutex
-}
-
-// NewGroupCache returns a new GroupCache. GroupCache is thread-safe.
-func NewGroupCache(expiration time.Duration) *GroupCache {
-	return &GroupCache{
-		expiration: expiration,
-		data: map[string]stringItem{
-			"0": {timeout: time.Unix(math.MaxInt64, 0), value: "root"},
+// NewGroupCache returns a new EntityCache to resolve groups. EntityCache is thread-safe.
+func NewGroupCache(expiration time.Duration) *EntityCache {
+	return &EntityCache{
+		byID: stringCache{
+			expiration: expiration,
+			data: map[string]stringItem{
+				"0": {timeout: noExpiration, value: "root"},
+			},
+			lookupFn: func(s string) string {
+				grp, err := user.LookupGroupId(s)
+				if err != nil {
+					return ""
+				}
+				return grp.Name
+			},
+		},
+		byName: stringCache{
+			expiration: expiration,
+			data: map[string]stringItem{
+				"root": {timeout: noExpiration, value: "0"},
+			},
+			lookupFn: func(s string) string {
+				grp, err := user.LookupGroup(s)
+				if err != nil {
+					return ""
+				}
+				return grp.Gid
+			},
 		},
 	}
-}
-
-// LookupGID looks up a GID and returns the group associated with it. If
-// no group could be found an empty string is returned. The value will be
-// cached for a minute. This requires cgo on Linux.
-func (c *GroupCache) LookupGID(gid string) string {
-	if gid == "" || gid == "unset" {
-		return ""
-	}
-
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
-	if item, found := c.data[gid]; found && !item.isExpired() {
-		return item.value
-	}
-
-	// Cache the value (even on error).
-	group, err := user.LookupGroupId(gid)
-	if err != nil {
-		c.data[gid] = stringItem{timeout: time.Now().Add(c.expiration), value: ""}
-		return ""
-	}
-
-	c.data[gid] = stringItem{timeout: time.Now().Add(c.expiration), value: group.Name}
-	return group.Name
 }
 
 // ResolveIDs translates all uid and gid values to their associated names.
@@ -136,12 +140,12 @@ func ResolveIDs(event *Event) {
 
 // ResolveIDsFromCaches translates all uid and gid values to their associated
 // names using the provided caches. Prior to Go 1.9 this requires cgo on Linux.
-func ResolveIDsFromCaches(event *Event, users *UserCache, groups *GroupCache) {
+func ResolveIDsFromCaches(event *Event, users, groups *EntityCache) {
 	// Actor
-	if v := users.LookupUID(event.Summary.Actor.Primary); v != "" {
+	if v := users.LookupID(event.Summary.Actor.Primary); v != "" {
 		event.Summary.Actor.Primary = v
 	}
-	if v := users.LookupUID(event.Summary.Actor.Secondary); v != "" {
+	if v := users.LookupID(event.Summary.Actor.Secondary); v != "" {
 		event.Summary.Actor.Secondary = v
 	}
 
@@ -149,11 +153,11 @@ func ResolveIDsFromCaches(event *Event, users *UserCache, groups *GroupCache) {
 	names := map[string]string{}
 	for key, id := range event.User.IDs {
 		if strings.HasSuffix(key, "uid") {
-			if v := users.LookupUID(id); v != "" {
+			if v := users.LookupID(id); v != "" {
 				names[key] = v
 			}
 		} else if strings.HasSuffix(key, "gid") {
-			if v := groups.LookupGID(id); v != "" {
+			if v := groups.LookupID(id); v != "" {
 				names[key] = v
 			}
 		}
@@ -165,10 +169,64 @@ func ResolveIDsFromCaches(event *Event, users *UserCache, groups *GroupCache) {
 	// File owner/group
 	if event.File != nil {
 		if event.File.UID != "" {
-			event.File.Owner = users.LookupUID(event.File.UID)
+			event.File.Owner = users.LookupID(event.File.UID)
 		}
 		if event.File.GID != "" {
-			event.File.Group = groups.LookupGID(event.File.GID)
+			event.File.Group = groups.LookupID(event.File.GID)
 		}
+	}
+
+	// ECS User and groups
+	event.ECS.User.lookup(users)
+	event.ECS.Group.lookup(groups)
+}
+
+// HardcodeUsers is useful for injecting values for testing.
+func HardcodeUsers(users ...user.User) {
+	for _, usr := range users {
+		userLookup.byID.hardcode(usr.Uid, usr.Username)
+		userLookup.byName.hardcode(usr.Username, usr.Uid)
+	}
+}
+
+// HardcodeGroups is useful for injecting values for testing.
+func HardcodeGroups(groups ...user.Group) {
+	for _, grp := range groups {
+		groupLookup.byID.hardcode(grp.Gid, grp.Name)
+		groupLookup.byName.hardcode(grp.Name, grp.Gid)
+	}
+}
+
+type stringCache struct {
+	mutex      sync.Mutex
+	expiration time.Duration
+	data       map[string]stringItem
+	lookupFn   func(string) string
+}
+
+func (c *stringCache) lookup(key string) string {
+	if key == "" || key == "unset" {
+		return ""
+	}
+
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	if item, found := c.data[key]; found && !item.isExpired() {
+		return item.value
+	}
+
+	// Cache the result (even on error).
+	resolved := c.lookupFn(key)
+	c.data[key] = stringItem{timeout: time.Now().Add(c.expiration), value: resolved}
+	return resolved
+}
+
+func (c *stringCache) hardcode(key, value string) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	c.data[key] = stringItem{
+		timeout: noExpiration,
+		value:   value,
 	}
 }

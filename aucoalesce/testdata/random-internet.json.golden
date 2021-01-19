@@ -50,6 +50,16 @@
           "type": [
             "end"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }

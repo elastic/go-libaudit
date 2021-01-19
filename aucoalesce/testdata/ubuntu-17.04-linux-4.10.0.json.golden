@@ -43,6 +43,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "name": "unset",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -94,6 +107,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "id": "0",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -203,6 +229,16 @@
           "type": [
             "start"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -251,6 +287,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "name": "unset",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -302,6 +351,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "id": "1001",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -354,6 +416,21 @@
             "user",
             "change"
           ]
+        },
+        "user": {
+          "id": "1001",
+          "effective": {
+            "id": "1002"
+          },
+          "target": {
+            "name": "akroh"
+          },
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -403,6 +480,16 @@
           "type": [
             "start"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -451,6 +538,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "id": "0",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -509,6 +609,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "name": "unset",
+          "effective": {
+            "id": "0"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -564,6 +677,19 @@
           "type": [
             "start"
           ]
+        },
+        "user": {
+          "name": "unset",
+          "effective": {
+            "name": "(invalid user)"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -612,6 +738,19 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "id": "0",
+          "effective": {
+            "name": "root"
+          },
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     },
@@ -681,6 +820,16 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -746,6 +895,16 @@
           "type": [
             "info"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -867,6 +1026,16 @@
           "type": [
             "change"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }
@@ -966,6 +1135,16 @@
           "type": [
             "deletion"
           ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {
+          "effective": {},
+          "target": {},
+          "changes": {}
         }
       }
     }

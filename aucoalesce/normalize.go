@@ -19,6 +19,7 @@ package aucoalesce
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -76,9 +77,15 @@ type Normalization struct {
 	ECS         ECSMapping     `yaml:"ecs"`
 }
 
+type ECSFieldMapping struct {
+	From readReference  `yaml:"from" json:"from"`
+	To   writeReference `yaml:"to" json:"to"`
+}
+
 type ECSMapping struct {
-	Category Strings `yaml:"category"`
-	Type     Strings `yaml:"type"`
+	Category Strings           `yaml:"category"`
+	Type     Strings           `yaml:"type"`
+	Mappings []ECSFieldMapping `yaml:"mappings"`
 }
 
 type SubjectMapping struct {
@@ -91,6 +98,102 @@ type ObjectMapping struct {
 	SecondaryFieldName Strings `yaml:"secondary"`
 	What               string  `yaml:"what"`
 	PathIndex          int     `yaml:"path_index"`
+}
+
+type readReference func(*Event) string
+type writeReference func(*Event, string)
+
+var (
+	fromFieldReferences = map[string]readReference{
+		"actor.primary": func(event *Event) string {
+			return event.Summary.Actor.Primary
+		},
+		"actor.secondary": func(event *Event) string {
+			return event.Summary.Actor.Secondary
+		},
+		"object.primary": func(event *Event) string {
+			return event.Summary.Object.Primary
+		},
+		"object.secondary": func(event *Event) string {
+			return event.Summary.Object.Secondary
+		},
+	}
+
+	fromDictReferences = map[string]func(key string) readReference{
+		"data": func(key string) readReference {
+			return func(event *Event) string {
+				return event.Data[key]
+			}
+		},
+		"uid": func(key string) readReference {
+			return func(event *Event) string {
+				return event.User.IDs[key]
+			}
+		},
+	}
+
+	toFieldReferences = map[string]writeReference{
+		"user": func(event *Event, s string) {
+			event.ECS.User.set(s)
+		},
+		"user.effective": func(event *Event, s string) {
+			event.ECS.User.Effective.set(s)
+		},
+		"user.target": func(event *Event, s string) {
+			event.ECS.User.Target.set(s)
+		},
+		"user.changes": func(event *Event, s string) {
+			event.ECS.User.Changes.set(s)
+		},
+		"group": func(event *Event, s string) {
+			event.ECS.Group.set(s)
+		},
+		"group.effective": func(event *Event, s string) {
+			event.ECS.Group.Effective.set(s)
+		},
+		"group.target": func(event *Event, s string) {
+			event.ECS.Group.Target.set(s)
+		},
+		"group.changes": func(event *Event, s string) {
+			event.ECS.Group.Changes.set(s)
+		},
+	}
+)
+
+func resolveFieldReference(fieldRef string) (ref readReference) {
+	if ref = fromFieldReferences[fieldRef]; ref != nil {
+		return
+	}
+	if dot := strings.IndexByte(fieldRef, '.'); dot != -1 {
+		dict := fieldRef[:dot]
+		key := fieldRef[dot+1:]
+		if accessor := fromDictReferences[dict]; accessor != nil {
+			return accessor(key)
+		}
+	}
+	return nil
+}
+
+func (ref *readReference) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var fieldRef string
+	if err := unmarshal(&fieldRef); err != nil {
+		return err
+	}
+	if *ref = resolveFieldReference(fieldRef); *ref == nil {
+		return fmt.Errorf("field '%s' is not a valid from-reference for ECS mapping", fieldRef)
+	}
+	return nil
+}
+
+func (ref *writeReference) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var fieldRef string
+	if err := unmarshal(&fieldRef); err != nil {
+		return err
+	}
+	if *ref = toFieldReferences[fieldRef]; *ref == nil {
+		return fmt.Errorf("field '%s' is not a valid to-reference for ECS mapping", fieldRef)
+	}
+	return nil
 }
 
 func LoadNormalizationConfig(b []byte) (syscalls map[string]*Normalization, recordTypes map[string][]*Normalization, err error) {

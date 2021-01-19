@@ -41,6 +41,24 @@ type ECSEvent struct {
 	Outcome  string   `json:"outcome,omitempty" yaml:"outcome,omitempty"`
 }
 
+type ECSEntityData struct {
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	ID   string `json:"id,omitempty" yaml:"id,omitempty"`
+}
+
+type ECSEntity struct {
+	ECSEntityData
+	Effective ECSEntityData `json:"effective" yaml:"effective"`
+	Target    ECSEntityData `json:"target" yaml:"target"`
+	Changes   ECSEntityData `json:"changes" yaml:"changes"`
+}
+
+type ECSFields struct {
+	Event ECSEvent  `json:"event" yaml:"event"`
+	User  ECSEntity `json:"user" yaml:"user"`
+	Group ECSEntity `json:"group" yaml:"group"`
+}
+
 type Event struct {
 	Timestamp time.Time                `json:"@timestamp"       yaml:"timestamp"`
 	Sequence  uint32                   `json:"sequence"         yaml:"sequence"`
@@ -61,9 +79,7 @@ type Event struct {
 	Data  map[string]string   `json:"data,omitempty"  yaml:"data,omitempty"`
 	Paths []map[string]string `json:"paths,omitempty" yaml:"paths,omitempty"`
 
-	ECS struct {
-		Event ECSEvent `json:"event" yaml:"event"`
-	} `json:"ecs" yaml:"ecs"`
+	ECS ECSFields `json:"ecs" yaml:"ecs"`
 
 	Warnings []error `json:"-" yaml:"-"`
 }
@@ -575,6 +591,13 @@ func applyNormalization(event *Event) {
 				norm.SourceIP.Values))
 		}
 	}
+
+	// Populate ECS fields from `mappings` section.
+	for _, mapping := range norm.ECS.Mappings {
+		if mapping.To != nil && mapping.From != nil {
+			mapping.To(event, mapping.From(event))
+		}
+	}
 }
 
 func getValue(key string, event *Event) (string, bool) {
@@ -780,4 +803,31 @@ func setHowDefaults(event *Event) {
 		return
 	}
 	event.Summary.How = comm
+}
+
+func (e *ECSEntityData) set(value string) {
+	// This could be called using an UID or a name
+	if _, err := strconv.Atoi(value); err == nil {
+		e.ID = value
+	} else {
+		e.Name = value
+	}
+}
+
+func (e *ECSEntityData) lookup(cache *EntityCache) {
+	if (e.ID == "") == (e.Name == "") {
+		return
+	}
+	if e.ID != "" {
+		e.Name = cache.LookupID(e.ID)
+	} else {
+		e.ID = cache.LookupName(e.Name)
+	}
+}
+
+func (e *ECSEntity) lookup(cache *EntityCache) {
+	e.ECSEntityData.lookup(cache)
+	e.Effective.lookup(cache)
+	e.Target.lookup(cache)
+	e.Changes.lookup(cache)
 }

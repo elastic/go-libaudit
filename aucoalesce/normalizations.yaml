@@ -40,6 +40,11 @@ macros:
   - &ecs-auth
     category: authentication
     type: info
+    mappings:
+      - from: actor.primary
+        to: user
+      - from: actor.secondary
+        to: user.effective
 
   - &ecs-host
     category: host
@@ -62,6 +67,24 @@ macros:
     type:
       - connection
       - info
+
+  - &ecs-user-modification-mappings
+    mappings:
+      - from: actor.primary
+        to: user
+      - from: actor.secondary
+        to: user.effective
+      - from: object.primary
+        to: user.target
+
+  - &ecs-group-modification-mappings
+    mappings:
+      - from: actor.primary
+        to: user
+      - from: actor.secondary
+        to: user.effective
+      - from: object.primary
+        to: group.target
 
 # Normalizations is a list of declarations specifying how to normalize the data
 # contained in an event. The normalization can be applied based on the syscall
@@ -847,9 +870,11 @@ normalizations:
       what: account
     ecs:
       <<: *ecs-iam
+      <<: *ecs-group-modification-mappings
       type:
         - group
         - creation
+
   # AUDIT_ADD_USER - User account added
   - record_types: ADD_USER
     action: added-user-account
@@ -858,6 +883,7 @@ normalizations:
       what: account
     ecs:
       <<: *ecs-iam
+      <<: *ecs-user-modification-mappings
       type:
         - user
         - creation
@@ -869,6 +895,7 @@ normalizations:
       what: account
     ecs:
       <<: *ecs-iam
+      <<: *ecs-group-modification-mappings
       type:
         - group
         - deletion
@@ -880,6 +907,7 @@ normalizations:
       what: account
     ecs:
       <<: *ecs-iam
+      <<: *ecs-user-modification-mappings
       type:
         - user
         - deletion
@@ -894,6 +922,13 @@ normalizations:
       type:
         - group
         - change
+      mappings:
+        - from: actor.primary
+          to: user
+        - from: actor.secondary
+          to: group.target
+        - from: uid.uid
+          to: user.effective
   # AUDIT_ROLE_ASSIGN - Admin assigned user to role
   - record_types: ROLE_ASSIGN
     action: assigned-user-role-to
@@ -932,6 +967,13 @@ normalizations:
       type:
         - user
         - change
+      mappings:
+        - from: actor.primary
+          to: user
+        - from: actor.secondary
+          to: user.target
+        - from: uid.uid
+          to: user.effective
   # AUDIT_USER_CHAUTHTOK - User acct password or pin changed
   - <<: *macro-user-session
     record_types: USER_CHAUTHTOK
@@ -941,6 +983,14 @@ normalizations:
       type:
         - user
         - change
+      mappings:
+        - from: actor.primary
+          to: user
+        - from: uid.uid
+          to: user.effective
+        - from: actor.secondary
+          to: user.target
+
   # AUDIT_GRP_CHAUTHTOK - Group acct password or pin changed
   - <<: *macro-user-session
     record_types: GRP_CHAUTHTOK
@@ -953,6 +1003,13 @@ normalizations:
       type:
         - group
         - change
+      mappings:
+        - from: actor.primary
+          to: user
+        - from: uid.uid
+          to: user.effective
+        - from: actor.secondary
+          to: group.target
 
   # Authentication related events
 

@@ -807,7 +807,7 @@ func setHowDefaults(event *Event) {
 
 func (e *ECSEntityData) set(value string) {
 	// This could be called using an UID or a name
-	if _, err := strconv.Atoi(value); err == nil {
+	if _, err := strconv.ParseUint(value, 10, 64); err == nil {
 		e.ID = value
 	} else {
 		e.Name = value

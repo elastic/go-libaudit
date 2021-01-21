@@ -41,9 +41,9 @@ macros:
     category: authentication
     type: info
     mappings:
-      - from: actor.primary
+      - from: subject.primary
         to: user
-      - from: actor.secondary
+      - from: subject.secondary
         to: user.effective
 
   - &ecs-host
@@ -70,18 +70,18 @@ macros:
 
   - &ecs-user-modification-mappings
     mappings:
-      - from: actor.primary
+      - from: subject.primary
         to: user
-      - from: actor.secondary
+      - from: subject.secondary
         to: user.effective
       - from: object.primary
         to: user.target
 
   - &ecs-group-modification-mappings
     mappings:
-      - from: actor.primary
+      - from: subject.primary
         to: user
-      - from: actor.secondary
+      - from: subject.secondary
         to: user.effective
       - from: object.primary
         to: group.target
@@ -923,9 +923,9 @@ normalizations:
         - group
         - change
       mappings:
-        - from: actor.primary
+        - from: subject.primary
           to: user
-        - from: actor.secondary
+        - from: subject.secondary
           to: group.target
         - from: uid.uid
           to: user.effective
@@ -968,9 +968,9 @@ normalizations:
         - user
         - change
       mappings:
-        - from: actor.primary
+        - from: subject.primary
           to: user
-        - from: actor.secondary
+        - from: subject.secondary
           to: user.target
         - from: uid.uid
           to: user.effective
@@ -984,11 +984,11 @@ normalizations:
         - user
         - change
       mappings:
-        - from: actor.primary
+        - from: subject.primary
           to: user
         - from: uid.uid
           to: user.effective
-        - from: actor.secondary
+        - from: subject.secondary
           to: user.target
 
   # AUDIT_GRP_CHAUTHTOK - Group acct password or pin changed
@@ -1004,11 +1004,11 @@ normalizations:
         - group
         - change
       mappings:
-        - from: actor.primary
+        - from: subject.primary
           to: user
         - from: uid.uid
           to: user.effective
-        - from: actor.secondary
+        - from: subject.secondary
           to: group.target
 
   # Authentication related events
@@ -1045,7 +1045,7 @@ normalizations:
       <<: *ecs-auth
       type: start
       mappings:
-        - from: actor.primary
+        - from: subject.primary
           to: user
         - from: object.primary
           to: user.effective

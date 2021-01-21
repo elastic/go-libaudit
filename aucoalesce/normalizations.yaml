@@ -1039,7 +1039,7 @@ normalizations:
       primary: [old_auid, old-auid]
       secondary: uid
     object:
-      primary: auid
+      primary: [new-auid, new_auid, auid]
       what: user-session
     ecs:
       <<: *ecs-auth

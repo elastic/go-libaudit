@@ -1044,6 +1044,11 @@ normalizations:
     ecs:
       <<: *ecs-auth
       type: start
+      mappings:
+        - from: actor.primary
+          to: user
+        - from: object.primary
+          to: user.effective
   # AUDIT_USER_ACCT - User system access authorization
   - <<: *macro-user-session
     record_types: USER_ACCT

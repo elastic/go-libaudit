@@ -105,10 +105,10 @@ type writeReference func(*Event, string)
 
 var (
 	fromFieldReferences = map[string]readReference{
-		"actor.primary": func(event *Event) string {
+		"subject.primary": func(event *Event) string {
 			return event.Summary.Actor.Primary
 		},
-		"actor.secondary": func(event *Event) string {
+		"subject.secondary": func(event *Event) string {
 			return event.Summary.Actor.Secondary
 		},
 		"object.primary": func(event *Event) string {

@@ -317,6 +317,7 @@ func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 func enrichData(msg *AuditMessage) error {
 	normalizeUnsetID("auid", msg.fields)
+	normalizeUnsetID("old-auid", msg.fields)
 	normalizeUnsetID("ses", msg.fields)
 
 	// Many different message types can have subj field so check them all.

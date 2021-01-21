@@ -806,6 +806,10 @@ func setHowDefaults(event *Event) {
 }
 
 func (e *ECSEntityData) set(value string) {
+	if value == "" || value == "unset" || value == "4294967295" || value == "-1" {
+		*e = ECSEntityData{ID: "unset"}
+		return
+	}
 	// This could be called using an UID or a name
 	if _, err := strconv.ParseUint(value, 10, 64); err == nil {
 		e.ID = value

@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add user and group mapping for ECS 1.8 compatibility [#86](https://github.com/elastic/go-libaudit/pull/86)
+
 ### Changed
 
 ### Removed

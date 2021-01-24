@@ -83,7 +83,7 @@ result: success
 session: "4"
 summary:
   actor:
-    primary: "1000"
+    primary: vagrant
     secondary: root
   action: acquired-credentials
   object:
@@ -95,6 +95,7 @@ user:
     auid: "1000"
     uid: "0"
   names:
+    auid: vagrant
     uid: root
   selinux:
     category: c0.c1023
@@ -116,6 +117,18 @@ ecs:
     - authentication
     type:
     - info
+  user:
+    name: vagrant
+    id: "1000"
+    effective:
+      name: root
+      id: "0"
+    target: {}
+    changes: {}
+  group:
+    effective: {}
+    target: {}
+    changes: {}
 
 ---
 timestamp: 2016-12-07T02:22:14.303Z
@@ -126,7 +139,7 @@ result: success
 session: "4"
 summary:
   actor:
-    primary: "1000"
+    primary: vagrant
     secondary: root
   action: started-session
   object:
@@ -138,6 +151,7 @@ user:
     auid: "1000"
     uid: "0"
   names:
+    auid: vagrant
     uid: root
   selinux:
     category: c0.c1023
@@ -159,6 +173,18 @@ ecs:
     - authentication
     type:
     - info
+  user:
+    name: vagrant
+    id: "1000"
+    effective:
+      name: root
+      id: "0"
+    target: {}
+    changes: {}
+  group:
+    effective: {}
+    target: {}
+    changes: {}
 
 ---
 timestamp: 2016-12-07T02:22:14.304Z
@@ -169,7 +195,7 @@ result: success
 session: "4"
 summary:
   actor:
-    primary: "1000"
+    primary: vagrant
     secondary: root
   action: executed
   object:
@@ -188,12 +214,13 @@ user:
     suid: "0"
     uid: "0"
   names:
-    egid: wheel
+    auid: vagrant
+    egid: root
     euid: root
-    fsgid: wheel
+    fsgid: root
     fsuid: root
-    gid: wheel
-    sgid: wheel
+    gid: root
+    sgid: root
     suid: root
     uid: root
   selinux:
@@ -218,7 +245,7 @@ file:
   uid: "0"
   gid: "0"
   owner: root
-  group: wheel
+  group: root
   selinux:
     domain: su_exec_t
     level: s0
@@ -267,6 +294,14 @@ ecs:
     - process
     type:
     - start
+  user:
+    effective: {}
+    target: {}
+    changes: {}
+  group:
+    effective: {}
+    target: {}
+    changes: {}
 ```
 
 ## ECS compatibility

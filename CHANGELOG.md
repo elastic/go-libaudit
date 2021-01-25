@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Change ECS category of USER_START and USER_END messages to `session`. [#86](https://github.com/elastic/go-libaudit/pull/86)
+
 ### Removed
 
 ### Deprecated

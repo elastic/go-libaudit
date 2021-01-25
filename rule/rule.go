@@ -364,7 +364,7 @@ func addFileWatch(data *ruleData, rule *FileWatchRule) error {
 
 func addKeys(data *ruleData, keys []string) error {
 	if len(keys) > 0 {
-		key := strings.Join(keys, string(keySeparator))
+		key := strings.Join(keys, string(rune(keySeparator)))
 		if err := addFilter(data, "key", "=", key); err != nil {
 			return errors.Wrapf(err, "failed to add keys [%v]", strings.Join(keys, ","))
 		}

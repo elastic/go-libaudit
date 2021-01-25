@@ -45,7 +45,7 @@
           ]
         },
         "user": {
-          "name": "unset",
+          "id": "unset",
           "effective": {
             "name": "root"
           },
@@ -289,7 +289,7 @@
           ]
         },
         "user": {
-          "name": "unset",
+          "id": "unset",
           "effective": {
             "name": "root"
           },
@@ -611,7 +611,7 @@
           ]
         },
         "user": {
-          "name": "unset",
+          "id": "unset",
           "effective": {
             "id": "0"
           },
@@ -679,7 +679,7 @@
           ]
         },
         "user": {
-          "name": "unset",
+          "id": "unset",
           "effective": {
             "name": "(invalid user)"
           },

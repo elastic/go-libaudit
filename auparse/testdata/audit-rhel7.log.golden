@@ -306,7 +306,7 @@
     "raw_msg": "audit(1481077043.057:414): pid=1298 uid=0 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023 old-auid=4294967295 auid=1000 old-ses=4294967295 ses=1 res=1",
     "data": {
       "auid": "1000",
-      "old-auid": "4294967295",
+      "old-auid": "unset",
       "old-ses": "4294967295",
       "pid": "1298",
       "result": "success",

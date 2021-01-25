@@ -282,7 +282,7 @@
       "session": "1",
       "summary": {
         "actor": {
-          "primary": "4294967295",
+          "primary": "unset",
           "secondary": "0"
         },
         "action": "changed-login-id-to",
@@ -294,7 +294,7 @@
       "user": {
         "ids": {
           "auid": "1000",
-          "old-auid": "4294967295",
+          "old-auid": "unset",
           "uid": "0"
         },
         "selinux": {
@@ -321,7 +321,7 @@
           ]
         },
         "user": {
-          "id": "4294967295",
+          "id": "unset",
           "effective": {
             "id": "0"
           },
@@ -396,7 +396,7 @@
           ]
         },
         "user": {
-          "name": "unset",
+          "id": "unset",
           "effective": {
             "name": "root"
           },

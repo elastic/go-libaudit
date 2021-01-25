@@ -46,6 +46,15 @@ macros:
       - from: subject.secondary
         to: user.effective
 
+  - &ecs-session
+    category: session
+    type: info
+    mappings:
+      - from: subject.primary
+        to: user
+      - from: subject.secondary
+        to: user.effective
+
   - &ecs-host
     category: host
     type: info
@@ -1063,7 +1072,9 @@ normalizations:
   - <<: *macro-user-session
     record_types: USER_END
     action: ended-session
-    ecs: *ecs-auth
+    ecs:
+      <<: *ecs-session
+      type: end
   # AUDIT_USER_ERR - User acct state error
   - <<: *macro-user-session
     record_types: USER_ERR
@@ -1097,7 +1108,9 @@ normalizations:
     record_types: USER_START
     action: started-session
     source_ip: [addr]
-    ecs: *ecs-auth
+    ecs:
+      <<: *ecs-session
+      type: start
 
   # Host virtualization events
 

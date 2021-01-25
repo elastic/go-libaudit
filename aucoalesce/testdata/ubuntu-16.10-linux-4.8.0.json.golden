@@ -478,10 +478,10 @@
       "ecs": {
         "event": {
           "category": [
-            "authentication"
+            "session"
           ],
           "type": [
-            "info"
+            "end"
           ]
         },
         "user": {
@@ -687,10 +687,10 @@
       "ecs": {
         "event": {
           "category": [
-            "authentication"
+            "session"
           ],
           "type": [
-            "info"
+            "start"
           ]
         },
         "user": {

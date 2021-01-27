@@ -1663,3 +1663,10 @@ normalizations:
     action: sent-message
     object:
       primary: addr
+
+  # AUDIT_SOFTWARE_UPDATE - Package management
+  - record_types: SOFTWARE_UPDATE
+    action: package-updated
+    ecs:
+      category: package
+      type: info

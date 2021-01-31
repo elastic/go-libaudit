@@ -71,11 +71,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     },
     "warnings": [
@@ -203,11 +199,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     },
     "warnings": [

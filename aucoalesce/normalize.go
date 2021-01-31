@@ -148,15 +148,6 @@ var (
 		"group": func(event *Event, s string) {
 			event.ECS.Group.set(s)
 		},
-		"group.effective": func(event *Event, s string) {
-			event.ECS.Group.Effective.set(s)
-		},
-		"group.target": func(event *Event, s string) {
-			event.ECS.Group.Target.set(s)
-		},
-		"group.changes": func(event *Event, s string) {
-			event.ECS.Group.Changes.set(s)
-		},
 	}
 )
 

@@ -56,11 +56,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   }

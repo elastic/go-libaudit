@@ -54,9 +54,9 @@ type ECSEntity struct {
 }
 
 type ECSFields struct {
-	Event ECSEvent  `json:"event" yaml:"event"`
-	User  ECSEntity `json:"user" yaml:"user"`
-	Group ECSEntity `json:"group" yaml:"group"`
+	Event ECSEvent      `json:"event" yaml:"event"`
+	User  ECSEntity     `json:"user" yaml:"user"`
+	Group ECSEntityData `json:"group" yaml:"group"`
 }
 
 type Event struct {

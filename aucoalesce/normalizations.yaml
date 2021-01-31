@@ -93,7 +93,7 @@ macros:
       - from: subject.secondary
         to: user.effective
       - from: object.primary
-        to: group.target
+        to: group
 
 # Normalizations is a list of declarations specifying how to normalize the data
 # contained in an event. The normalization can be applied based on the syscall
@@ -935,7 +935,7 @@ normalizations:
         - from: subject.primary
           to: user
         - from: subject.secondary
-          to: group.target
+          to: group
         - from: uid.uid
           to: user.effective
   # AUDIT_ROLE_ASSIGN - Admin assigned user to role
@@ -1018,7 +1018,7 @@ normalizations:
         - from: uid.uid
           to: user.effective
         - from: subject.secondary
-          to: group.target
+          to: group
 
   # Authentication related events
 

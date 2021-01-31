@@ -52,11 +52,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -110,11 +106,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -184,11 +176,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -263,11 +251,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -328,11 +312,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -403,11 +383,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -471,11 +447,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     },
     "warnings": [
@@ -555,11 +527,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -683,11 +651,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   },
@@ -801,11 +765,7 @@
           "target": {},
           "changes": {}
         },
-        "group": {
-          "effective": {},
-          "target": {},
-          "changes": {}
-        }
+        "group": {}
       }
     }
   }

@@ -125,10 +125,7 @@ ecs:
       id: "0"
     target: {}
     changes: {}
-  group:
-    effective: {}
-    target: {}
-    changes: {}
+  group: {}
 
 ---
 timestamp: 2016-12-07T02:22:14.303Z
@@ -181,10 +178,7 @@ ecs:
       id: "0"
     target: {}
     changes: {}
-  group:
-    effective: {}
-    target: {}
-    changes: {}
+  group: {}
 
 ---
 timestamp: 2016-12-07T02:22:14.304Z
@@ -298,10 +292,7 @@ ecs:
     effective: {}
     target: {}
     changes: {}
-  group:
-    effective: {}
-    target: {}
-    changes: {}
+  group: {}
 ```
 
 ## ECS compatibility

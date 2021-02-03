@@ -46,6 +46,12 @@ const (
 	syscallLogLine = `type=SYSCALL msg=` + syscallMsg
 )
 
+func TestParseMessageOffset(t *testing.T) {
+	msg, err := Parse(AUDIT_SYSCALL, syscallMsg)
+	assert.NoError(t, err)
+	assert.Equal(t, msg.offset, len("audit(1490137971.011:50406): "))
+}
+
 func TestNormalizeAuditMessage(t *testing.T) {
 	tests := []struct {
 		typ AuditMessageType
@@ -79,7 +85,7 @@ func TestParseAuditHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.EqualValues(t, ')', syscallMsg[end])
+	assert.EqualValues(t, ')', syscallMsg[end-1])
 	assert.Equal(t, time.Unix(1490137971, 11*int64(time.Millisecond)).UnixNano(), ts.UnixNano())
 	assert.EqualValues(t, 50406, seq)
 }

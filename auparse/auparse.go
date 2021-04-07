@@ -44,7 +44,16 @@ var (
 	// errInvalidAuditHeader means some part of the audit header was invalid.
 	errInvalidAuditHeader = errors.New("invalid audit message header")
 	// errParseFailure indicates a generic failure to parse.
-	errParseFailure = errors.New("failed to parse audit message")
+	errParseFailure             = errors.New("failed to parse audit message")
+	errMessageWithoutData       = errors.New("message has no data content")
+	errArchKeyNotFound          = errors.New("arch key not found")
+	errSyscallKeyNotFound       = errors.New("syscall key not found")
+	errArchKeyNotFoundInSyscall = errors.New("arch key not found so syscall cannot be translated to a name")
+	errSigKeyNotFound           = errors.New("sig key not found")
+	errSaddrKeyNotFound         = errors.New("saddr key not found")
+	errArgcKeyNotFound          = errors.New("argc key not found")
+	errSuccessResKeysNotFound   = errors.New("success and res key not found")
+	errExitKeyNotFound          = errors.New("exit key not found")
 )
 
 // AuditMessage represents a single audit message.
@@ -82,7 +91,7 @@ func (m *AuditMessage) Data() (map[string]string, error) {
 	}
 
 	if m.offset < 0 {
-		m.error = errors.New("message has no data content")
+		m.error = errMessageWithoutData
 		return nil, m.error
 	}
 
@@ -384,7 +393,7 @@ func enrichData(msg *AuditMessage) error {
 func arch(data map[string]*field) error {
 	field, found := data["arch"]
 	if !found {
-		return errors.New("arch key not found")
+		return errArchKeyNotFound
 	}
 
 	arch, err := strconv.ParseInt(field.Value(), 16, 64)
@@ -399,7 +408,7 @@ func arch(data map[string]*field) error {
 func setSyscallName(data map[string]*field) error {
 	field, found := data["syscall"]
 	if !found {
-		return errors.New("syscall key not found")
+		return errSyscallKeyNotFound
 	}
 
 	syscall, err := strconv.Atoi(field.Value())
@@ -409,7 +418,7 @@ func setSyscallName(data map[string]*field) error {
 
 	arch, found := data["arch"]
 	if !found {
-		return errors.New("arch key not found so syscall cannot be translated to a name")
+		return errArchKeyNotFoundInSyscall
 	}
 
 	if name, found := AuditSyscalls[arch.Value()][syscall]; found {
@@ -421,7 +430,7 @@ func setSyscallName(data map[string]*field) error {
 func setSignalName(data map[string]*field) error {
 	field, found := data["sig"]
 	if !found {
-		return errors.New("sig key not found")
+		return errSigKeyNotFound
 	}
 
 	signalNum, err := strconv.Atoi(field.Value())
@@ -438,7 +447,7 @@ func setSignalName(data map[string]*field) error {
 func saddr(data map[string]*field) error {
 	field, found := data["saddr"]
 	if !found {
-		return errors.New("saddr key not found")
+		return errSaddrKeyNotFound
 	}
 
 	saddrData, err := parseSockaddr(field.Value())
@@ -487,7 +496,7 @@ func hexDecode(key string, data map[string]*field) error {
 func execveArgs(data map[string]*field) error {
 	argc, found := data["argc"]
 	if !found {
-		return errors.New("argc key not found")
+		return errArgcKeyNotFound
 	}
 
 	count, err := strconv.ParseUint(argc.Value(), 10, 32)
@@ -538,7 +547,7 @@ func result(data map[string]*field) error {
 	if !found {
 		field, found = data["res"]
 		if !found {
-			return errors.New("success and res key not found")
+			return errSuccessResKeysNotFound
 		}
 		delete(data, "res")
 	} else {
@@ -581,7 +590,7 @@ func auditRuleKey(msg *AuditMessage) {
 func exit(data map[string]*field) error {
 	field, found := data["exit"]
 	if !found {
-		return errors.New("exit key not found")
+		return errExitKeyNotFound
 	}
 
 	exitCode, err := strconv.Atoi(field.Value())

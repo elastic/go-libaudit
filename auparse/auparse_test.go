@@ -361,5 +361,99 @@ func ExampleParseLogLine() {
 	//   "syscall": "connect",
 	//   "tty": "(none)",
 	//   "uid": "0"
-	//}
+	// }
+}
+
+func BenchmarkAuditMessage_Data(b *testing.B) {
+	m := &AuditMessage{
+		offset: -1,
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.Data()
+	}
+}
+
+func Benchmark_arch(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		arch(d)
+	}
+}
+
+func Benchmark_setSyscallName(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		setSyscallName(d)
+	}
+}
+
+func Benchmark_setSyscallNameArchKey(b *testing.B) {
+	d := map[string]*field{
+		"syscall": {"1", "1"},
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		setSyscallName(d)
+	}
+}
+
+func Benchmark_setSignalName(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		setSignalName(d)
+	}
+}
+
+func Benchmark_saddr(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		saddr(d)
+	}
+}
+
+func Benchmark_execveArgs(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		execveArgs(d)
+	}
+}
+
+func Benchmark_result(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result(d)
+	}
+}
+
+func Benchmark_exit(b *testing.B) {
+	d := map[string]*field{}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		exit(d)
+	}
 }

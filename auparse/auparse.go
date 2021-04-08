@@ -25,6 +25,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
@@ -251,10 +252,6 @@ func indexOfMessage(msg string) int {
 // Key/Value Parsing Helpers
 
 var (
-	// kvRegex is the regular expression used to match quoted and unquoted key
-	// value pairs.
-	kvRegex = regexp.MustCompile(`([a-z0-9_-]+)=((?:[^"'\s]+)|'(?:\\'|[^'])*'|"(?:\\"|[^"])*")`)
-
 	// avcMessageRegex matches the beginning of SELinux AVC messages to parse
 	// the seresult and seperms parameters.
 	// Example: "avc:  denied  { read } for  "
@@ -282,36 +279,96 @@ func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 	case AUDIT_LOGIN:
 		msg = strings.Replace(msg, "old ", "old_", 2)
 		msg = strings.Replace(msg, "new ", "new_", 2)
-	case AUDIT_CRED_DISP, AUDIT_USER_START, AUDIT_USER_END:
-		msg = strings.Replace(msg, " (hostname=", " hostname=", 2)
-		msg = strings.TrimRight(msg, ")'")
 	}
 
 	return msg, nil
 }
 
-func extractKeyValuePairs(msg string, data map[string]*field) {
-	matches := kvRegex.FindAllStringSubmatch(msg, -1)
-	for _, m := range matches {
-		key := m[1]
-		f := newField(m[2])
-		f.Set(trimQuotesAndSpace(m[2]))
+func isKeyRune(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
+}
 
-		// Drop fields with useless values.
-		switch f.Value() {
-		case "", "?", "?,", "(null)":
-			continue
-		}
-
-		if key == "msg" {
-			extractKeyValuePairs(f.Value(), data)
-		} else {
-			data[key] = f
-		}
+func isInterestingValue(v string) bool {
+	switch v {
+	case "", "?", "?,", "(null)":
+		return false
+	default:
+		return true
 	}
 }
 
-func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
+func saveKeyValue(key, origValue, value string, data map[string]*field) {
+	if key == "msg" {
+		extractKeyValuePairs(value, data)
+	} else if isInterestingValue(value) {
+		data[key] = &field{origValue, value}
+	}
+}
+
+func extractKeyValuePairs(msg string, data map[string]*field) {
+	type parseState int
+	const (
+		skipState        parseState = iota
+		keyState         parseState = iota
+		valueBeginState  parseState = iota
+		plainValueState  parseState = iota
+		quotedValueState parseState = iota
+	)
+	state := skipState
+	var keyStart, valueStart int
+	var key string
+	var quote rune
+	var backslash bool
+	for i, r := range msg {
+		switch state {
+		case skipState:
+			if isKeyRune(r) {
+				state = keyState
+				keyStart = i
+			}
+		case keyState:
+			if isKeyRune(r) {
+				continue
+			}
+			if r != '=' {
+				state = skipState
+				continue
+			}
+			key = msg[keyStart:i]
+			state = valueBeginState
+		case valueBeginState:
+			valueStart = i
+			if r == '\'' || r == '"' {
+				quote = r
+				state = quotedValueState
+				backslash = false
+				continue
+			}
+			state = plainValueState
+			fallthrough
+		case plainValueState:
+			if r != '\'' && r != '"' && !unicode.IsSpace(r) {
+				continue
+			}
+			v := msg[valueStart:i]
+			saveKeyValue(key, v, v, data)
+			state = skipState
+		case quotedValueState:
+			if r == quote && !backslash {
+				v := msg[valueStart+1 : i]
+				saveKeyValue(key, msg[valueStart:i+1], v, data)
+				state = skipState
+			}
+			backslash = r == '\\'
+		}
+	}
+	// at the end of the loop the only "valid" state that needs processing
+	// is plainValueState. everything else can be ignored.
+	if state == plainValueState {
+		v := msg[valueStart:]
+		saveKeyValue(key, v, v, data)
+	}
+}
 
 // Enrichment after KV parsing
 

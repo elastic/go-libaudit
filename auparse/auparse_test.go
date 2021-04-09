@@ -110,6 +110,28 @@ func TestExtractKeyValuePairs(t *testing.T) {
 		out map[string]*field
 	}{
 		{
+			`a=v b= b1='' b2="" c=? c1="?" c2='?' d=?, d1="?," d2='?,' e=(null) e1="(null)" e2='(null)'`,
+			map[string]*field{
+				"a": newField("v"),
+			},
+		},
+		{
+			`msg=`,
+			map[string]*field{},
+		},
+		{
+			`msg=a=b`,
+			map[string]*field{"a": newField("b")},
+		},
+		{
+			`msg="a=b"`,
+			map[string]*field{"a": newField("b")},
+		},
+		{
+			`msg="a='a b'"`,
+			map[string]*field{"a": {"'a b'", "a b"}},
+		},
+		{
 			`argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"'`,
 			map[string]*field{
 				"argc": newField("4"),
@@ -153,6 +175,45 @@ func TestExtractKeyValuePairs(t *testing.T) {
 		out := map[string]*field{}
 		extractKeyValuePairs(tc.in, out)
 		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
+	}
+}
+
+func Benchmark_extractKeyValuePairs(b *testing.B) {
+	const msg = `argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"' a4="qwerty asdfg \"zxcv\" asdf"`
+	out := make(map[string]*field)
+	for i := 0; i < b.N; i++ {
+		extractKeyValuePairs(msg, out)
+	}
+}
+
+func BenchmarkParseLogLineFromFiles(b *testing.B) {
+	lines := make([]string, 0)
+	files, err := filepath.Glob("testdata/*.log")
+	if err != nil {
+		b.Fatal("glob failed", err)
+	}
+	if len(files) == 0 {
+		b.Fatal("no files found")
+	}
+
+	for _, name := range files {
+		f, err := os.Open(name)
+		if err != nil {
+			b.Fatal(err)
+		}
+		defer f.Close()
+		s := bufio.NewScanner(bufio.NewReader(f))
+		for s.Scan() {
+			lines = append(lines, s.Text())
+		}
+	}
+	for i := 0; i < b.N; i++ {
+		for _, line := range lines {
+			event, _ := ParseLogLine(line)
+			if event != nil {
+				_ = NewStoredAuditMessage(event)
+			}
+		}
 	}
 }
 

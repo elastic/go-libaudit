@@ -308,11 +308,11 @@ func saveKeyValue(key, origValue, value string, data map[string]*field) {
 func extractKeyValuePairs(msg string, data map[string]*field) {
 	type parseState int
 	const (
-		skipState        parseState = iota
-		keyState         parseState = iota
-		valueBeginState  parseState = iota
-		plainValueState  parseState = iota
-		quotedValueState parseState = iota
+		skipState parseState = iota
+		keyState
+		valueBeginState
+		plainValueState
+		quotedValueState
 	)
 	state := skipState
 	var keyStart, valueStart int

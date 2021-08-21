@@ -271,4 +271,4 @@ ecs:
 
 ## ECS compatibility
 
-This currently provides [Elastic Common Schema (ECS) 1.5](https://www.elastic.co/guide/en/ecs/current/index.html) categorization support for some of the more prominent or meaningful auditd events and syscalls.
+This currently provides [Elastic Common Schema (ECS) 1.5](https://www.elastic.co/guide/en/ecs/current/index.html) categorization support for some of the more prominent or meaningful auditd events and syscalls. ECS compat.

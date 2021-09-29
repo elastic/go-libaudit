@@ -135,6 +135,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	if permIdx, ok := existingFields[permField]; r.allSyscalls && ok {
 		extraFields, pos := false, 0
 		var path, key string
+	loop:
 		for _, fieldId := range r.fields {
 			switch fieldId {
 			case keyField, pathField, dirField:
@@ -150,7 +151,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			case permField:
 			default:
 				extraFields = true
-				break
+				break loop
 			}
 		}
 		if !extraFields {
@@ -435,7 +436,7 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 	for i := 0; rule.allSyscalls && i < len(in.Mask)-1; i++ {
 		rule.allSyscalls = in.Mask[i] == 0xFFFFFFFF
 	}
-	if rule.allSyscalls == false {
+	if !rule.allSyscalls {
 		for word, bits := range in.Mask {
 			for bit := uint32(0); bit < 32; bit++ {
 				if bits&(1<<bit) != 0 {

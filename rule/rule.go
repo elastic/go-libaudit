@@ -390,11 +390,11 @@ type ruleData struct {
 }
 
 func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
-	rule := &auditRuleData{
+	rule := &auditRuleData{auditRuleHeader: auditRuleHeader{
 		Flags:      d.flags,
 		Action:     d.action,
 		FieldCount: uint32(len(d.fields)),
-	}
+	}}
 
 	if d.allSyscalls {
 		for i := 0; i < len(rule.Mask)-1; i++ {
@@ -725,7 +725,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 			return err
 		}
 		rule.values = append(rule.values, arg)
-	//case SessionIDField:
+	// case SessionIDField:
 	case inodeField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {
@@ -832,7 +832,7 @@ func getExitCode(exit string) (int32, error) {
 }
 
 func getArch(arch string) (string, uint32, error) {
-	var realArch = arch
+	realArch := arch
 	switch strings.ToLower(arch) {
 	case "b64":
 		runtimeArch, err := getRuntimeArch()

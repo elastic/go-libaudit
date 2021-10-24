@@ -36,6 +36,11 @@ type WireFormat []byte
 // AUDIT_LIST_RULES requests.
 // https://github.com/linux-audit/audit-kernel/blob/v3.15/include/uapi/linux/audit.h#L423-L437
 type auditRuleData struct {
+	auditRuleHeader
+	Buf []byte // String fields.
+}
+
+type auditRuleHeader struct {
 	Flags      filter
 	Action     action
 	FieldCount uint32
@@ -44,10 +49,9 @@ type auditRuleData struct {
 	Values     [maxFields]uint32
 	FieldFlags [maxFields]operator
 	BufLen     uint32 // Total length of buffer used for string fields.
-	Buf        []byte // String fields.
 }
 
-const ruleHeaderSize = int(unsafe.Sizeof(auditRuleData{}) - unsafe.Sizeof([]byte(nil)))
+const ruleHeaderSize = int(unsafe.Sizeof(auditRuleHeader{}))
 
 func (r auditRuleData) toWireFormat() WireFormat {
 	n := ruleHeaderSize + len(r.Buf)

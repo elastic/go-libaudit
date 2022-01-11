@@ -597,18 +597,19 @@ var sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
 
 // AuditStatus is a status message and command and control message exchanged
 // between the kernel and user-space.
-// https://github.com/linux-audit/audit-kernel/blob/v4.7/include/uapi/linux/audit.h#L413-L427
+// https://github.com/linux-audit/audit-kernel/blob/v5.9/include/uapi/linux/audit.h#L457-L474
 type AuditStatus struct {
-	Mask            AuditStatusMask // Bit mask for valid entries.
-	Enabled         uint32          // 1 = enabled, 0 = disabled, 2 = immutable
-	Failure         uint32          // Failure-to-log action.
-	PID             uint32          // PID of auditd process.
-	RateLimit       uint32          // Messages rate limit (per second).
-	BacklogLimit    uint32          // Waiting messages limit.
-	Lost            uint32          // Messages lost.
-	Backlog         uint32          // Messages waiting in queue.
-	FeatureBitmap   uint32          // Bitmap of kernel audit features (previously to 3.19 it was the audit api version number).
-	BacklogWaitTime uint32          // Message queue wait timeout.
+	Mask                  AuditStatusMask // Bit mask for valid entries.
+	Enabled               uint32          // 1 = enabled, 0 = disabled, 2 = immutable
+	Failure               uint32          // Failure-to-log action.
+	PID                   uint32          // PID of auditd process.
+	RateLimit             uint32          // Messages rate limit (per second).
+	BacklogLimit          uint32          // Waiting messages limit.
+	Lost                  uint32          // Messages lost.
+	Backlog               uint32          // Messages waiting in queue.
+	FeatureBitmap         uint32          // Bitmap of kernel audit features (previously to 3.19 it was the audit api version number).
+	BacklogWaitTime       uint32          // Message queue wait timeout.
+	BacklogWaitTimeActual uint32          // Time the kernel has spent waiting while the backlog limit is exceeded.
 }
 
 func (s AuditStatus) toWireFormat() []byte {
@@ -637,6 +638,7 @@ func (s *AuditStatus) FromWireFormat(buf []byte) error {
 		&s.Backlog,
 		&s.FeatureBitmap,
 		&s.BacklogWaitTime,
+		&s.BacklogWaitTimeActual,
 	}
 
 	if len(buf) == 0 {

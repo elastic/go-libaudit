@@ -159,9 +159,9 @@ var tmpl = template.Must(template.New("message_types").Parse(fileTemplate))
 
 var (
 	headers = []string{
-		`https://raw.githubusercontent.com/torvalds/linux/v4.16/include/uapi/linux/audit.h`,
-		`https://raw.githubusercontent.com/linux-audit/audit-userspace/4d933301b1835cafa08b9e9ef705c8fb6c96cb62/lib/libaudit.h`,
-		`https://raw.githubusercontent.com/linux-audit/audit-userspace/4d933301b1835cafa08b9e9ef705c8fb6c96cb62/lib/msg_typetab.h`,
+		`https://raw.githubusercontent.com/torvalds/linux/v5.16/include/uapi/linux/audit.h`,
+		`https://raw.githubusercontent.com/linux-audit/audit-userspace/v3.0.7/lib/libaudit.h`,
+		`https://raw.githubusercontent.com/linux-audit/audit-userspace/v3.0.7/lib/msg_typetab.h`,
 	}
 )
 

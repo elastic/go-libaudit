@@ -484,6 +484,9 @@ normalizations:
   - action: changed-system-time
     object:
       what: system
+    record_types:
+      - TIME_ADJNTPVAL
+      - TIME_INJOFFSET
     syscalls:
       # settimeofday - get / set time
       - settimeofday
@@ -493,6 +496,8 @@ normalizations:
       - stime
       # adjtimex - tune kernel clock
       - adjtimex
+      # clock_adjtime - similar to adjtimex but specifies a specific clock
+      - clock_adjtime
     ecs:
       <<: *ecs-host
       type: change
@@ -878,8 +883,7 @@ normalizations:
       primary: [id, acct]
       what: account
     ecs:
-      <<: *ecs-iam
-      <<: *ecs-group-modification-mappings
+      <<: [*ecs-iam, *ecs-group-modification-mappings]
       type:
         - group
         - creation
@@ -891,8 +895,7 @@ normalizations:
       primary: [id, acct]
       what: account
     ecs:
-      <<: *ecs-iam
-      <<: *ecs-user-modification-mappings
+      <<: [*ecs-iam, *ecs-user-modification-mappings]
       type:
         - user
         - creation
@@ -903,8 +906,7 @@ normalizations:
       primary: [id, acct]
       what: account
     ecs:
-      <<: *ecs-iam
-      <<: *ecs-group-modification-mappings
+      <<: [*ecs-iam, *ecs-group-modification-mappings]
       type:
         - group
         - deletion
@@ -915,8 +917,7 @@ normalizations:
       primary: [id, acct]
       what: account
     ecs:
-      <<: *ecs-iam
-      <<: *ecs-user-modification-mappings
+      <<: [*ecs-iam, *ecs-user-modification-mappings]
       type:
         - user
         - deletion

@@ -1,0 +1,238 @@
+[
+  {
+    "test_name": "AUDIT_TIME_ADJNTPVAL chronyd freq",
+    "event": {
+      "@timestamp": "2022-01-25T22:48:01.711Z",
+      "sequence": 884,
+      "category": "unknown",
+      "record_type": "time_adjntpval",
+      "result": "success",
+      "session": "unset",
+      "tags": [
+        "x86_64"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "112"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/chronyd"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "120",
+          "euid": "112",
+          "fsgid": "120",
+          "fsuid": "112",
+          "gid": "120",
+          "sgid": "120",
+          "suid": "112",
+          "uid": "112"
+        },
+        "selinux": {
+          "user": "/usr/sbin/chronyd"
+        }
+      },
+      "process": {
+        "pid": "20294",
+        "ppid": "1",
+        "title": "/usr/sbin/chronyd -F 1",
+        "name": "chronyd",
+        "exe": "/usr/sbin/chronyd"
+      },
+      "data": {
+        "a0": "0",
+        "a1": "7ffe952aaf40",
+        "a2": "e5d91",
+        "a3": "7ffe952bd080",
+        "arch": "x86_64",
+        "exit": "5",
+        "new": "61699325952000",
+        "old": "61699380790580",
+        "op": "freq",
+        "syscall": "clock_adjtime",
+        "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "change"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    }
+  },
+  {
+    "test_name": "AUDIT_TIME_ADJNTPVAL chronyd status",
+    "event": {
+      "@timestamp": "2022-01-25T22:47:54.899Z",
+      "sequence": 880,
+      "category": "unknown",
+      "record_type": "time_adjntpval",
+      "result": "success",
+      "session": "unset",
+      "tags": [
+        "x86_64"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/chronyd"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "user": "/usr/sbin/chronyd"
+        }
+      },
+      "process": {
+        "pid": "20294",
+        "ppid": "1",
+        "title": "/usr/sbin/chronyd -F 1",
+        "name": "chronyd",
+        "exe": "/usr/sbin/chronyd"
+      },
+      "data": {
+        "a0": "0",
+        "a1": "7ffe952abf50",
+        "a2": "0",
+        "a3": "0",
+        "arch": "x86_64",
+        "exit": "5",
+        "new": "64",
+        "old": "8257",
+        "op": "status",
+        "syscall": "clock_adjtime",
+        "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "change"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    }
+  },
+  {
+    "test_name": "AUDIT_TIME_ADJNTPVAL freq/tick",
+    "event": {
+      "@timestamp": "2022-01-25T22:48:01.711Z",
+      "sequence": 885,
+      "category": "unknown",
+      "record_type": "time_adjntpval",
+      "result": "success",
+      "session": "unset",
+      "tags": [
+        "x86_64"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "112"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/chronyd"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "120",
+          "euid": "112",
+          "fsgid": "120",
+          "fsuid": "112",
+          "gid": "120",
+          "sgid": "120",
+          "suid": "112",
+          "uid": "112"
+        },
+        "selinux": {
+          "user": "/usr/sbin/chronyd"
+        }
+      },
+      "process": {
+        "pid": "20294",
+        "ppid": "1",
+        "title": "/usr/sbin/chronyd -F 1",
+        "name": "chronyd",
+        "exe": "/usr/sbin/chronyd"
+      },
+      "data": {
+        "a0": "0",
+        "a1": "7ffe952aaf50",
+        "a2": "212126",
+        "a3": "7ffe952bd080",
+        "arch": "x86_64",
+        "exit": "5",
+        "new": "142290059264000",
+        "old": "61699325952000",
+        "op": "freq",
+        "syscall": "clock_adjtime",
+        "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "change"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    },
+    "warnings": [
+      "duplicate key (new) from TIME_ADJNTPVAL message",
+      "duplicate key (old) from TIME_ADJNTPVAL message",
+      "duplicate key (op) from TIME_ADJNTPVAL message"
+    ]
+  }
+]

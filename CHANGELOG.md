@@ -11,7 +11,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Update syscall, arches, and audit msg type tables for Linux 5.16. [#96](https://github.com/elastic/go-libaudit/pull/96)
+
 ### Removed
+
+- Removed support for resolving syscall numbers to names for the ia64 architecture. [#96](https://github.com/elastic/go-libaudit/pull/96)
 
 ### Deprecated
 

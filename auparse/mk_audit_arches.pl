@@ -17,7 +17,7 @@ use strict;
 
 my $command = "mk_audit_arches.pl ". join(' ', @ARGV);
 
-`curl -s -O https://raw.githubusercontent.com/torvalds/linux/v4.16/include/uapi/linux/audit.h`;
+`curl -s -O https://raw.githubusercontent.com/torvalds/linux/v5.16/include/uapi/linux/audit.h`;
 
 open(GCC, "gcc -E -dD audit.h |") || die "can't run gcc";
 my @arches;
@@ -30,7 +30,7 @@ while(<GCC>){
 close GCC;
 
 # Filter arches not known by compiler.
-@arches = grep {! /(TILE|OPENRISC|ALPHA|MICROBLAZE)/} @arches;
+@arches = grep {! /(TILE|OPENRISC|ALPHA|MICROBLAZE|ARCOMPACT|ARCV2|CSKY|HEXAGON|NDS32|RISCV|UNICORE|XTENSA)/} @arches;
 
 my $outfile = 'defs_audit_arches.go';
 open (FILE, "> $outfile") || die "problem opening $outfile\n";

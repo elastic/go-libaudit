@@ -135,6 +135,9 @@ func readErrorNumbers() ([]ErrorNumber, error) {
 	}
 
 	sort.Slice(errnos, func(i, j int) bool {
+		if errnos[i].Value == errnos[j].Value {
+			return errnos[i].Name < errnos[j].Name
+		}
 		return errnos[i].Value < errnos[j].Value
 	})
 

@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build linux && amd64
 // +build linux,amd64
 
 package rule_test
@@ -131,7 +132,7 @@ func auditctlVersion(t testing.TB) string {
 }
 
 func auditctlExec(t testing.TB, command string) (string, []byte) {
-	if err := os.MkdirAll(tempDir, 0600); err != nil {
+	if err := os.MkdirAll(tempDir, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tempDir)
@@ -171,7 +172,7 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 // created for the test. It returns the updated command that contains the test
 // paths.
 func makePaths(t testing.TB, tmpDir string, rule string) string {
-	var re = regexp.MustCompile(`(-w |dir=|path=)/(\S+)`)
+	re := regexp.MustCompile(`(-w |dir=|path=)/(\S+)`)
 	matches := re.FindAllStringSubmatch(rule, -1)
 	for _, match := range matches {
 		path := match[2]
@@ -179,21 +180,21 @@ func makePaths(t testing.TB, tmpDir string, rule string) string {
 
 		if strings.HasSuffix(path, "/") {
 			// Treat paths with trailing slashes as a directory to monitor.
-			if err := os.MkdirAll(realPath, 0700); err != nil {
+			if err := os.MkdirAll(realPath, 0o700); err != nil {
 				t.Fatal(err)
 			}
 		} else {
 			// Touch a file.
 			dir := filepath.Dir(realPath)
-			if err := os.MkdirAll(dir, 0700); err != nil {
+			if err := os.MkdirAll(dir, 0o700); err != nil {
 				t.Fatal(err)
 			}
-			if err := ioutil.WriteFile(realPath, nil, 0600); err != nil {
+			if err := ioutil.WriteFile(realPath, nil, 0o600); err != nil {
 				t.Fatal(err)
 			}
 		}
 	}
 
-	var substitution = "$1" + filepath.Join(tmpDir, "$2")
+	substitution := "$1" + filepath.Join(tmpDir, "$2")
 	return re.ReplaceAllString(rule, substitution)
 }

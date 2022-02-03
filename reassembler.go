@@ -18,12 +18,11 @@
 package libaudit
 
 import (
+	"errors"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
 )

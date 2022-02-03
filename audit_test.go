@@ -30,6 +30,7 @@ import (
 	"runtime"
 	"syscall"
 	"testing"
+	"testing/quick"
 	"time"
 
 	"github.com/pkg/errors"
@@ -747,6 +748,20 @@ func TestAuditClientGetStatusAsync(t *testing.T) {
 
 		t.Logf("Status: %+v", replyStatus)
 	}
+}
+
+func TestAuditStatusRoundTrip(t *testing.T) {
+	err := quick.Check(func(a AuditStatus) bool {
+		buf := a.toWireFormat()
+		var new AuditStatus
+		err := new.FromWireFormat(buf)
+		if err != nil {
+			t.Log(err)
+			return false
+		}
+		return a == new
+	}, nil)
+	assert.NoError(t, err, "audit status failed round-trip")
 }
 
 func TestAuditClientSetImmutable(t *testing.T) {

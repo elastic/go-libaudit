@@ -135,6 +135,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	if permIdx, ok := existingFields[permField]; r.allSyscalls && ok {
 		extraFields, pos := false, 0
 		var path, key string
+	loop:
 		for _, fieldId := range r.fields {
 			switch fieldId {
 			case keyField, pathField, dirField:
@@ -150,7 +151,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			case permField:
 			default:
 				extraFields = true
-				break
+				break loop
 			}
 		}
 		if !extraFields {
@@ -389,11 +390,11 @@ type ruleData struct {
 }
 
 func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
-	rule := &auditRuleData{
+	rule := &auditRuleData{auditRuleHeader: auditRuleHeader{
 		Flags:      d.flags,
 		Action:     d.action,
 		FieldCount: uint32(len(d.fields)),
-	}
+	}}
 
 	if d.allSyscalls {
 		for i := 0; i < len(rule.Mask)-1; i++ {
@@ -435,7 +436,7 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 	for i := 0; rule.allSyscalls && i < len(in.Mask)-1; i++ {
 		rule.allSyscalls = in.Mask[i] == 0xFFFFFFFF
 	}
-	if rule.allSyscalls == false {
+	if !rule.allSyscalls {
 		for word, bits := range in.Mask {
 			for bit := uint32(0); bit < 32; bit++ {
 				if bits&(1<<bit) != 0 {
@@ -724,7 +725,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 			return err
 		}
 		rule.values = append(rule.values, arg)
-	//case SessionIDField:
+	// case SessionIDField:
 	case inodeField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {
@@ -831,7 +832,7 @@ func getExitCode(exit string) (int32, error) {
 }
 
 func getArch(arch string) (string, uint32, error) {
-	var realArch = arch
+	realArch := arch
 	switch strings.ToLower(arch) {
 	case "b64":
 		runtimeArch, err := getRuntimeArch()

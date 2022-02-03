@@ -20,8 +20,6 @@
 package libaudit
 
 import (
-	"bytes"
-	"encoding/binary"
 	"io"
 	"os"
 	"sync"
@@ -32,11 +30,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
-	"github.com/elastic/go-libaudit/v2/sys"
-)
-
-var (
-	byteOrder = sys.GetEndian()
 )
 
 const (
@@ -167,7 +160,7 @@ func (c *AuditClient) GetStatus() (*AuditStatus, error) {
 // GetStatusAsync sends a request for the status of the kernel's audit subsystem
 // and returns without waiting for a response.
 func (c *AuditClient) GetStatusAsync(requireACK bool) (seq uint32, err error) {
-	var flags uint16 = syscall.NLM_F_REQUEST
+	flags := uint16(syscall.NLM_F_REQUEST)
 	if requireACK {
 		flags |= syscall.NLM_F_ACK
 	}
@@ -552,15 +545,10 @@ func parseNetlinkAuditMessage(buf []byte) ([]syscall.NetlinkMessage, error) {
 	if len(buf) < syscall.NLMSG_HDRLEN {
 		return nil, syscall.EINVAL
 	}
-
-	r := bytes.NewReader(buf)
-	m := syscall.NetlinkMessage{}
-	if err := binary.Read(r, byteOrder, &m.Header); err != nil {
-		return nil, err
-	}
-	m.Data = buf[syscall.NLMSG_HDRLEN:]
-
-	return []syscall.NetlinkMessage{m}, nil
+	return []syscall.NetlinkMessage{{
+		Header: *(*syscall.NlMsghdr)(unsafe.Pointer(&buf[0])),
+		Data:   buf[syscall.NLMSG_HDRLEN:],
+	}}, nil
 }
 
 // audit_status message
@@ -593,8 +581,6 @@ const (
 	AuditFeatureBitmapLostReset
 )
 
-var sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
-
 // AuditStatus is a status message and command and control message exchanged
 // between the kernel and user-space.
 // https://github.com/linux-audit/audit-kernel/blob/v5.9/include/uapi/linux/audit.h#L457-L474
@@ -612,14 +598,10 @@ type AuditStatus struct {
 	BacklogWaitTimeActual uint32          // Time the kernel has spent waiting while the backlog limit is exceeded.
 }
 
+const sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
+
 func (s AuditStatus) toWireFormat() []byte {
-	buf := bytes.NewBuffer(make([]byte, sizeofAuditStatus))
-	buf.Reset()
-	if err := binary.Write(buf, byteOrder, s); err != nil {
-		// This never returns an error.
-		panic(err)
-	}
-	return buf.Bytes()
+	return (*[sizeofAuditStatus]byte)(unsafe.Pointer(&s))[:]
 }
 
 // FromWireFormat unmarshals the given buffer to an AuditStatus object. Due to
@@ -627,35 +609,10 @@ func (s AuditStatus) toWireFormat() []byte {
 // not return an error if the buffer is smaller than the sizeof our AuditStatus
 // struct.
 func (s *AuditStatus) FromWireFormat(buf []byte) error {
-	fields := []interface{}{
-		&s.Mask,
-		&s.Enabled,
-		&s.Failure,
-		&s.PID,
-		&s.RateLimit,
-		&s.BacklogLimit,
-		&s.Lost,
-		&s.Backlog,
-		&s.FeatureBitmap,
-		&s.BacklogWaitTime,
-		&s.BacklogWaitTimeActual,
+	if len(buf) < sizeofAuditStatus {
+		return io.ErrUnexpectedEOF
 	}
-
-	if len(buf) == 0 {
-		return io.EOF
-	}
-
-	r := bytes.NewReader(buf)
-	for _, f := range fields {
-		if r.Len() == 0 {
-			return nil
-		}
-
-		if err := binary.Read(r, byteOrder, f); err != nil {
-			return err
-		}
-	}
-
+	copy((*[unsafe.Sizeof(AuditStatus{})]byte)(unsafe.Pointer(s))[:], buf)
 	return nil
 }
 

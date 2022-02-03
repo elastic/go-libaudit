@@ -298,7 +298,7 @@ func BenchmarkParseAuditHeader(b *testing.B) {
 }
 
 func BenchmarkParseAuditHeaderRegex(b *testing.B) {
-	var auditMessageRegex = regexp.MustCompile(`^audit\((\d+).(\d+):(\d+)\):`)
+	auditMessageRegex := regexp.MustCompile(`^audit\((\d+).(\d+):(\d+)\):`)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		matches := auditMessageRegex.FindStringSubmatch(syscallMsg)

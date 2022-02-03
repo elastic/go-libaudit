@@ -20,6 +20,7 @@
 package aucoalesce
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -27,12 +28,11 @@ import (
 	"time"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
-	"github.com/pkg/errors"
 )
 
 // modeBlockDevice is the file mode bit representing block devices. This OS
 // package does not have a constant defined for this.
-const modeBlockDevice = 060000
+const modeBlockDevice = 0o60000
 
 // ECSEvent contains ECS-specific categorization fields
 type ECSEvent struct {
@@ -319,8 +319,8 @@ func addSubjectSELinuxLabel(key, value string, event *Event) {
 func addSockaddrRecord(sockaddr *auparse.AuditMessage, event *Event) {
 	data, err := sockaddr.Data()
 	if err != nil {
-		event.Warnings = append(event.Warnings, errors.Wrap(err,
-			"failed to parse SOCKADDR message"))
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to parse SOCKADDR message: %w", err))
 		return
 	}
 
@@ -369,8 +369,8 @@ func addAddress(sockaddr map[string]string, addr **Address) {
 func addPathRecord(path *auparse.AuditMessage, event *Event) {
 	data, err := path.Data()
 	if err != nil {
-		event.Warnings = append(event.Warnings, errors.Wrap(err,
-			"failed to parse PATH message"))
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to parse PATH message: %w", err))
 		return
 	}
 
@@ -395,8 +395,8 @@ func addProcess(event *Event) {
 func addExecveRecord(execve *auparse.AuditMessage, event *Event) {
 	data, err := execve.Data()
 	if err != nil {
-		event.Warnings = append(event.Warnings, errors.Wrap(err,
-			"failed to parse EXECVE message"))
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to parse EXECVE message: %w", err))
 		return
 	}
 
@@ -410,8 +410,8 @@ func addExecveRecord(execve *auparse.AuditMessage, event *Event) {
 
 	count, err := strconv.ParseUint(argc, 10, 32)
 	if err != nil {
-		event.Warnings = append(event.Warnings, errors.Wrapf(err,
-			"failed to convert argc='%v' to number", argc))
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to convert argc='%v' to number: %w", argc, err))
 		return
 	}
 
@@ -421,7 +421,7 @@ func addExecveRecord(execve *auparse.AuditMessage, event *Event) {
 
 		arg, found := data[key]
 		if !found {
-			event.Warnings = append(event.Warnings, errors.Errorf(
+			event.Warnings = append(event.Warnings, fmt.Errorf(
 				"failed to find arg %v", key))
 			return
 		}
@@ -437,13 +437,13 @@ func addFieldsToEventData(msg *auparse.AuditMessage, event *Event) {
 	data, err := msg.Data()
 	if err != nil {
 		event.Warnings = append(event.Warnings,
-			errors.Wrap(err, "failed to parse message"))
+			fmt.Errorf("failed to parse message: %w", err))
 		return
 	}
 
 	for k, v := range data {
 		if _, found := event.Data[k]; found {
-			event.Warnings = append(event.Warnings, errors.Errorf(
+			event.Warnings = append(event.Warnings, fmt.Errorf(
 				"duplicate key (%v) from %v message", k, msg.RecordType))
 			continue
 		}
@@ -526,7 +526,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to set subject primary using keys=%v because they were not found", norm.Subject.PrimaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject primary using keys=%v because they were not found", norm.Subject.PrimaryFieldName.Values))
 		}
 	}
 
@@ -538,7 +538,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to set subject secondary using keys=%v because they were not found", norm.Subject.SecondaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject secondary using keys=%v because they were not found", norm.Subject.SecondaryFieldName.Values))
 		}
 	}
 
@@ -550,7 +550,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to set object primary using keys=%v because they were not found", norm.Object.PrimaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object primary using keys=%v because they were not found", norm.Object.PrimaryFieldName.Values))
 		}
 	}
 
@@ -562,7 +562,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to set object secondary using keys=%v because they were not found", norm.Object.SecondaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object secondary using keys=%v because they were not found", norm.Object.SecondaryFieldName.Values))
 		}
 	}
 
@@ -574,7 +574,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to set how using keys=%v because they were not found", norm.How.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set how using keys=%v because they were not found", norm.How.Values))
 		}
 	}
 
@@ -586,7 +586,7 @@ func applyNormalization(event *Event) {
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, errors.Errorf("failed to "+
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to "+
 				"set source IP using keys=%v because they were not found",
 				norm.SourceIP.Values))
 		}
@@ -612,7 +612,7 @@ func getValue(key string, event *Event) (string, bool) {
 func setSourceIP(key string, event *Event) error {
 	value, found := event.Data[key]
 	if !found {
-		return errors.Errorf("failed to set source IP value: key '%v' not found", key)
+		return fmt.Errorf("failed to set source IP value: key '%v' not found", key)
 	}
 	delete(event.Data, key)
 
@@ -628,7 +628,7 @@ func setSourceIP(key string, event *Event) error {
 func setHow(key string, event *Event) error {
 	value, found := getValue(key, event)
 	if !found {
-		return errors.Errorf("failed to set how value: key '%v' not found", key)
+		return fmt.Errorf("failed to set how value: key '%v' not found", key)
 	}
 
 	event.Summary.How = value
@@ -638,7 +638,7 @@ func setHow(key string, event *Event) error {
 func setSubjectPrimary(key string, event *Event) error {
 	value, found := getValue(key, event)
 	if !found {
-		return errors.Errorf("failed to set subject primary value: key '%v' not found", key)
+		return fmt.Errorf("failed to set subject primary value: key '%v' not found", key)
 	}
 
 	event.Summary.Actor.Primary = value
@@ -648,7 +648,7 @@ func setSubjectPrimary(key string, event *Event) error {
 func setSubjectSecondary(key string, event *Event) error {
 	value, found := getValue(key, event)
 	if !found {
-		return errors.Errorf("failed to set subject secondary value: key '%v' not found", key)
+		return fmt.Errorf("failed to set subject secondary value: key '%v' not found", key)
 	}
 
 	event.Summary.Actor.Secondary = value
@@ -658,7 +658,7 @@ func setSubjectSecondary(key string, event *Event) error {
 func setObjectPrimary(key string, event *Event) error {
 	value, found := getValue(key, event)
 	if !found {
-		return errors.Errorf("failed to set object primary value: key '%v' not found", key)
+		return fmt.Errorf("failed to set object primary value: key '%v' not found", key)
 	}
 
 	event.Summary.Object.Primary = value
@@ -668,7 +668,7 @@ func setObjectPrimary(key string, event *Event) error {
 func setObjectSecondary(key string, event *Event) error {
 	value, found := getValue(key, event)
 	if !found {
-		return errors.Errorf("failed to set object secondary value: key '%v' not found", key)
+		return fmt.Errorf("failed to set object secondary value: key '%v' not found", key)
 	}
 
 	event.Summary.Object.Secondary = value
@@ -711,7 +711,7 @@ func setFileObject(event *Event, pathIndexHint int) error {
 	if value, found := path["mode"]; found {
 		mode, err := strconv.ParseUint(value, 8, 64)
 		if err != nil {
-			return errors.Wrap(err, "failed to parse file mode")
+			return fmt.Errorf("failed to parse file mode: %w", err)
 		}
 
 		m := os.FileMode(mode)

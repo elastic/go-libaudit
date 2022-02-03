@@ -15,19 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build linux
 // +build linux
 
 package libaudit
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"sync/atomic"
 	"syscall"
 	"unsafe"
-
-	"github.com/pkg/errors"
 )
 
 // Generic Netlink Client
@@ -85,7 +85,7 @@ func NewNetlinkClient(proto int, groups uint32, readBuf []byte, resp io.Writer) 
 	src := &syscall.SockaddrNetlink{Family: syscall.AF_NETLINK, Groups: groups}
 	if err = syscall.Bind(s, src); err != nil {
 		syscall.Close(s)
-		return nil, errors.Wrap(err, "bind failed")
+		return nil, fmt.Errorf("bind failed: %w", err)
 	}
 
 	pid, err := getPortID(s)
@@ -164,7 +164,7 @@ func (c *NetlinkClient) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.Ne
 		return nil, err
 	}
 	if nr < syscall.NLMSG_HDRLEN {
-		return nil, errors.Errorf("not enough bytes (%v) received to form a netlink header", nr)
+		return nil, fmt.Errorf("not enough bytes (%v) received to form a netlink header", nr)
 	}
 	fromNetlink, ok := from.(*syscall.SockaddrNetlink)
 	if !ok || fromNetlink.Pid != 0 {

@@ -621,12 +621,13 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 
 	// Only newer kernel versions support exclude for credential types. Older
 	// kernels only support exclude on the msgtype field.
+	// https://github.com/torvalds/linux/blob/v5.16/kernel/auditfilter.c#L1343
 	if rule.flags == excludeFilter {
 		switch field {
 		case pidField, uidField, gidField, auidField, msgTypeField,
 			subjectUserField, subjectRoleField, subjectTypeField,
 			subjectSensitivityField, subjectClearanceField,
-			exeField, pathField, dirField:
+			exeField:
 		default:
 			return errors.Errorf("field '%v' cannot be used the exclude flag", lhs)
 		}

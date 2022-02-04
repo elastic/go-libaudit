@@ -400,7 +400,7 @@ func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
 			rule.Mask[i] = 0xFFFFFFFF
 		}
 		// NOTE: This was added to match the binary output when listing rules
-		// from the kernel.
+		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
 		rule.Mask[len(rule.Mask)-1] = 0x0000FFFF
 	} else {
 		for _, syscallNum := range d.syscalls {

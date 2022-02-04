@@ -1642,6 +1642,7 @@ normalizations:
         - intrusion_detection
       type:
         - info
+        - change
   # AUDIT_ANOM_RBAC_INTEGRITY_FAIL - RBAC file integrity failure
   - record_types: ANOM_RBAC_INTEGRITY_FAIL
     action: tested-file-system-integrity-of

@@ -2,11 +2,9 @@
 GO_VERSION = File.read(File.join(File.dirname(__FILE__), ".go-version")).strip
 
 create_symlink = <<SCRIPT
-echo 'Creating github.com/elastic in the GOPATH'
-mkdir -p ~/go/src/github.com/elastic
-echo 'Symlinking /vagrant to ~/go/src/github.com/elastic'
-cd ~/go/src/github.com/elastic
-if [ -d "/vagrant" ]  && [ ! -e "go-libaudit" ]; then ln -s /vagrant go-libaudit; fi
+echo "Creating go-libaudit symlink in $HOME"
+cd $HOME
+if [ -d "/vagrant" ] && [ ! -e "go-libaudit" ]; then ln -s /vagrant go-libaudit; fi
 SCRIPT
 
 install_gvm = <<SCRIPT

@@ -44,11 +44,14 @@
       },
       "ecs": {
         "event": {
+          "kind": "alert",
           "category": [
-            "process"
+            "process",
+            "intrusion_detection"
           ],
           "type": [
-            "end"
+            "end",
+            "info"
           ]
         },
         "user": {

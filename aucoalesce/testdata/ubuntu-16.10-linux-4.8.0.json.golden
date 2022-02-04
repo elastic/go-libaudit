@@ -59,10 +59,14 @@
       },
       "ecs": {
         "event": {
+          "kind": "alert",
           "category": [
+            "intrusion_detection",
             "process"
           ],
           "type": [
+            "info",
+            "change",
             "info"
           ]
         },

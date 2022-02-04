@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add ECS mappings for more audit anomaly events. [#70](https://github.com/elastic/go-libaudit/pull/70)
 - Add `BacklogWaitTimeActual` status field, which is available since Linux 5.9 [#93](https://github.com/elastic/go-libaudit/pull/93/files)
 - Add ECS normalizations for `TIME_ADJNTPVAL` and `TIME_INJOFFSET`. [#98](https://github.com/elastic/go-libaudit/pull/98)
 
@@ -45,7 +46,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Use ECS recommended values for network direction. [#75](https://github.com/elastic/go-libaudit/issues/75)[#76](https://github.com/elastic/go-libaudit/pull/76)
-  
+
 ### Removed
 
 - Remove github.com/Sirupsen/logrus dependency from examples. [#73](https://github.com/elastic/go-libaudit/issues/73)

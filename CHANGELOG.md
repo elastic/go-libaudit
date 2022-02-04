@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add `BacklogWaitTimeActual` status field, which is available since Linux 5.9 [#93](https://github.com/elastic/go-libaudit/pull/93/files)
+- Add support for exe filters in exclude rules (e.g. `-a exclude,always -F exe=/bin/ls`). [#97](https://github.com/elastic/go-libaudit/pull/97)
 
 ### Changed
 
@@ -40,7 +41,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Use ECS recommended values for network direction. [#75](https://github.com/elastic/go-libaudit/issues/75)[#76](https://github.com/elastic/go-libaudit/pull/76)
-  
+
 ### Removed
 
 - Remove github.com/Sirupsen/logrus dependency from examples. [#73](https://github.com/elastic/go-libaudit/issues/73)

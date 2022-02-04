@@ -18,6 +18,7 @@
 package rule
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -26,8 +27,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
@@ -58,18 +57,18 @@ func Build(rule Rule) (WireFormat, error) {
 			switch filter.Type {
 			case ValueFilterType:
 				if err = addFilter(data, filter.LHS, filter.Comparator, filter.RHS); err != nil {
-					return nil, errors.Wrapf(err, "failed to add filter '%v'", filter)
+					return nil, fmt.Errorf("failed to add filter '%v': %w", filter, err)
 				}
 			case InterFieldFilterType:
 				if err = addInterFieldComparator(data, filter.LHS, filter.Comparator, filter.RHS); err != nil {
-					return nil, errors.Wrapf(err, "failed to add interfield comparison '%v'", filter)
+					return nil, fmt.Errorf("failed to add interfield comparison '%v': %w", filter, err)
 				}
 			}
 		}
 
 		for _, syscall := range v.Syscalls {
 			if err = addSyscall(data, syscall); err != nil {
-				return nil, errors.Wrapf(err, "failed to add syscall '%v'", syscall)
+				return nil, fmt.Errorf("failed to add syscall '%v': %w", syscall, err)
 			}
 		}
 
@@ -82,7 +81,7 @@ func Build(rule Rule) (WireFormat, error) {
 			return nil, err
 		}
 	default:
-		return nil, errors.Errorf("unknown rule type: %T", v)
+		return nil, fmt.Errorf("unknown rule type: %T", v)
 	}
 
 	ard, err := data.toAuditRuleData()
@@ -106,12 +105,12 @@ func Build(rule Rule) (WireFormat, error) {
 func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	ar, err := fromWireFormat(wf)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse wire format")
+		return "", fmt.Errorf("failed to parse wire format: %w", err)
 	}
 
 	r := ruleData{}
 	if err = r.fromAuditRuleData(ar); err != nil {
-		return "", errors.Wrap(err, "failed to parse audit rule")
+		return "", fmt.Errorf("failed to parse audit rule: %w", err)
 	}
 
 	list, err := r.getList()
@@ -135,6 +134,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	if permIdx, ok := existingFields[permField]; r.allSyscalls && ok {
 		extraFields, pos := false, 0
 		var path, key string
+	loop:
 		for _, fieldId := range r.fields {
 			switch fieldId {
 			case keyField, pathField, dirField:
@@ -150,7 +150,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			case permField:
 			default:
 				extraFields = true
-				break
+				break loop
 			}
 		}
 		if !extraFields {
@@ -319,7 +319,7 @@ func addFileWatch(data *ruleData, rule *FileWatchRule) error {
 	path := filepath.Clean(rule.Path)
 
 	if !filepath.IsAbs(path) {
-		return errors.Errorf("path must be absolute: %v", path)
+		return fmt.Errorf("path must be absolute: %v", path)
 	}
 
 	watchType := "path"
@@ -366,7 +366,7 @@ func addKeys(data *ruleData, keys []string) error {
 	if len(keys) > 0 {
 		key := strings.Join(keys, string(rune(keySeparator)))
 		if err := addFilter(data, "key", "=", key); err != nil {
-			return errors.Wrapf(err, "failed to add keys [%v]", strings.Join(keys, ","))
+			return fmt.Errorf("failed to add keys [%v]: %w", strings.Join(keys, ","), err)
 		}
 	}
 	return nil
@@ -389,11 +389,11 @@ type ruleData struct {
 }
 
 func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
-	rule := &auditRuleData{
+	rule := &auditRuleData{auditRuleHeader: auditRuleHeader{
 		Flags:      d.flags,
 		Action:     d.action,
 		FieldCount: uint32(len(d.fields)),
-	}
+	}}
 
 	if d.allSyscalls {
 		for i := 0; i < len(rule.Mask)-1; i++ {
@@ -404,14 +404,14 @@ func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
 			word := syscallNum / 32
 			bit := 1 << (syscallNum - (word * 32))
 			if int(word) > len(rule.Mask) {
-				return nil, errors.Errorf("invalid syscall number %v", syscallNum)
+				return nil, fmt.Errorf("invalid syscall number %v", syscallNum)
 			}
 			rule.Mask[word] |= uint32(bit)
 		}
 	}
 
 	if len(d.fields) > len(rule.Fields) {
-		return nil, errors.Errorf("too many filters and keys, only %v total are supported", len(rule.Fields))
+		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(rule.Fields))
 	}
 	for i := range d.fields {
 		rule.Fields[i] = d.fields[i]
@@ -435,7 +435,7 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 	for i := 0; rule.allSyscalls && i < len(in.Mask)-1; i++ {
 		rule.allSyscalls = in.Mask[i] == 0xFFFFFFFF
 	}
-	if rule.allSyscalls == false {
+	if !rule.allSyscalls {
 		for word, bits := range in.Mask {
 			for bit := uint32(0); bit < 32; bit++ {
 				if bits&(1<<bit) != 0 {
@@ -481,7 +481,7 @@ func (rule *ruleData) setList(list string) error {
 	case "exclude":
 		rule.flags = excludeFilter
 	default:
-		return errors.Errorf("invalid list '%v'", list)
+		return fmt.Errorf("invalid list '%v'", list)
 	}
 
 	return nil
@@ -498,7 +498,7 @@ func (rule *ruleData) getList() (string, error) {
 	case excludeFilter:
 		return "exclude", nil
 	default:
-		return "", errors.Errorf("invalid list flag '%v'", rule.flags)
+		return "", fmt.Errorf("invalid list flag '%v'", rule.flags)
 	}
 }
 
@@ -509,7 +509,7 @@ func (rule *ruleData) setAction(action string) error {
 	case "never":
 		rule.action = neverAction
 	default:
-		return errors.Errorf("invalid action '%v'", action)
+		return fmt.Errorf("invalid action '%v'", action)
 	}
 
 	return nil
@@ -522,7 +522,7 @@ func (rule *ruleData) getAction() (string, error) {
 	case neverAction:
 		return "never", nil
 	default:
-		return "", errors.Errorf("invalid action '%v'", rule.action)
+		return "", fmt.Errorf("invalid action '%v'", rule.action)
 	}
 }
 
@@ -539,26 +539,26 @@ func addSyscall(rule *ruleData, syscall string) error {
 	syscallNum, err := strconv.Atoi(syscall)
 	if nerr, ok := err.(*strconv.NumError); ok {
 		if nerr.Err != strconv.ErrSyntax {
-			return errors.Wrapf(err, "failed to parse syscall number '%v'", syscall)
+			return fmt.Errorf("failed to parse syscall number '%v': %w", syscall, err)
 		}
 
 		arch := rule.arch
 		if arch == "" {
 			arch, err = getRuntimeArch()
 			if err != nil {
-				return errors.Wrap(err, "failed to add syscall")
+				return fmt.Errorf("failed to add syscall: %w", err)
 			}
 		}
 
 		// Convert name to number.
 		table, found := reverseSyscall[arch]
 		if !found {
-			return errors.Errorf("syscall table not found for arch %v", arch)
+			return fmt.Errorf("syscall table not found for arch %v", arch)
 		}
 
 		syscallNum, found = table[syscall]
 		if !found {
-			return errors.Errorf("unknown syscall '%v' for arch %v", syscall, arch)
+			return fmt.Errorf("unknown syscall '%v' for arch %v", syscall, arch)
 		}
 	}
 
@@ -569,33 +569,33 @@ func addSyscall(rule *ruleData, syscall string) error {
 func addInterFieldComparator(rule *ruleData, lhs, comparator, rhs string) error {
 	op, found := operatorsTable[comparator]
 	if !found {
-		return errors.Errorf("invalid operator '%v'", comparator)
+		return fmt.Errorf("invalid operator '%v'", comparator)
 	}
 
 	switch op {
 	case equalOperator, notEqualOperator:
 	default:
-		return errors.Errorf("invalid operator '%v', only '=' or '!=' can be used", comparator)
+		return fmt.Errorf("invalid operator '%v', only '=' or '!=' can be used", comparator)
 	}
 
 	leftField, found := fieldsTable[lhs]
 	if !found {
-		return errors.Errorf("invalid field '%v' on left", lhs)
+		return fmt.Errorf("invalid field '%v' on left", lhs)
 	}
 
 	rightField, found := fieldsTable[rhs]
 	if !found {
-		return errors.Errorf("invalid field '%v' on right", lhs)
+		return fmt.Errorf("invalid field '%v' on right", lhs)
 	}
 
 	table, found := comparisonsTable[leftField]
 	if !found {
-		return errors.Errorf("field '%v' cannot be used in an interfield comparison", lhs)
+		return fmt.Errorf("field '%v' cannot be used in an interfield comparison", lhs)
 	}
 
 	comparison, found := table[rightField]
 	if !found {
-		return errors.Errorf("field '%v' cannot be used in an interfield comparison", rhs)
+		return fmt.Errorf("field '%v' cannot be used in an interfield comparison", rhs)
 	}
 
 	rule.fields = append(rule.fields, fieldCompare)
@@ -608,12 +608,12 @@ func addInterFieldComparator(rule *ruleData, lhs, comparator, rhs string) error 
 func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 	op, found := operatorsTable[comparator]
 	if !found {
-		return errors.Errorf("invalid operator '%v'", comparator)
+		return fmt.Errorf("invalid operator '%v'", comparator)
 	}
 
 	field, found := fieldsTable[lhs]
 	if !found {
-		return errors.Errorf("invalid field '%v' on left", lhs)
+		return fmt.Errorf("invalid field '%v' on left", lhs)
 	}
 
 	// Only newer kernel versions support exclude for credential types. Older
@@ -624,7 +624,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 			subjectUserField, subjectRoleField, subjectTypeField,
 			subjectSensitivityField, subjectClearanceField:
 		default:
-			return errors.Errorf("field '%v' cannot be used the exclude flag", lhs)
+			return fmt.Errorf("field '%v' cannot be used the exclude flag", lhs)
 		}
 	}
 
@@ -667,16 +667,16 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 		objectLevelHighField, pathField, dirField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {
-			return errors.Errorf("%v filter can only be applied to the syscall exit", lhs)
+			return fmt.Errorf("%v filter can only be applied to the syscall exit", lhs)
 		}
 		fallthrough
 	case subjectUserField, subjectRoleField, subjectTypeField,
 		subjectSensitivityField, subjectClearanceField, keyField, exeField:
 		// Add string to strings.
 		if field == keyField && len(rhs) > maxKeyLength {
-			return errors.Errorf("%v cannot be longer than %v", lhs, maxKeyLength)
+			return fmt.Errorf("%v cannot be longer than %v", lhs, maxKeyLength)
 		} else if len(rhs) > pathMax {
-			return errors.Errorf("%v cannot be longer than %v", lhs, pathMax)
+			return fmt.Errorf("%v cannot be longer than %v", lhs, pathMax)
 		}
 		rule.values = append(rule.values, uint32(len(rhs)))
 		rule.strings = append(rule.strings, rhs)
@@ -684,7 +684,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 		// Arch should come before syscall.
 		// Arch only supports = and !=.
 		if op != equalOperator && op != notEqualOperator {
-			return errors.Errorf("arch only supports the = and != operators")
+			return fmt.Errorf("arch only supports the = and != operators")
 		}
 		// Or convert name to arch or validate given arch.
 		archName, arch, err := getArch(rhs)
@@ -696,11 +696,11 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 	case permField:
 		// Perm is only valid for exit.
 		if rule.flags != exitFilter {
-			return errors.Errorf("perm filter can only be applied to the syscall exit")
+			return fmt.Errorf("perm filter can only be applied to the syscall exit")
 		}
 		// Perm is only valid for =.
 		if op != equalOperator {
-			return errors.Errorf("perm only support the = operator")
+			return fmt.Errorf("perm only support the = operator")
 		}
 		perm, err := getPerm(rhs)
 		if err != nil {
@@ -710,7 +710,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 	case filetypeField:
 		// Filetype is only valid for exit.
 		if rule.flags != exitFilter {
-			return errors.Errorf("filetype filter can only be applied to the syscall exit")
+			return fmt.Errorf("filetype filter can only be applied to the syscall exit")
 		}
 		filetype, err := getFiletype(rhs)
 		if err != nil {
@@ -724,15 +724,15 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 			return err
 		}
 		rule.values = append(rule.values, arg)
-	//case SessionIDField:
+	// case SessionIDField:
 	case inodeField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {
-			return errors.Errorf("inode filter can only be applied to the syscall exit")
+			return fmt.Errorf("inode filter can only be applied to the syscall exit")
 		}
 		// Comparator must be = or !=.
 		if op != equalOperator && op != notEqualOperator {
-			return errors.Errorf("inode only supports the = and != operators")
+			return fmt.Errorf("inode only supports the = and != operators")
 		}
 		// Convert RHS to number.
 		inode, err := parseNum(rhs)
@@ -743,7 +743,7 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 	case devMajorField, devMinorField, successField, ppidField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {
-			return errors.Errorf("%v filter can only be applied to the syscall exit", lhs)
+			return fmt.Errorf("%v filter can only be applied to the syscall exit", lhs)
 		}
 		fallthrough
 	default:
@@ -768,17 +768,17 @@ func getUID(uid string) (uint32, error) {
 	v, err := strconv.ParseUint(uid, 10, 32)
 	if nerr, ok := err.(*strconv.NumError); ok {
 		if nerr.Err != strconv.ErrSyntax {
-			return 0, errors.Wrapf(err, "failed to parse uid '%v'", uid)
+			return 0, fmt.Errorf("failed to parse uid '%v': %w", uid, err)
 		}
 
 		u, err := user.Lookup(uid)
 		if err != nil {
-			return 0, errors.Wrapf(err, "failed to convert user '%v' to a numeric ID", uid)
+			return 0, fmt.Errorf("failed to convert user '%v' to a numeric ID: %w", uid, err)
 		}
 
 		v, err = strconv.ParseUint(u.Uid, 10, 32)
 		if err != nil {
-			return 0, errors.Wrapf(err, "failed to parse uid '%v' belonging to user '%v'", u.Uid, u.Username)
+			return 0, fmt.Errorf("failed to parse uid '%v' belonging to user '%v': %w", u.Uid, u.Username, err)
 		}
 	}
 
@@ -789,17 +789,17 @@ func getGID(gid string) (uint32, error) {
 	v, err := strconv.ParseUint(gid, 10, 32)
 	if nerr, ok := err.(*strconv.NumError); ok {
 		if nerr.Err != strconv.ErrSyntax {
-			return 0, errors.Wrapf(err, "failed to parse gid '%v'", gid)
+			return 0, fmt.Errorf("failed to parse gid '%v': %w", gid, err)
 		}
 
 		g, err := user.LookupGroup(gid)
 		if err != nil {
-			return 0, errors.Wrapf(err, "failed to convert group '%v' to a numeric ID", gid)
+			return 0, fmt.Errorf("failed to convert group '%v' to a numeric ID: %w", gid, err)
 		}
 
 		v, err = strconv.ParseUint(g.Gid, 10, 32)
 		if err != nil {
-			return 0, errors.Wrapf(err, "failed to parse gid '%v' belonging to group '%v'", g.Gid, g.Name)
+			return 0, fmt.Errorf("failed to parse gid '%v' belonging to group '%v': %w", g.Gid, g.Name, err)
 		}
 	}
 
@@ -810,7 +810,7 @@ func getExitCode(exit string) (int32, error) {
 	v, err := strconv.ParseInt(exit, 0, 32)
 	if nerr, ok := err.(*strconv.NumError); ok {
 		if nerr.Err != strconv.ErrSyntax {
-			return 0, errors.Wrapf(err, "failed to parse exit code '%v'", exit)
+			return 0, fmt.Errorf("failed to parse exit code '%v': %w", exit, err)
 		}
 
 		sign := 1
@@ -822,7 +822,7 @@ func getExitCode(exit string) (int32, error) {
 
 		num, found := auparse.AuditErrnoToNum[code]
 		if !found {
-			return 0, errors.Errorf("failed to convert error to exit code '%v'", exit)
+			return 0, fmt.Errorf("failed to convert error to exit code '%v'", exit)
 		}
 		v = int64(sign * num)
 	}
@@ -831,7 +831,7 @@ func getExitCode(exit string) (int32, error) {
 }
 
 func getArch(arch string) (string, uint32, error) {
-	var realArch = arch
+	realArch := arch
 	switch strings.ToLower(arch) {
 	case "b64":
 		runtimeArch, err := getRuntimeArch()
@@ -843,7 +843,7 @@ func getArch(arch string) (string, uint32, error) {
 		case "aarch64", "x86_64", "ppc64":
 			realArch = runtimeArch
 		default:
-			return "", 0, errors.Errorf("cannot use b64 on %v", runtimeArch)
+			return "", 0, fmt.Errorf("cannot use b64 on %v", runtimeArch)
 		}
 	case "b32":
 		runtimeArch, err := getRuntimeArch()
@@ -861,13 +861,13 @@ func getArch(arch string) (string, uint32, error) {
 		case "ppc64":
 			realArch = "ppc"
 		default:
-			return "", 0, errors.Errorf("cannot use b32 on %v", runtimeArch)
+			return "", 0, fmt.Errorf("cannot use b32 on %v", runtimeArch)
 		}
 	}
 
 	archValue, found := reverseArch[realArch]
 	if !found {
-		return "", 0, errors.Errorf("unknown arch '%v'", arch)
+		return "", 0, fmt.Errorf("unknown arch '%v'", arch)
 	}
 	return realArch, archValue, nil
 }
@@ -927,7 +927,7 @@ func getRuntimeArch() (string, error) {
 	case "mips", "mipsle", "mips64", "mips64le":
 		fallthrough
 	default:
-		return "", errors.Errorf("unsupported arch: %v", runtime.GOARCH)
+		return "", fmt.Errorf("unsupported arch: %v", runtime.GOARCH)
 	}
 
 	return arch, nil
@@ -937,12 +937,12 @@ func getAuditMsgType(msgType string) (uint32, error) {
 	v, err := strconv.ParseUint(msgType, 0, 32)
 	if nerr, ok := err.(*strconv.NumError); ok {
 		if nerr.Err != strconv.ErrSyntax {
-			return 0, errors.Wrapf(err, "failed to parse msgtype '%v'", msgType)
+			return 0, fmt.Errorf("failed to parse msgtype '%v': %w", msgType, err)
 		}
 
 		typ, err := auparse.GetAuditMessageType(msgType)
 		if err != nil {
-			return 0, errors.Wrapf(err, "failed to convert msgtype '%v' to numeric value", msgType)
+			return 0, fmt.Errorf("failed to convert msgtype '%v' to numeric value: %w", msgType, err)
 		}
 		v = uint64(typ)
 	}
@@ -963,7 +963,7 @@ func getPerm(perm string) (uint32, error) {
 		case 'a':
 			permBits |= attrPerm
 		default:
-			return 0, errors.Errorf("invalid permission access type '%v'", p)
+			return 0, fmt.Errorf("invalid permission access type '%v'", p)
 		}
 	}
 
@@ -1005,7 +1005,7 @@ func getFiletype(filetype string) (filetype, error) {
 	case "fifo":
 		return fifoFiletype, nil
 	default:
-		return 0, errors.Errorf("invalid filetype '%v'", filetype)
+		return 0, fmt.Errorf("invalid filetype '%v'", filetype)
 	}
 }
 

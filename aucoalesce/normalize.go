@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,7 +39,7 @@ func init() {
 
 	syscallNorms, recordTypeNorms, err = LoadNormalizationConfig(data)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to parse built in normalization mappings"))
+		panic(fmt.Errorf("failed to parse built in normalization mappings: %w", err))
 	}
 }
 
@@ -100,8 +99,10 @@ type ObjectMapping struct {
 	PathIndex          int     `yaml:"path_index"`
 }
 
-type readReference func(*Event) string
-type writeReference func(*Event, string)
+type (
+	readReference  func(*Event) string
+	writeReference func(*Event, string)
+)
 
 var (
 	fromFieldReferences = map[string]readReference{

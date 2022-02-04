@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build linux
 // +build linux
 
 package libaudit
@@ -23,6 +24,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -30,9 +32,9 @@ import (
 	"runtime"
 	"syscall"
 	"testing"
+	"testing/quick"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/elastic/go-libaudit/v2/rule"
@@ -517,7 +519,7 @@ func TestAuditClientReceive(t *testing.T) {
 		// by an ACK. Older kernels seem to not send the AUDIT_CONFIG_CHANGE message.
 		if err = client.SetPID(WaitForReply); err == nil {
 			t.Fatal("set pid (overwrite) didn't fail as expected.")
-		} else if errors.Cause(err) != syscall.EEXIST {
+		} else if !errors.Is(err, syscall.EEXIST) {
 			t.Fatal("expected second SetPID call to result in EEXISTS but got", err)
 		}
 	}
@@ -640,7 +642,6 @@ func TestAuditWaitForPendingACKs(t *testing.T) {
 	}
 
 	t.Log("WaitForPendingACKs complete")
-
 }
 
 func TestAuditClientSetBacklogWaitTime(t *testing.T) {
@@ -747,6 +748,20 @@ func TestAuditClientGetStatusAsync(t *testing.T) {
 
 		t.Logf("Status: %+v", replyStatus)
 	}
+}
+
+func TestAuditStatusRoundTrip(t *testing.T) {
+	err := quick.Check(func(a AuditStatus) bool {
+		buf := a.toWireFormat()
+		var new AuditStatus
+		err := new.FromWireFormat(buf)
+		if err != nil {
+			t.Log(err)
+			return false
+		}
+		return a == new
+	}, nil)
+	assert.NoError(t, err, "audit status failed round-trip")
 }
 
 func TestAuditClientSetImmutable(t *testing.T) {

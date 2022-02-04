@@ -18,21 +18,14 @@
 package rule
 
 import (
-	"bytes"
-	"encoding/binary"
 	"io"
-
-	"github.com/pkg/errors"
-
-	"github.com/elastic/go-libaudit/v2/sys"
+	"unsafe"
 )
 
 const (
 	syscallBitmaskSize = 64 // AUDIT_BITMASK_SIZE
 	maxFields          = 64 // AUDIT_MAX_FIELDS
 )
-
-var endianness = sys.GetEndian()
 
 // WireFormat is the binary representation of a rule as used to exchange rules
 // (commands) with the kernel.
@@ -43,6 +36,11 @@ type WireFormat []byte
 // AUDIT_LIST_RULES requests.
 // https://github.com/linux-audit/audit-kernel/blob/v3.15/include/uapi/linux/audit.h#L423-L437
 type auditRuleData struct {
+	auditRuleHeader
+	Buf []byte // String fields.
+}
+
+type auditRuleHeader struct {
 	Flags      filter
 	Action     action
 	FieldCount uint32
@@ -51,67 +49,29 @@ type auditRuleData struct {
 	Values     [maxFields]uint32
 	FieldFlags [maxFields]operator
 	BufLen     uint32 // Total length of buffer used for string fields.
-	Buf        []byte // String fields.
 }
 
+const ruleHeaderSize = int(unsafe.Sizeof(auditRuleHeader{}))
+
 func (r auditRuleData) toWireFormat() WireFormat {
-	out := new(bytes.Buffer)
-	binary.Write(out, endianness, r.Flags)
-	binary.Write(out, endianness, r.Action)
-	binary.Write(out, endianness, r.FieldCount)
-	binary.Write(out, endianness, r.Mask)
-	binary.Write(out, endianness, r.Fields)
-	binary.Write(out, endianness, r.Values)
-	binary.Write(out, endianness, r.FieldFlags)
-	binary.Write(out, endianness, r.BufLen)
-	out.Write(r.Buf)
-
-	// Adding padding.
-	if out.Len()%4 > 0 {
-		out.Write(make([]byte, 4-(out.Len()%4)))
-	}
-
-	return out.Bytes()
+	n := ruleHeaderSize + len(r.Buf)
+	n += (4 - n%4) % 4 // Adding padding.
+	buf := make([]byte, n)
+	copy(buf, (*[ruleHeaderSize]byte)(unsafe.Pointer(&r))[:])
+	copy(buf[ruleHeaderSize:], r.Buf)
+	return buf
 }
 
 func fromWireFormat(data WireFormat) (*auditRuleData, error) {
-	var partialRule struct {
-		Flags      filter
-		Action     action
-		FieldCount uint32
-		Mask       [syscallBitmaskSize]uint32
-		Fields     [maxFields]field
-		Values     [maxFields]uint32
-		FieldFlags [maxFields]operator
-		BufLen     uint32
-	}
-
-	reader := bytes.NewReader(data)
-	if err := binary.Read(reader, endianness, &partialRule); err != nil {
-		return nil, errors.Wrap(err, "deserialization of rule data failed")
-	}
-
-	rule := &auditRuleData{
-		Flags:      partialRule.Flags,
-		Action:     partialRule.Action,
-		FieldCount: partialRule.FieldCount,
-		Mask:       partialRule.Mask,
-		Fields:     partialRule.Fields,
-		Values:     partialRule.Values,
-		FieldFlags: partialRule.FieldFlags,
-		BufLen:     partialRule.BufLen,
-	}
-
-	if reader.Len() < int(rule.BufLen) {
+	if len(data) < ruleHeaderSize {
 		return nil, io.ErrUnexpectedEOF
 	}
-
-	if rule.BufLen > 0 {
-		rule.Buf = make([]byte, rule.BufLen)
-		if _, err := reader.Read(rule.Buf); err != nil {
-			return nil, errors.Wrap(err, "deserialization of buf failed")
-		}
+	var r auditRuleData
+	copy((*[ruleHeaderSize]byte)(unsafe.Pointer(&r))[:], data)
+	if uint32(len(data[ruleHeaderSize:])) < r.BufLen {
+		return nil, io.ErrUnexpectedEOF
 	}
-
-	return rule, nil
+	data = data[ruleHeaderSize:]
+	r.Buf = append(r.Buf, data[:r.BufLen]...)
+	return &r, nil
 }

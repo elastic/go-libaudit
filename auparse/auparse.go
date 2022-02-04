@@ -19,6 +19,7 @@ package auparse
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -26,7 +27,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
 
@@ -389,7 +389,7 @@ func arch(data map[string]*field) error {
 
 	arch, err := strconv.ParseInt(field.Value(), 16, 64)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse arch")
+		return fmt.Errorf("failed to parse arch: %w", err)
 	}
 
 	field.Set(AuditArch(arch).String())
@@ -404,7 +404,7 @@ func setSyscallName(data map[string]*field) error {
 
 	syscall, err := strconv.Atoi(field.Value())
 	if err != nil {
-		return errors.Wrap(err, "failed to parse syscall")
+		return fmt.Errorf("failed to parse syscall: %w", err)
 	}
 
 	arch, found := data["arch"]
@@ -426,7 +426,7 @@ func setSignalName(data map[string]*field) error {
 
 	signalNum, err := strconv.Atoi(field.Value())
 	if err != nil {
-		return errors.Wrap(err, "failed to parse sig")
+		return fmt.Errorf("failed to parse sig: %w", err)
 	}
 
 	if signalName := unix.SignalName(syscall.Signal(signalNum)); signalName != "" {
@@ -443,7 +443,7 @@ func saddr(data map[string]*field) error {
 
 	saddrData, err := parseSockaddr(field.Value())
 	if err != nil {
-		return errors.Wrap(err, "failed to parse saddr")
+		return fmt.Errorf("failed to parse saddr: %w", err)
 	}
 
 	delete(data, "saddr")
@@ -468,7 +468,7 @@ func normalizeUnsetID(key string, data map[string]*field) {
 func hexDecode(key string, data map[string]*field) error {
 	field, found := data[key]
 	if !found {
-		return errors.Errorf("%v key not found", key)
+		return fmt.Errorf("%v key not found", key)
 	}
 
 	// Use the original value that may or may not contain a leading quote.
@@ -492,7 +492,7 @@ func execveArgs(data map[string]*field) error {
 
 	count, err := strconv.ParseUint(argc.Value(), 10, 32)
 	if err != nil {
-		return errors.Wrapf(err, "failed to convert argc='%v' to number", argc)
+		return fmt.Errorf("failed to convert argc='%v' to number: %w", argc, err)
 	}
 
 	for i := 0; i < int(count); i++ {
@@ -500,7 +500,7 @@ func execveArgs(data map[string]*field) error {
 
 		arg, found := data[key]
 		if !found {
-			return errors.Errorf("failed to find arg %v", key)
+			return fmt.Errorf("failed to find arg %v", key)
 		}
 
 		if ascii, err := hexToString(arg.Orig()); err == nil {
@@ -516,13 +516,13 @@ func execveArgs(data map[string]*field) error {
 func parseSELinuxContext(key string, data map[string]*field) error {
 	field, found := data[key]
 	if !found {
-		return errors.Errorf("%v key not found", key)
+		return fmt.Errorf("%v key not found", key)
 	}
 
 	keys := []string{"_user", "_role", "_domain", "_level", "_category"}
 	contextParts := strings.SplitN(field.Value(), ":", len(keys))
 	if len(contextParts) == 0 {
-		return errors.Errorf("failed to split SELinux context field %v", key)
+		return fmt.Errorf("failed to split SELinux context field %v", key)
 	}
 	delete(data, key)
 
@@ -586,7 +586,7 @@ func exit(data map[string]*field) error {
 
 	exitCode, err := strconv.Atoi(field.Value())
 	if err != nil {
-		return errors.Wrap(err, "failed to parse exit")
+		return fmt.Errorf("failed to parse exit: %w", err)
 	}
 
 	if exitCode >= 0 {

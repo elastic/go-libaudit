@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build linux && amd64
 // +build linux,amd64
 
 package rule_test
@@ -99,7 +100,7 @@ func testRulesFromGoldenFile(t *testing.T, goldenFile string) {
 					t.Fatal("rule:", test.Flags, "error:", err)
 				}
 
-				//fmt.Println(hex.Dump([]byte(actualBytes)))
+				// fmt.Println(hex.Dump([]byte(actualBytes)))
 				assert.EqualValues(t, []byte(test.Bytes), []byte(actualBytes), "rule: %v", test.Flags)
 			})
 		}
@@ -114,16 +115,16 @@ func mkdirTempPaths(t testing.TB, path string) {
 	}
 
 	if strings.HasSuffix(path, "/") {
-		if err := os.MkdirAll(path, 0700); err != nil {
+		if err := os.MkdirAll(path, 0o700); err != nil {
 			t.Fatal(err)
 		}
 	} else {
 		// Touch a file.
 		dir := filepath.Dir(path)
-		if err := os.MkdirAll(dir, 0700); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			t.Fatal(err)
 		}
-		if err := ioutil.WriteFile(path, nil, 0600); err != nil {
+		if err := ioutil.WriteFile(path, nil, 0o600); err != nil {
 			t.Fatal(err)
 		}
 	}

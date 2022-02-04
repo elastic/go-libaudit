@@ -53,6 +53,12 @@ func TestBuild(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, wireFormat)
+
+	// Confirm round-trip.
+	arData, err := fromWireFormat(wireFormat)
+	assert.NoError(t, err, "failed to unmarshal wire format")
+	got := arData.toWireFormat()
+	assert.Equal(t, wireFormat, got, "mismatch in round-trip data")
 }
 
 func TestAddFlag(t *testing.T) {

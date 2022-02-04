@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
+- Removed support for resolving syscall numbers to names for the ia64 architecture. [#96](https://github.com/elastic/go-libaudit/pull/96)
+
 ### Deprecated
 
 ## [2.2.0]

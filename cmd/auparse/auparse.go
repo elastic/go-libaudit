@@ -27,7 +27,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/elastic/go-libaudit/v2"
@@ -65,7 +64,7 @@ func output() (io.WriteCloser, error) {
 		return os.Stdout, nil
 	}
 
-	return os.OpenFile(*out, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	return os.OpenFile(*out, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o600)
 }
 
 func processLogs() error {
@@ -83,7 +82,7 @@ func processLogs() error {
 
 	reassembler, err := libaudit.NewReassembler(5, 2*time.Second, &streamHandler{output})
 	if err != nil {
-		return errors.Wrap(err, "failed to create reassmbler")
+		return fmt.Errorf("failed to create reassmbler: %w", err)
 	}
 	defer reassembler.Close()
 

@@ -12,7 +12,7 @@ SCRIPT
 install_gvm = <<SCRIPT
 mkdir -p ~/bin
 if [ ! -e "~/bin/gvm" ]; then
-  curl -sL -o ~/bin/gvm https://github.com/andrewkroh/gvm/releases/download/v0.2.2/gvm-linux-amd64
+  curl -sL -o ~/bin/gvm https://github.com/andrewkroh/gvm/releases/download/v0.4.0/gvm-linux-amd64
   chmod +x ~/bin/gvm
   ~/bin/gvm #{GO_VERSION}
   echo 'export GOPATH=$HOME/go' >> ~/.bash_profile

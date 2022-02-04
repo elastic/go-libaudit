@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//+build ignore
+//go:build ignore
+// +build ignore
 
 package rule
 
@@ -98,7 +99,7 @@ const (
 
 	fieldCompare field = C.AUDIT_FIELD_COMPARE
 
-	//SessionIDField          field = C.AUDIT_SESSIONID // Added in v4.10.
+	// SessionIDField          field = C.AUDIT_SESSIONID // Added in v4.10.
 )
 
 type operator uint32

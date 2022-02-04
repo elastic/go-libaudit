@@ -28,8 +28,11 @@ const (
 	AUDIT_ARCH_AARCH64     AuditArch = 0xc00000b7
 	AUDIT_ARCH_ARM         AuditArch = 0x40000028
 	AUDIT_ARCH_ARMEB       AuditArch = 0x28
+	AUDIT_ARCH_C6X         AuditArch = 0x4000008c
+	AUDIT_ARCH_C6XBE       AuditArch = 0x8c
 	AUDIT_ARCH_CRIS        AuditArch = 0x4000004c
 	AUDIT_ARCH_FRV         AuditArch = 0x5441
+	AUDIT_ARCH_H8300       AuditArch = 0x2e
 	AUDIT_ARCH_I386        AuditArch = 0x40000003
 	AUDIT_ARCH_IA64        AuditArch = 0xc0000032
 	AUDIT_ARCH_M32R        AuditArch = 0x58
@@ -40,6 +43,7 @@ const (
 	AUDIT_ARCH_MIPSEL      AuditArch = 0x40000008
 	AUDIT_ARCH_MIPSEL64    AuditArch = 0xc0000008
 	AUDIT_ARCH_MIPSEL64N32 AuditArch = 0xe0000008
+	AUDIT_ARCH_NIOS2       AuditArch = 0x40000071
 	AUDIT_ARCH_PARISC      AuditArch = 0xf
 	AUDIT_ARCH_PARISC64    AuditArch = 0x8000000f
 	AUDIT_ARCH_PPC         AuditArch = 0x14
@@ -60,8 +64,11 @@ var AuditArchNames = map[AuditArch]string{
 	AUDIT_ARCH_AARCH64:     "aarch64",
 	AUDIT_ARCH_ARM:         "arm",
 	AUDIT_ARCH_ARMEB:       "armeb",
+	AUDIT_ARCH_C6X:         "c6x",
+	AUDIT_ARCH_C6XBE:       "c6xbe",
 	AUDIT_ARCH_CRIS:        "cris",
 	AUDIT_ARCH_FRV:         "frv",
+	AUDIT_ARCH_H8300:       "h8300",
 	AUDIT_ARCH_I386:        "i386",
 	AUDIT_ARCH_IA64:        "ia64",
 	AUDIT_ARCH_M32R:        "m32r",
@@ -72,6 +79,7 @@ var AuditArchNames = map[AuditArch]string{
 	AUDIT_ARCH_MIPSEL:      "mipsel",
 	AUDIT_ARCH_MIPSEL64:    "mipsel64",
 	AUDIT_ARCH_MIPSEL64N32: "mipsel64n32",
+	AUDIT_ARCH_NIOS2:       "nios2",
 	AUDIT_ARCH_PARISC:      "parisc",
 	AUDIT_ARCH_PARISC64:    "parisc64",
 	AUDIT_ARCH_PPC:         "ppc",

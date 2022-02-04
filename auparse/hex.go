@@ -20,12 +20,11 @@ package auparse
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 const nullTerminator = "\x00"

@@ -8,11 +8,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add `BacklogWaitTimeActual` status field, which is available since Linux 5.9 [#93](https://github.com/elastic/go-libaudit/pull/93/files)
+- Add ECS normalizations for `TIME_ADJNTPVAL` and `TIME_INJOFFSET`. [#98](https://github.com/elastic/go-libaudit/pull/98)
 - Add support for exe filters in exclude rules (e.g. `-a exclude,always -F exe=/bin/ls`). [#97](https://github.com/elastic/go-libaudit/pull/97)
 
 ### Changed
 
+- Update syscall, arches, and audit msg type tables for Linux 5.16. [#96](https://github.com/elastic/go-libaudit/pull/96)
+
 ### Removed
+
+- Removed support for resolving syscall numbers to names for the ia64 architecture. [#96](https://github.com/elastic/go-libaudit/pull/96)
 
 ### Deprecated
 

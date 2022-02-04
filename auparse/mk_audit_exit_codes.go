@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -98,9 +99,7 @@ var AuditErrnoToName = map[int]string{
 
 var tmpl = template.Must(template.New("message_types").Parse(godefsTemplate))
 
-var (
-	errnoDefRegex = regexp.MustCompile(`^#define\s+(E\w+)\s+(\w+)`)
-)
+var errnoDefRegex = regexp.MustCompile(`^#define\s+(E\w+)\s+(\w+)`)
 
 func readErrorNumbers() ([]ErrorNumber, error) {
 	cmd := exec.Command("gcc", "-E", "-dD", "-")
@@ -135,6 +134,9 @@ func readErrorNumbers() ([]ErrorNumber, error) {
 	}
 
 	sort.Slice(errnos, func(i, j int) bool {
+		if errnos[i].Value == errnos[j].Value {
+			return errnos[i].Name < errnos[j].Name
+		}
 		return errnos[i].Value < errnos[j].Value
 	})
 
@@ -200,7 +202,7 @@ func run() error {
 		}
 	}
 
-	if err = ioutil.WriteFile(flagOut, buf.Bytes(), 0644); err != nil {
+	if err = ioutil.WriteFile(flagOut, buf.Bytes(), 0o644); err != nil {
 		return err
 	}
 

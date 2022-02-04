@@ -15,20 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+//go:build linux
 // +build linux
 
 package libaudit
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"sync/atomic"
 	"syscall"
-
-	"github.com/pkg/errors"
-
-	"github.com/elastic/go-libaudit/v2/sys"
+	"unsafe"
 )
 
 // Generic Netlink Client
@@ -86,7 +85,7 @@ func NewNetlinkClient(proto int, groups uint32, readBuf []byte, resp io.Writer) 
 	src := &syscall.SockaddrNetlink{Family: syscall.AF_NETLINK, Groups: groups}
 	if err = syscall.Bind(s, src); err != nil {
 		syscall.Close(s)
-		return nil, errors.Wrap(err, "bind failed")
+		return nil, fmt.Errorf("bind failed: %w", err)
 	}
 
 	pid, err := getPortID(s)
@@ -143,12 +142,8 @@ func (c *NetlinkClient) Send(msg syscall.NetlinkMessage) (uint32, error) {
 func serialize(msg syscall.NetlinkMessage) []byte {
 	msg.Header.Len = uint32(syscall.SizeofNlMsghdr + len(msg.Data))
 	b := make([]byte, msg.Header.Len)
-	sys.GetEndian().PutUint32(b[0:4], msg.Header.Len)
-	sys.GetEndian().PutUint16(b[4:6], msg.Header.Type)
-	sys.GetEndian().PutUint16(b[6:8], msg.Header.Flags)
-	sys.GetEndian().PutUint32(b[8:12], msg.Header.Seq)
-	sys.GetEndian().PutUint32(b[12:16], msg.Header.Pid)
-	copy(b[16:], msg.Data)
+	*(*syscall.NlMsghdr)(unsafe.Pointer(&b[0])) = msg.Header
+	copy(b[syscall.SizeofNlMsghdr:], msg.Data)
 	return b
 }
 
@@ -169,7 +164,7 @@ func (c *NetlinkClient) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.Ne
 		return nil, err
 	}
 	if nr < syscall.NLMSG_HDRLEN {
-		return nil, errors.Errorf("not enough bytes (%v) received to form a netlink header", nr)
+		return nil, fmt.Errorf("not enough bytes (%v) received to form a netlink header", nr)
 	}
 	fromNetlink, ok := from.(*syscall.SockaddrNetlink)
 	if !ok || fromNetlink.Pid != 0 {
@@ -206,7 +201,7 @@ func (c *NetlinkClient) Close() error {
 // describing the problem will be returned.
 func ParseNetlinkError(netlinkData []byte) error {
 	if len(netlinkData) >= 4 {
-		errno := -sys.GetEndian().Uint32(netlinkData[:4])
+		errno := -*(*int32)(unsafe.Pointer(&netlinkData[0]))
 		if errno == 0 {
 			return nil
 		}

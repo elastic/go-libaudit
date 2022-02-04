@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add `BacklogWaitTimeActual` status field, which is available since Linux 5.9 [#93](https://github.com/elastic/go-libaudit/pull/93/files)
+- Add ECS normalizations for `TIME_ADJNTPVAL` and `TIME_INJOFFSET`. [#98](https://github.com/elastic/go-libaudit/pull/98)
 
 ### Changed
 

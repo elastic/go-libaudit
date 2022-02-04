@@ -59,5 +59,84 @@
         "group": {}
       }
     }
+  },
+  {
+    "test_name": "TIME_INJOFFSET",
+    "event": {
+      "@timestamp": "2018-07-03T11:07:24.507Z",
+      "sequence": 7,
+      "category": "unknown",
+      "record_type": "time_injoffset",
+      "result": "success",
+      "session": "1",
+      "summary": {
+        "actor": {
+          "primary": "0",
+          "secondary": "0"
+        },
+        "action": "changed-system-time",
+        "object": {
+          "type": "system"
+        },
+        "how": "/usr/sbin/chronyd"
+      },
+      "user": {
+        "ids": {
+          "auid": "0",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "domain": "kernel_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "process": {
+        "pid": "629",
+        "ppid": "626",
+        "title": "chronyd -q",
+        "name": "chronyd",
+        "exe": "/usr/sbin/chronyd"
+      },
+      "data": {
+        "a0": "7fff57e78c00",
+        "a1": "1",
+        "a2": "1",
+        "a3": "7f754ae28c0a",
+        "arch": "x86_64",
+        "exit": "5",
+        "new": "8256",
+        "nsec": "0",
+        "old": "64",
+        "op": "status",
+        "sec": "0",
+        "syscall": "adjtimex",
+        "tty": "(none)"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "host"
+          ],
+          "type": [
+            "change"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    }
   }
 ]

@@ -2,3 +2,10 @@
 tests:
   ANOM_ABEND SIGSEGV seg fault: |
     type=ANOM_ABEND msg=audit(1423234994.398:911150): auid=4294967295 uid=48 gid=48 ses=4294967295 subj=system_u:system_r:httpd_t:s0 pid=31242 comm="httpd" reason="memory violation" sig=11
+
+  # https://lkml.org/lkml/2018/8/24/314
+  TIME_INJOFFSET: |
+    type=TIME_INJOFFSET msg=audit(1530616044.507:7): sec=0 nsec=0
+    type=TIME_ADJNTPVAL msg=audit(1530616044.507:7): op=status old=64 new=8256
+    type=SYSCALL msg=audit(1530616044.507:7): arch=c000003e syscall=159 success=yes exit=5 a0=7fff57e78c00 a1=1 a2=1 a3=7f754ae28c0a items=0 ppid=626 pid=629 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=1 comm="chronyd" exe="/usr/sbin/chronyd" subj=system_u:system_r:kernel_t:s0 key=(null)
+    type=PROCTITLE msg=audit(1530616044.507:7): proctitle=6368726F6E7964002D71

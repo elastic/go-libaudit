@@ -22,9 +22,11 @@ fi
 SCRIPT
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "ubuntu/impish64"
   config.vm.network :forwarded_port, guest: 22, host: 2228, id: "ssh", auto_correct: true
   config.vm.provision "shell", inline: create_symlink, privileged: false
   config.vm.provision "shell", inline: install_gvm, privileged: false
-  config.vm.provision "shell", inline: "apt-get update && apt-get install -y make gcc python3 python3-pip python3-venv git"
+  config.vm.provision "shell", inline: "apt-get update && apt-get install -y make gcc python3 python3-pip python3-venv git auditd"
+  config.vm.provision "shell", inline: "systemctl stop auditd"
+  config.vm.provision "shell", inline: "systemctl disable auditd"
 end

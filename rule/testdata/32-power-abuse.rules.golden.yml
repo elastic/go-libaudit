@@ -1,15 +1,14 @@
-# Linux dd81ed8942a5 4.9.27-moby #1 SMP Thu May 11 04:01:18 UTC 2017 x86_64 GNU/Linux
-# auditctl version 2.6.7
+# Linux ubuntu-impish 5.13.0-27-generic #29-Ubuntu SMP Wed Jan 12 17:36:47 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+# auditctl version 3.0
 rules:
-- flags: -a always,exit -F dir=/tmp/audit-test/home -F uid=0 -F auid>=1000 -F auid!=4294967295
-    -C auid!=obj_uid -F key=power-abuse
+- flags: -a always,exit -F dir=/tmp/audit-test/home -F uid=0 -F auid>=1000 -F auid!=4294967295 -C auid!=obj_uid -F key=power-abuse
   bytes: !!binary |
     BAAAAAIAAAAGAAAA//////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
-    //AAAAAGsAAAABAAAACQAAAAkAAABvAAAA0gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    ////8AAGsAAAABAAAACQAAAAkAAABvAAAA0gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

@@ -396,9 +396,12 @@ func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
 	}}
 
 	if d.allSyscalls {
-		for i := 0; i < len(rule.Mask)-1; i++ {
+		for i := range rule.Mask {
 			rule.Mask[i] = 0xFFFFFFFF
 		}
+		// NOTE: This was added to match the binary output when listing rules
+		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
+		rule.Mask[len(rule.Mask)-1] = 0x0000FFFF
 	} else {
 		for _, syscallNum := range d.syscalls {
 			word := syscallNum / 32
@@ -618,11 +621,13 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 
 	// Only newer kernel versions support exclude for credential types. Older
 	// kernels only support exclude on the msgtype field.
+	// https://github.com/torvalds/linux/blob/v5.16/kernel/auditfilter.c#L1343
 	if rule.flags == excludeFilter {
 		switch field {
 		case pidField, uidField, gidField, auidField, msgTypeField,
 			subjectUserField, subjectRoleField, subjectTypeField,
-			subjectSensitivityField, subjectClearanceField:
+			subjectSensitivityField, subjectClearanceField,
+			exeField:
 		default:
 			return fmt.Errorf("field '%v' cannot be used the exclude flag", lhs)
 		}

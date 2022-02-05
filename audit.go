@@ -211,7 +211,7 @@ func (c *AuditClient) GetRules() ([][]byte, error) {
 	for {
 		reply, err := c.getReply(seq)
 		if err != nil {
-			return nil, fmt.Errorf("failed receive rule data: %w", err)
+			return nil, fmt.Errorf("failed receiving rule data: %w", err)
 		}
 
 		if reply.Header.Type == syscall.NLMSG_DONE {
@@ -259,7 +259,7 @@ func (c *AuditClient) DeleteRule(rule []byte) error {
 	// Send AUDIT_DEL_RULE message to the kernel.
 	seq, err := c.Netlink.Send(msg)
 	if err != nil {
-		return fmt.Errorf("failed sending delete request: %w", err)
+		return fmt.Errorf("failed sending delete rule request: %w", err)
 	}
 
 	_, err = c.getReply(seq)
@@ -283,12 +283,12 @@ func (c *AuditClient) AddRule(rule []byte) error {
 	// Send AUDIT_ADD_RULE message to the kernel.
 	seq, err := c.Netlink.Send(msg)
 	if err != nil {
-		return fmt.Errorf("failed sending delete request: %w", err)
+		return fmt.Errorf("failed sending add rule request: %w", err)
 	}
 
 	ack, err := c.getReply(seq)
 	if err != nil {
-		return fmt.Errorf("failed to get ACK to rule delete request: %w", err)
+		return fmt.Errorf("failed to get ACK to add rule request: %w", err)
 	}
 
 	if ack.Header.Type != syscall.NLMSG_ERROR {

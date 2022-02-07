@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Update syscall, arches, and audit msg type tables for Linux 5.16. [#96](https://github.com/elastic/go-libaudit/pull/96)
+- Go 1.16 or newer is required because the project uses the embed package. [#104](https://github.com/elastic/go-libaudit/pull/104)
 - Fixed error messages from `AddRule()` in the audit client. [#103](https://github.com/elastic/go-libaudit/pull/103)
 
 ### Removed

@@ -18,26 +18,24 @@
 package aucoalesce
 
 import (
+	_ "embed"
 	"fmt"
 	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
-//go:generate sh -c "go run mknormalize_data.go normalizationData normalizations.yaml > znormalize_data.go"
-
 var (
+	//go:embed normalizations.yaml
+	normalizationDataYAML []byte
+
 	syscallNorms    map[string]*Normalization
 	recordTypeNorms map[string][]*Normalization
 )
 
 func init() {
-	data, err := asset("normalizationData")
-	if err != nil {
-		panic("normalizationData not found in assets")
-	}
-
-	syscallNorms, recordTypeNorms, err = LoadNormalizationConfig(data)
+	var err error
+	syscallNorms, recordTypeNorms, err = LoadNormalizationConfig(normalizationDataYAML)
 	if err != nil {
 		panic(fmt.Errorf("failed to parse built in normalization mappings: %w", err))
 	}

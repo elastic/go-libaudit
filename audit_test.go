@@ -892,9 +892,7 @@ func kernelVersion() (major, minor int, err error) {
 	s := info.Release[:]
 	// As all major non-Intel architecture return []uint8 instead of []int8 for Utsname.Release following conversion is required
 	temp := make([]int8, len(s))
-	for index, num := range s {
-		temp[index] = num
-	}
+	copy(temp, s)
 
 	major, pos := extractDecimalNumber(temp, 0)
 	minor, _ = extractDecimalNumber(temp, pos)

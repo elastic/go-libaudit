@@ -160,9 +160,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 }
 
 func writeGoldenFile(name string, events []testEventOutput) error {
-	if strings.HasSuffix(name, ".yaml") {
-		name = name[:len(name)-len(".yaml")]
-	}
+	name = strings.TrimSuffix(name, ".yaml")
 
 	f, err := os.Create(name + ".json.golden")
 	if err != nil {
@@ -183,9 +181,7 @@ func writeGoldenFile(name string, events []testEventOutput) error {
 }
 
 func readGoldenFile(name string) ([]map[string]interface{}, error) {
-	if strings.HasSuffix(name, ".yaml") {
-		name = name[:len(name)-len(".yaml")]
-	}
+	name = strings.TrimSuffix(name, ".yaml")
 
 	data, err := ioutil.ReadFile(name + ".json.golden")
 	if err != nil {

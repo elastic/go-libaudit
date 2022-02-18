@@ -315,6 +315,7 @@ func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing
 
+//nolint:errcheck
 func enrichData(msg *AuditMessage) error {
 	normalizeUnsetID("auid", msg.fields)
 	normalizeUnsetID("old-auid", msg.fields)

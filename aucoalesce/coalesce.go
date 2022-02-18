@@ -512,10 +512,10 @@ func applyNormalization(event *Event) {
 	switch norm.Object.What {
 	case "file", "filesystem":
 		event.Summary.Object.Type = norm.Object.What
-		setFileObject(event, norm.Object.PathIndex)
+		setFileObject(event, norm.Object.PathIndex) //nolint:errcheck
 	case "socket":
 		event.Summary.Object.Type = norm.Object.What
-		setSocketObject(event)
+		setSocketObject(event) //nolint:errcheck
 	default:
 		event.Summary.Object.Type = norm.Object.What
 	}

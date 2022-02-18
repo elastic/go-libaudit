@@ -101,9 +101,8 @@ type eventMeta struct {
 }
 
 type results struct {
-	dropped    int
-	outOfOrder int
-	events     []eventMeta
+	dropped int
+	events  []eventMeta
 }
 
 func testReassembler(t testing.TB, file string, expected *results) {

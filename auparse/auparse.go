@@ -321,7 +321,7 @@ func enrichData(msg *AuditMessage) error {
 	normalizeUnsetID("old-auid", msg.fields)
 	normalizeUnsetID("ses", msg.fields)
 
-	// Many different message types can have subj field so check them all.
+	// Many message types can have subj field so check them all.
 	parseSELinuxContext("subj", msg.fields)
 
 	// Normalize success/res to result.

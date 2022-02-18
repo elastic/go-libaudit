@@ -388,46 +388,46 @@ type ruleData struct {
 	arch string
 }
 
-func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
-	rule := &auditRuleData{auditRuleHeader: auditRuleHeader{
-		Flags:      d.flags,
-		Action:     d.action,
-		FieldCount: uint32(len(d.fields)),
+func (rule ruleData) toAuditRuleData() (*auditRuleData, error) {
+	data := &auditRuleData{auditRuleHeader: auditRuleHeader{
+		Flags:      rule.flags,
+		Action:     rule.action,
+		FieldCount: uint32(len(rule.fields)),
 	}}
 
-	if d.allSyscalls {
-		for i := range rule.Mask {
-			rule.Mask[i] = 0xFFFFFFFF
+	if rule.allSyscalls {
+		for i := range data.Mask {
+			data.Mask[i] = 0xFFFFFFFF
 		}
 		// NOTE: This was added to match the binary output when listing rules
 		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
-		rule.Mask[len(rule.Mask)-1] = 0x0000FFFF
+		data.Mask[len(data.Mask)-1] = 0x0000FFFF
 	} else {
-		for _, syscallNum := range d.syscalls {
+		for _, syscallNum := range rule.syscalls {
 			word := syscallNum / 32
 			bit := 1 << (syscallNum - (word * 32))
-			if int(word) > len(rule.Mask) {
+			if int(word) > len(data.Mask) {
 				return nil, fmt.Errorf("invalid syscall number %v", syscallNum)
 			}
-			rule.Mask[word] |= uint32(bit)
+			data.Mask[word] |= uint32(bit)
 		}
 	}
 
-	if len(d.fields) > len(rule.Fields) {
-		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(rule.Fields))
+	if len(rule.fields) > len(data.Fields) {
+		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(data.Fields))
 	}
-	for i := range d.fields {
-		rule.Fields[i] = d.fields[i]
-		rule.FieldFlags[i] = d.fieldFlags[i]
-		rule.Values[i] = d.values[i]
+	for i := range rule.fields {
+		data.Fields[i] = rule.fields[i]
+		data.FieldFlags[i] = rule.fieldFlags[i]
+		data.Values[i] = rule.values[i]
 	}
 
-	for _, s := range d.strings {
-		rule.Buf = append(rule.Buf, []byte(s)...)
+	for _, s := range rule.strings {
+		data.Buf = append(data.Buf, []byte(s)...)
 	}
-	rule.BufLen = uint32(len(rule.Buf))
+	data.BufLen = uint32(len(data.Buf))
 
-	return rule, nil
+	return data, nil
 }
 
 func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {

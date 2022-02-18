@@ -878,9 +878,9 @@ func extractDecimalNumber(s []int8, pos int) (value, nextPos int) {
 		c := s[pos]
 		if c >= aZero && c <= aNine {
 			value = value*10 + int(c-aZero)
-		} else {
-			return value, pos + 1
+			continue
 		}
+		return value, pos + 1
 	}
 }
 

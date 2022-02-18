@@ -126,7 +126,7 @@ func (s *streamHandler) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	}
 }
 
-func (s *streamHandler) EventsLost(count int) {
+func (*streamHandler) EventsLost(count int) {
 	log.Printf("Detected the loss of %v sequences.", count)
 }
 

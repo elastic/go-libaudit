@@ -872,7 +872,7 @@ func TestRuleParsing(t *testing.T) {
 	}
 }
 
-func extractDecimalNumber(s []int8, pos int) (value int, nextPos int) {
+func extractDecimalNumber(s []int8, pos int) (value, nextPos int) {
 	const aZero, aNine int8 = 0x30, 0x39
 	for value = 0; ; pos++ {
 		c := s[pos]
@@ -884,7 +884,7 @@ func extractDecimalNumber(s []int8, pos int) (value int, nextPos int) {
 	}
 }
 
-func kernelVersion() (major int, minor int, err error) {
+func kernelVersion() (major, minor int, err error) {
 	var info syscall.Utsname
 	if err = syscall.Uname(&info); err != nil {
 		return 0, 0, err

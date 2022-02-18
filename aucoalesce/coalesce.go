@@ -243,7 +243,7 @@ func normalizeCompound(msgs []*auparse.AuditMessage) (*Event, error) {
 	return event, nil
 }
 
-func newEvent(msg *auparse.AuditMessage, syscall *auparse.AuditMessage) *Event {
+func newEvent(msg, syscall *auparse.AuditMessage) *Event {
 	if msg == nil {
 		msg = syscall
 	}

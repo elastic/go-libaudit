@@ -171,7 +171,7 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 // a regular file or directory, then updates the paths to point to the one
 // created for the test. It returns the updated command that contains the test
 // paths.
-func makePaths(t testing.TB, tmpDir string, rule string) string {
+func makePaths(t testing.TB, tmpDir, rule string) string {
 	re := regexp.MustCompile(`(-w |dir=|path=)/(\S+)`)
 	matches := re.FindAllStringSubmatch(rule, -1)
 	for _, match := range matches {

@@ -183,7 +183,7 @@ func (c *NetlinkClient) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.Ne
 
 	msgs, err := p(buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse netlink messages (bytes_received=%v): %v", nr, err)
+		return nil, fmt.Errorf("failed to parse netlink messages (bytes_received=%v): %w", nr, err)
 	}
 
 	return msgs, nil

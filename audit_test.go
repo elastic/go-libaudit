@@ -78,7 +78,7 @@ func TestAuditClientGetStatusPermissionError(t *testing.T) {
 
 	// ECONNREFUSED means we are in a username space.
 	// EPERM means we are not root.
-	if err != syscall.ECONNREFUSED && err != syscall.EPERM {
+	if !errors.Is(err, syscall.ECONNREFUSED) && !errors.Is(err, syscall.EPERM) {
 		t.Fatal("unexpected error")
 	}
 }
@@ -436,7 +436,7 @@ func TestMulticastAuditClient(t *testing.T) {
 	var msgCount int
 	for i := 0; i < 5; i++ {
 		msg, err := client.Receive(true)
-		if err == syscall.EAGAIN {
+		if errors.Is(err, syscall.EAGAIN) {
 			time.Sleep(500 * time.Millisecond)
 			continue
 		} else if err != nil {
@@ -528,7 +528,7 @@ func TestAuditClientReceive(t *testing.T) {
 	var msgCount int
 	for i := 0; i < 10; i++ {
 		msg, err := client.Receive(true)
-		if err == syscall.EAGAIN {
+		if errors.Is(err, syscall.EAGAIN) {
 			time.Sleep(500 * time.Millisecond)
 			continue
 		} else if err != nil {

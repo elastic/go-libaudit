@@ -106,8 +106,10 @@ func newAuditClient(netlinkGroups uint32, resp io.Writer) (*AuditClient, error) 
 
 	netlink, err := NewNetlinkClient(syscall.NETLINK_AUDIT, netlinkGroups, buf, resp)
 	if err != nil {
-		switch err {
-		case syscall.EINVAL, syscall.EPROTONOSUPPORT, syscall.EAFNOSUPPORT:
+		switch {
+		case errors.Is(err, syscall.EINVAL),
+			errors.Is(err, syscall.EPROTONOSUPPORT),
+			errors.Is(err, syscall.EAFNOSUPPORT):
 			return nil, fmt.Errorf("audit not supported by kernel: %w", err)
 		default:
 			return nil, fmt.Errorf("failed to open audit netlink socket: %w", err)
@@ -296,7 +298,8 @@ func (c *AuditClient) AddRule(rule []byte) error {
 	}
 
 	if err = ParseNetlinkError(ack.Data); err != nil {
-		if errno, ok := err.(syscall.Errno); ok && errno == syscall.EEXIST {
+		var errno syscall.Errno
+		if errors.As(err, &errno) && errno == syscall.EEXIST {
 			return errors.New("rule exists")
 		}
 		return fmt.Errorf("error adding audit rule: %w", err)
@@ -476,10 +479,10 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 		for i := 0; i < 10; i++ {
 			msgs, err = c.Netlink.Receive(true, parseNetlinkAuditMessage)
 			if err != nil {
-				switch err {
-				case syscall.EINTR:
+				switch {
+				case errors.Is(err, syscall.EINTR):
 					continue
-				case syscall.EAGAIN:
+				case errors.Is(err, syscall.EAGAIN):
 					time.Sleep(50 * time.Millisecond)
 					continue
 				default:

@@ -113,7 +113,7 @@ func read() error {
 			}
 		}
 
-		if status.Enabled != 2 {
+		if status.Enabled != 2 && *immutable {
 			log.Printf("setting kernel settings as immutable")
 			if err = client.SetImmutable(libaudit.NoWait); err != nil {
 				return fmt.Errorf("failed to set kernel as immutable: %w", err)

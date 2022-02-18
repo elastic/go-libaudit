@@ -453,8 +453,8 @@ func (c *AuditClient) Close() error {
 // same order as the operations have been performed. If it receives an error,
 // it is returned and no further ACKs are processed.
 func (c *AuditClient) WaitForPendingACKs() error {
-	for _, reqId := range c.pendingAcks {
-		ack, err := c.getReply(reqId)
+	for _, reqID := range c.pendingAcks {
+		ack, err := c.getReply(reqID)
 		if err != nil {
 			return err
 		}

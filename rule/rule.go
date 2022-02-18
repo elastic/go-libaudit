@@ -124,8 +124,8 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	}
 
 	existingFields := make(map[field]int)
-	for idx, fieldId := range r.fields {
-		existingFields[fieldId] = idx
+	for idx, fieldID := range r.fields {
+		existingFields[fieldID] = idx
 	}
 
 	// Detect if rule is a watch.
@@ -135,13 +135,13 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 		extraFields, pos := false, 0
 		var path, key string
 	loop:
-		for _, fieldId := range r.fields {
-			switch fieldId {
+		for _, fieldID := range r.fields {
+			switch fieldID {
 			case keyField, pathField, dirField:
 				if pos >= len(r.strings) {
-					return "", fmt.Errorf("no buffer data for path field %d", fieldId)
+					return "", fmt.Errorf("no buffer data for path field %d", fieldID)
 				}
-				if fieldId == keyField {
+				if fieldID == keyField {
 					key = r.strings[pos]
 				} else {
 					path = r.strings[pos]
@@ -215,10 +215,10 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			return "", fmt.Errorf("no syscall table for arch %s", arch)
 		}
 		list := make([]string, len(r.syscalls))
-		for idx, syscallId := range r.syscalls {
-			list[idx], ok = syscallTable[int(syscallId)]
+		for idx, syscallID := range r.syscalls {
+			list[idx], ok = syscallTable[int(syscallID)]
 			if !ok {
-				return "", fmt.Errorf("syscall %d not found for arch %s", syscallId, arch)
+				return "", fmt.Errorf("syscall %d not found for arch %s", syscallID, arch)
 			}
 		}
 
@@ -227,12 +227,12 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 
 	// Parse fields
 	stringIndex := 0
-	for idx, fieldId := range r.fields {
+	for idx, fieldID := range r.fields {
 		op, found := reverseOperatorsTable[r.fieldFlags[idx]]
 		if !found {
 			return "", fmt.Errorf("field operator %x not found", r.fieldFlags[idx])
 		}
-		switch fieldId {
+		switch fieldID {
 		case archField:
 			// arch already handled
 		case fieldCompare:
@@ -253,13 +253,13 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 				fields[0], op, fields[1]))
 
 		default:
-			lhs, found := reverseFieldsTable[fieldId]
+			lhs, found := reverseFieldsTable[fieldID]
 			if !found {
-				return "", fmt.Errorf("field %x not found", fieldId)
+				return "", fmt.Errorf("field %x not found", fieldID)
 			}
 			value := r.values[idx]
 			var rhs string
-			switch fieldId {
+			switch fieldID {
 			// Fields that take a string
 			case objectUserField, objectRoleField, objectTypeField, objectLevelLowField,
 				objectLevelHighField, pathField, dirField, subjectUserField,
@@ -890,7 +890,7 @@ func getArch(arch string) (string, uint32, error) {
 }
 
 // from a rule arch returned by kernel, decide what arch name to display
-func getDisplayArch(archId uint32) (string, error) {
+func getDisplayArch(archID uint32) (string, error) {
 	runtimeArchStr, err := getRuntimeArch()
 	if err != nil {
 		return "", err
@@ -900,7 +900,7 @@ func getDisplayArch(archId uint32) (string, error) {
 		return "", errors.New("current architecture not supported")
 	}
 	runtimeArch := auparse.AuditArch(runtimeArchU32)
-	requestedArch := auparse.AuditArch(archId)
+	requestedArch := auparse.AuditArch(archID)
 	if requestedArch == runtimeArch {
 		switch requestedArch {
 		case auparse.AUDIT_ARCH_AARCH64, auparse.AUDIT_ARCH_X86_64, auparse.AUDIT_ARCH_PPC64:

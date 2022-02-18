@@ -1,15 +1,33 @@
 name: golangci-lint
 on:
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2.5.2
+
+      - name: Read .go-version file
+        id: goversion
+        run: echo "::set-output name=version::$(cat .go-version)"
+
+      - uses: actions/setup-go@v2
         with:
-          version: v1.44.0
-          only-new-issues: true
+          go-version: "${{ steps.goversion.outputs.version }}"
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.44.2
           args: --timeout=5m
+
+          # Ignore pre-existing issues.
+          only-new-issues: true
+
+          # Use the Go version specified in .go-version for consistency.
+          skip-go-installation: true

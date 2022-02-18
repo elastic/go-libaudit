@@ -386,7 +386,7 @@ func (c *AuditClient) SetFailure(fm FailureMode, wm WaitMode) error {
 
 // SetBacklogWaitTime sets the time that the kernel will wait for a buffer in
 // the backlog queue to become available before dropping the event. This has
-// the side-effect of blocking the thread that was invoking the syscall being
+// the side effect of blocking the thread that was invoking the syscall being
 // audited.
 // waitTime is measured in jiffies, default in kernel is 60*HZ (60 seconds).
 // A value of 0 disables the wait time completely, causing the failure mode

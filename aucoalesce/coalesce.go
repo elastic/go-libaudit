@@ -30,6 +30,8 @@ import (
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
 
+func deadcode() {}
+
 // modeBlockDevice is the file mode bit representing block devices. This OS
 // package does not have a constant defined for this.
 const modeBlockDevice = 0o60000

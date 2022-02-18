@@ -17,9 +17,7 @@
 
 package aucoalesce
 
-import (
-	. "github.com/elastic/go-libaudit/v2/auparse"
-)
+import "github.com/elastic/go-libaudit/v2/auparse"
 
 // AuditEventType is a categorization of a simple or compound audit event.
 type AuditEventType uint16
@@ -78,65 +76,65 @@ func (t AuditEventType) MarshalText() (text []byte, err error) {
 	return []byte(t.String()), nil
 }
 
-func GetAuditEventType(t AuditMessageType) AuditEventType {
+func GetAuditEventType(t auparse.AuditMessageType) AuditEventType {
 	// Ported from: https://github.com/linux-audit/audit-userspace/blob/v2.7.5/auparse/normalize.c#L681
 	switch {
-	case t >= AUDIT_USER_AUTH && t <= AUDIT_USER_END,
-		t >= AUDIT_USER_CHAUTHTOK && t <= AUDIT_CRED_REFR,
-		t >= AUDIT_USER_LOGIN && t <= AUDIT_USER_LOGOUT,
-		t == AUDIT_GRP_AUTH:
+	case t >= auparse.AUDIT_USER_AUTH && t <= auparse.AUDIT_USER_END,
+		t >= auparse.AUDIT_USER_CHAUTHTOK && t <= auparse.AUDIT_CRED_REFR,
+		t >= auparse.AUDIT_USER_LOGIN && t <= auparse.AUDIT_USER_LOGOUT,
+		t == auparse.AUDIT_GRP_AUTH:
 		return EventTypeUserLogin
-	case t >= AUDIT_ADD_USER && t <= AUDIT_DEL_GROUP,
-		t >= AUDIT_GRP_MGMT && t <= AUDIT_GRP_CHAUTHTOK,
-		t >= AUDIT_ACCT_LOCK && t <= AUDIT_ACCT_UNLOCK:
+	case t >= auparse.AUDIT_ADD_USER && t <= auparse.AUDIT_DEL_GROUP,
+		t >= auparse.AUDIT_GRP_MGMT && t <= auparse.AUDIT_GRP_CHAUTHTOK,
+		t >= auparse.AUDIT_ACCT_LOCK && t <= auparse.AUDIT_ACCT_UNLOCK:
 		return EventTypeUserAccount
-	case t == AUDIT_KERNEL,
-		t >= AUDIT_SYSTEM_BOOT && t <= AUDIT_SERVICE_STOP:
+	case t == auparse.AUDIT_KERNEL,
+		t >= auparse.AUDIT_SYSTEM_BOOT && t <= auparse.AUDIT_SERVICE_STOP:
 		return EventTypeSystemServices
-	case t == AUDIT_USYS_CONFIG,
-		t == AUDIT_CONFIG_CHANGE,
-		t == AUDIT_NETFILTER_CFG,
-		t >= AUDIT_FEATURE_CHANGE && t <= AUDIT_REPLACE:
+	case t == auparse.AUDIT_USYS_CONFIG,
+		t == auparse.AUDIT_CONFIG_CHANGE,
+		t == auparse.AUDIT_NETFILTER_CFG,
+		t >= auparse.AUDIT_FEATURE_CHANGE && t <= auparse.AUDIT_REPLACE:
 		return EventTypeConfig
-	case t == AUDIT_SECCOMP:
+	case t == auparse.AUDIT_SECCOMP:
 		return EventTypeDACDecision
-	case t >= AUDIT_CHGRP_ID && t <= AUDIT_TRUSTED_APP,
-		t == AUDIT_USER_CMD,
-		t == AUDIT_CHUSER_ID:
+	case t >= auparse.AUDIT_CHGRP_ID && t <= auparse.AUDIT_TRUSTED_APP,
+		t == auparse.AUDIT_USER_CMD,
+		t == auparse.AUDIT_CHUSER_ID:
 		return EventTypeUserspace
-	case t == AUDIT_USER_TTY, t == AUDIT_TTY:
+	case t == auparse.AUDIT_USER_TTY, t == auparse.AUDIT_TTY:
 		return EventTypeTTY
-	case t >= AUDIT_DAEMON_START && t <= AUDIT_LAST_DAEMON:
+	case t >= auparse.AUDIT_DAEMON_START && t <= auparse.AUDIT_LAST_DAEMON:
 		return EventTypeAuditDaemon
-	case t == AUDIT_USER_SELINUX_ERR,
-		t == AUDIT_USER_AVC,
-		t >= AUDIT_APPARMOR_ALLOWED && t <= AUDIT_APPARMOR_DENIED,
-		t == AUDIT_APPARMOR_ERROR,
-		t >= AUDIT_AVC && t <= AUDIT_AVC_PATH:
+	case t == auparse.AUDIT_USER_SELINUX_ERR,
+		t == auparse.AUDIT_USER_AVC,
+		t >= auparse.AUDIT_APPARMOR_ALLOWED && t <= auparse.AUDIT_APPARMOR_DENIED,
+		t == auparse.AUDIT_APPARMOR_ERROR,
+		t >= auparse.AUDIT_AVC && t <= auparse.AUDIT_AVC_PATH:
 		return EventTypeMACDecision
-	case t >= AUDIT_INTEGRITY_DATA && t <= AUDIT_INTEGRITY_LAST_MSG,
-		t == AUDIT_ANOM_RBAC_INTEGRITY_FAIL:
+	case t >= auparse.AUDIT_INTEGRITY_DATA && t <= auparse.AUDIT_INTEGRITY_LAST_MSG,
+		t == auparse.AUDIT_ANOM_RBAC_INTEGRITY_FAIL:
 		return EventTypeIntegrity
-	case t >= AUDIT_ANOM_PROMISCUOUS && t <= AUDIT_LAST_KERN_ANOM_MSG,
-		t >= AUDIT_ANOM_LOGIN_FAILURES && t <= AUDIT_ANOM_RBAC_FAIL,
-		t >= AUDIT_ANOM_CRYPTO_FAIL && t <= AUDIT_LAST_ANOM_MSG:
+	case t >= auparse.AUDIT_ANOM_PROMISCUOUS && t <= auparse.AUDIT_LAST_KERN_ANOM_MSG,
+		t >= auparse.AUDIT_ANOM_LOGIN_FAILURES && t <= auparse.AUDIT_ANOM_RBAC_FAIL,
+		t >= auparse.AUDIT_ANOM_CRYPTO_FAIL && t <= auparse.AUDIT_LAST_ANOM_MSG:
 		return EventTypeAnomaly
-	case t >= AUDIT_RESP_ANOMALY && t <= AUDIT_LAST_ANOM_RESP:
+	case t >= auparse.AUDIT_RESP_ANOMALY && t <= auparse.AUDIT_LAST_ANOM_RESP:
 		return EventTypeAnomalyResponse
-	case t >= AUDIT_MAC_POLICY_LOAD && t <= AUDIT_LAST_SELINUX,
-		t >= AUDIT_AA && t <= AUDIT_APPARMOR_AUDIT,
-		t >= AUDIT_APPARMOR_HINT && t <= AUDIT_APPARMOR_STATUS,
-		t >= AUDIT_USER_ROLE_CHANGE && t <= AUDIT_LAST_USER_LSPP_MSG:
+	case t >= auparse.AUDIT_MAC_POLICY_LOAD && t <= auparse.AUDIT_LAST_SELINUX,
+		t >= auparse.AUDIT_AA && t <= auparse.AUDIT_APPARMOR_AUDIT,
+		t >= auparse.AUDIT_APPARMOR_HINT && t <= auparse.AUDIT_APPARMOR_STATUS,
+		t >= auparse.AUDIT_USER_ROLE_CHANGE && t <= auparse.AUDIT_LAST_USER_LSPP_MSG:
 		return EventTypeMAC
-	case t >= AUDIT_FIRST_KERN_CRYPTO_MSG && t <= AUDIT_LAST_KERN_CRYPTO_MSG,
-		t >= AUDIT_CRYPTO_TEST_USER && t <= AUDIT_LAST_CRYPTO_MSG:
+	case t >= auparse.AUDIT_FIRST_KERN_CRYPTO_MSG && t <= auparse.AUDIT_LAST_KERN_CRYPTO_MSG,
+		t >= auparse.AUDIT_CRYPTO_TEST_USER && t <= auparse.AUDIT_LAST_CRYPTO_MSG:
 		return EventTypeCrypto
-	case t >= AUDIT_VIRT_CONTROL && t <= AUDIT_LAST_VIRT_MSG:
+	case t >= auparse.AUDIT_VIRT_CONTROL && t <= auparse.AUDIT_LAST_VIRT_MSG:
 		return EventTypeVirt
-	case t >= AUDIT_SYSCALL && t <= AUDIT_SOCKETCALL,
-		t >= AUDIT_SOCKADDR && t <= AUDIT_MQ_GETSETATTR,
-		t >= AUDIT_FD_PAIR && t <= AUDIT_OBJ_PID,
-		t >= AUDIT_BPRM_FCAPS && t <= AUDIT_NETFILTER_PKT:
+	case t >= auparse.AUDIT_SYSCALL && t <= auparse.AUDIT_SOCKETCALL,
+		t >= auparse.AUDIT_SOCKADDR && t <= auparse.AUDIT_MQ_GETSETATTR,
+		t >= auparse.AUDIT_FD_PAIR && t <= auparse.AUDIT_OBJ_PID,
+		t >= auparse.AUDIT_BPRM_FCAPS && t <= auparse.AUDIT_NETFILTER_PKT:
 		return EventTypeAuditRule
 	default:
 		return EventTypeUnknown

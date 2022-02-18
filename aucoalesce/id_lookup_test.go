@@ -28,11 +28,11 @@ import (
 
 func TestUIDLookup(t *testing.T) {
 	uid := os.Getuid()
+	assert.NotPanics(t, func() { userLookup.LookupID(strconv.Itoa(uid)) })
 	user := userLookup.LookupID(strconv.Itoa(uid))
-	user = userLookup.LookupID(strconv.Itoa(uid))
 	gid := os.Getgid()
+	assert.NotPanics(t, func() { groupLookup.LookupID(strconv.Itoa(gid)) })
 	group := groupLookup.LookupID(strconv.Itoa(gid))
-	group = groupLookup.LookupID(strconv.Itoa(gid))
 
 	t.Log(user, group)
 }

@@ -90,12 +90,9 @@ func processLogs() error {
 	go func() {
 		t := time.NewTicker(500 * time.Millisecond)
 		defer t.Stop()
-		for {
-			select {
-			case <-t.C:
-				if reassembler.Maintain() != nil {
-					return
-				}
+		for range t.C {
+			if reassembler.Maintain() != nil {
+				return
 			}
 		}
 	}()

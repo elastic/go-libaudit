@@ -238,7 +238,7 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 		case fieldCompare:
 			fieldIds, found := reverseComparisonsTable[comparison(r.values[idx])]
 			if !found {
-				return "", errors.New("comparision code not valid")
+				return "", errors.New("comparison code not valid")
 			}
 			if fieldIds[1] < fieldIds[0] {
 				fieldIds[0], fieldIds[1] = fieldIds[1], fieldIds[0]

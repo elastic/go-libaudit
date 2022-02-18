@@ -893,7 +893,7 @@ func kernelVersion() (major, minor int, err error) {
 	// As all major non-Intel architecture return []uint8 instead of []int8 for Utsname.Release following conversion is required
 	temp := make([]int8, len(s))
 	for index, num := range s {
-		temp[index] = int8(num)
+		temp[index] = num
 	}
 
 	major, pos := extractDecimalNumber(temp, 0)

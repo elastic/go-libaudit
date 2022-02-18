@@ -90,8 +90,7 @@ func testRulesFromGoldenFile(t *testing.T, goldenFile string) {
 					t.Fatal("rule:", test.Flags, "error:", err)
 				}
 
-				switch v := r.(type) {
-				case *rule.FileWatchRule:
+				if v, ok := r.(*rule.FileWatchRule); ok {
 					mkdirTempPaths(t, v.Path)
 				}
 

@@ -153,7 +153,7 @@ var (
 
 func resolveFieldReference(fieldRef string) (ref readReference) {
 	if ref = fromFieldReferences[fieldRef]; ref != nil {
-		return
+		return ref
 	}
 	if dot := strings.IndexByte(fieldRef, '.'); dot != -1 {
 		dict := fieldRef[:dot]

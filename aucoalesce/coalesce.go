@@ -476,7 +476,7 @@ func applyNormalization(event *Event) {
 		default:
 			for _, n := range norms {
 				for _, f := range n.HasFields.Values {
-					if _, found := event.Data[f]; !found {
+					if _, found := event.Data[f]; !found { //nolint:staticcheck
 						continue
 					}
 				}

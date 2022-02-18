@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"os"
@@ -149,8 +150,9 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	args := strings.Fields(command)
 	_, err = exec.Command("auditctl", args...).Output()
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			t.Fatalf("command=auditctl %v, stderr=%v, err=%v", command, string(exitError.Stderr), err)
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			t.Fatalf("command=auditctl %v, stderr=%v, err=%v", command, string(exitErr.Stderr), err)
 		}
 		t.Fatal(err)
 	}

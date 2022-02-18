@@ -48,7 +48,7 @@ type ECSEntityData struct {
 }
 
 type ECSEntity struct {
-	ECSEntityData `json:",inline" yaml:",inline"`
+	ECSEntityData `yaml:",inline"`
 	Effective     ECSEntityData `json:"effective" yaml:"effective"`
 	Target        ECSEntityData `json:"target" yaml:"target"`
 	Changes       ECSEntityData `json:"changes" yaml:"changes"`

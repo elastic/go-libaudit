@@ -61,7 +61,7 @@ type testEventOutput struct {
 }
 
 func newTestEventOutput(testName string, event *Event) testEventOutput {
-	var errs []string
+	errs := make([]string, 0, len(event.Warnings))
 	for _, err := range event.Warnings {
 		errs = append(errs, err.Error())
 	}
@@ -72,7 +72,7 @@ func newTestEventOutput(testName string, event *Event) testEventOutput {
 func testCoalesceEvent(t *testing.T, file string) {
 	testEvents := readEventsFromYAML(t, file)
 
-	var events []testEventOutput
+	events := make([]testEventOutput, 0, len(testEvents))
 	for _, te := range testEvents {
 		event, err := CoalesceMessages(te.messages)
 		if err != nil {
@@ -130,7 +130,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 	}
 
 	// Create test cases from YAML file.
-	var testEvents []testEvent
+	testEvents := make([]testEvent, 0, len(cases))
 	for name, messages := range cases {
 		var msgs []*auparse.AuditMessage
 

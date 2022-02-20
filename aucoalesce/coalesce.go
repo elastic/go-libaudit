@@ -517,7 +517,7 @@ func applyNormalization(event *Event) {
 		setFileObject(event, norm.Object.PathIndex) //nolint:errcheck
 	case "socket":
 		event.Summary.Object.Type = norm.Object.What
-		setSocketObject(event) //nolint:errcheck
+		setSocketObject(event)
 	default:
 		event.Summary.Object.Type = norm.Object.What
 	}
@@ -763,7 +763,7 @@ func addFileSELinuxLabel(key, value string, event *Event) {
 	event.File.SELinux[key] = value
 }
 
-func setSocketObject(event *Event) error {
+func setSocketObject(event *Event) {
 	value, found := event.Data["socket_addr"]
 	if found {
 		event.Summary.Object.Primary = value
@@ -778,7 +778,6 @@ func setSocketObject(event *Event) error {
 	if found {
 		event.Summary.Object.Secondary = value
 	}
-	return nil
 }
 
 func setHowDefaults(event *Event) {

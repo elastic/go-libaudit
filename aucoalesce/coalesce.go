@@ -474,10 +474,12 @@ func applyNormalization(event *Event) {
 		case 1:
 			norm = norms[0]
 		default:
+		nextNorm:
 			for _, n := range norms {
+				// Select normalization if all 'has_fields' are present.
 				for _, f := range n.HasFields.Values {
 					if _, found := event.Data[f]; !found {
-						continue
+						continue nextNorm
 					}
 				}
 				norm = n

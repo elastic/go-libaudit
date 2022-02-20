@@ -142,7 +142,7 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer client.DeleteRules()
+	defer deleteRules(t, client)
 
 	// Replace paths with ones in a temp dir for test environment consistency.
 	command = makePaths(t, tempDir, command)
@@ -199,4 +199,12 @@ func makePaths(t testing.TB, tmpDir, rule string) string {
 
 	substitution := "$1" + filepath.Join(tmpDir, "$2")
 	return re.ReplaceAllString(rule, substitution)
+}
+
+func deleteRules(t testing.TB, client *libaudit.AuditClient) {
+	t.Helper()
+
+	if _, err := client.DeleteRules(); err != nil {
+		t.Errorf("failed to delete rules: %v", err)
+	}
 }

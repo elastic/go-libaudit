@@ -106,12 +106,6 @@ issues:
    - EXC0014
 
   exclude-rules:
-    # Ignore DeleteRules test cleanup error checks.
-    - path: '(.+)_test\.go'
-      linters:
-        - errcheck
-      text: 'DeleteRules'
-
     # Ignore output Write/WriteString error checks in tests.
     - path: '(.+)_test\.go'
       linters:

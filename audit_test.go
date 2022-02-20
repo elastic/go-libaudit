@@ -176,7 +176,7 @@ func TestAddRule(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer c.Close()
-	defer c.DeleteRules()
+	defer deleteRules(t, c)
 
 	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
 	if err := c.AddRule(rawRule); err != nil {
@@ -205,7 +205,7 @@ func TestAddDuplicateRule(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer c.Close()
-	defer c.DeleteRules()
+	defer deleteRules(t, c)
 
 	// Add first rule.
 	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
@@ -897,4 +897,12 @@ func kernelVersion() (major, minor int, err error) {
 	major, pos := extractDecimalNumber(temp, 0)
 	minor, _ = extractDecimalNumber(temp, pos)
 	return major, minor, nil
+}
+
+func deleteRules(t testing.TB, client *AuditClient) {
+	t.Helper()
+
+	if _, err := client.DeleteRules(); err != nil {
+		t.Errorf("failed to delete rules: %v", err)
+	}
 }

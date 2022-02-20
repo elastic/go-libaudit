@@ -514,7 +514,11 @@ func applyNormalization(event *Event) {
 	switch norm.Object.What {
 	case "file", "filesystem":
 		event.Summary.Object.Type = norm.Object.What
-		setFileObject(event, norm.Object.PathIndex) //nolint:errcheck
+		if len(event.Paths) > 0 {
+			if err := setFileObject(event, norm.Object.PathIndex); err != nil {
+				event.Warnings = append(event.Warnings, fmt.Errorf("failed to set file object: %w", err))
+			}
+		}
 	case "socket":
 		event.Summary.Object.Type = norm.Object.What
 		setSocketObject(event)

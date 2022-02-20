@@ -45,7 +45,9 @@ var (
 )
 
 func main() {
-	fs.Parse(os.Args[1:]) //nolint:errcheck
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := read(); err != nil {
 		log.Fatalf("error: %v", err)

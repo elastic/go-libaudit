@@ -300,8 +300,7 @@ func (c *AuditClient) AddRule(rule []byte) error {
 	}
 
 	if err = ParseNetlinkError(ack.Data); err != nil {
-		var errno syscall.Errno
-		if errors.As(err, &errno) && errno == syscall.EEXIST {
+		if errors.Is(err, syscall.EEXIST) {
 			return errors.New("rule exists")
 		}
 		return fmt.Errorf("error adding audit rule: %w", err)

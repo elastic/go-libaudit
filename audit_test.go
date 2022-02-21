@@ -873,11 +873,10 @@ func TestRuleParsing(t *testing.T) {
 }
 
 func extractDecimalNumber(s []int8, pos int) (value, nextPos int) {
-	const aZero, aNine int8 = 0x30, 0x39
 	for value = 0; ; pos++ {
 		c := s[pos]
-		if c >= aZero && c <= aNine {
-			value = value*10 + int(c-aZero)
+		if '0' <= c && c <= '9' {
+			value = value*10 + int(c-'0')
 			continue
 		}
 		return value, pos + 1

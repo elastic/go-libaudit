@@ -27,10 +27,12 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var update = flag.Bool("update", false, "update .golden files")
@@ -316,6 +318,30 @@ func BenchmarkParseAuditHeaderRegex(b *testing.B) {
 		msec, _ := strconv.ParseInt(matches[2], 10, 64)
 		_ = time.Unix(sec, msec*int64(time.Millisecond))
 		_, _ = strconv.Atoi(matches[3])
+	}
+}
+
+func BenchmarkParseLogLine(b *testing.B) {
+	// Build corpus of valid messages from the test data.
+	files, err := filepath.Glob("testdata/*.log")
+	require.NoError(b, err)
+	var msgs []string
+	for _, f := range files {
+		data, err := ioutil.ReadFile(f)
+		require.NoError(b, err)
+		for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+			if _, err = ParseLogLine(line); err == nil {
+				msgs = append(msgs, line)
+			}
+		}
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		msg := msgs[i%len(msgs)]
+		if _, err = ParseLogLine(msg); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 

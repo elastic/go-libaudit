@@ -29,6 +29,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
@@ -207,4 +208,20 @@ func normalizeEvent(t testing.TB, event testEventOutput) map[string]interface{} 
 		t.Fatal(err)
 	}
 	return out
+}
+
+func BenchmarkCoalesceMessages(b *testing.B) {
+	files, err := filepath.Glob("testdata/*.yaml")
+	require.NoError(b, err)
+	var events []testEvent
+	for _, f := range files {
+		events = append(events, readEventsFromYAML(b, f)...)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := CoalesceMessages(events[i%len(events)].messages); err != nil {
+			b.Fatal(err)
+		}
+	}
 }

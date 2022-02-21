@@ -388,14 +388,14 @@ type ruleData struct {
 	arch string
 }
 
-func (rule ruleData) toAuditRuleData() (*auditRuleData, error) {
+func (r ruleData) toAuditRuleData() (*auditRuleData, error) {
 	data := &auditRuleData{auditRuleHeader: auditRuleHeader{
-		Flags:      rule.flags,
-		Action:     rule.action,
-		FieldCount: uint32(len(rule.fields)),
+		Flags:      r.flags,
+		Action:     r.action,
+		FieldCount: uint32(len(r.fields)),
 	}}
 
-	if rule.allSyscalls {
+	if r.allSyscalls {
 		for i := range data.Mask {
 			data.Mask[i] = 0xFFFFFFFF
 		}
@@ -403,7 +403,7 @@ func (rule ruleData) toAuditRuleData() (*auditRuleData, error) {
 		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
 		data.Mask[len(data.Mask)-1] = 0x0000FFFF
 	} else {
-		for _, syscallNum := range rule.syscalls {
+		for _, syscallNum := range r.syscalls {
 			word := syscallNum / 32
 			bit := 1 << (syscallNum - (word * 32))
 			if int(word) > len(data.Mask) {
@@ -413,16 +413,16 @@ func (rule ruleData) toAuditRuleData() (*auditRuleData, error) {
 		}
 	}
 
-	if len(rule.fields) > len(data.Fields) {
+	if len(r.fields) > len(data.Fields) {
 		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(data.Fields))
 	}
-	for i := range rule.fields {
-		data.Fields[i] = rule.fields[i]
-		data.FieldFlags[i] = rule.fieldFlags[i]
-		data.Values[i] = rule.values[i]
+	for i := range r.fields {
+		data.Fields[i] = r.fields[i]
+		data.FieldFlags[i] = r.fieldFlags[i]
+		data.Values[i] = r.values[i]
 	}
 
-	for _, s := range rule.strings {
+	for _, s := range r.strings {
 		data.Buf = append(data.Buf, []byte(s)...)
 	}
 	data.BufLen = uint32(len(data.Buf))
@@ -430,33 +430,33 @@ func (rule ruleData) toAuditRuleData() (*auditRuleData, error) {
 	return data, nil
 }
 
-func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
-	rule.flags = in.Flags
-	rule.action = in.Action
-	rule.fields = make([]field, in.FieldCount)
-	rule.allSyscalls = true
-	for i := 0; rule.allSyscalls && i < len(in.Mask)-1; i++ {
-		rule.allSyscalls = in.Mask[i] == 0xFFFFFFFF
+func (r *ruleData) fromAuditRuleData(in *auditRuleData) error {
+	r.flags = in.Flags
+	r.action = in.Action
+	r.fields = make([]field, in.FieldCount)
+	r.allSyscalls = true
+	for i := 0; r.allSyscalls && i < len(in.Mask)-1; i++ {
+		r.allSyscalls = in.Mask[i] == 0xFFFFFFFF
 	}
-	if !rule.allSyscalls {
+	if !r.allSyscalls {
 		for word, bits := range in.Mask {
 			for bit := uint32(0); bit < 32; bit++ {
 				if bits&(1<<bit) != 0 {
-					rule.syscalls = append(rule.syscalls, uint32(word)*32+bit)
+					r.syscalls = append(r.syscalls, uint32(word)*32+bit)
 				}
 			}
 		}
 	}
-	rule.fields = make([]field, in.FieldCount)
-	rule.fieldFlags = make([]operator, in.FieldCount)
-	rule.values = make([]uint32, in.FieldCount)
+	r.fields = make([]field, in.FieldCount)
+	r.fieldFlags = make([]operator, in.FieldCount)
+	r.values = make([]uint32, in.FieldCount)
 
 	offset := uint32(0)
 	for i := uint32(0); i < in.FieldCount; i++ {
-		rule.fields[i] = in.Fields[i]
-		rule.fieldFlags[i] = in.FieldFlags[i]
-		rule.values[i] = in.Values[i]
-		switch rule.fields[i] {
+		r.fields[i] = in.Fields[i]
+		r.fieldFlags[i] = in.FieldFlags[i]
+		r.values[i] = in.Values[i]
+		switch r.fields[i] {
 		case objectUserField, objectRoleField, objectTypeField, objectLevelLowField,
 			objectLevelHighField, pathField, dirField, subjectUserField,
 			subjectRoleField, subjectTypeField, subjectSensitivityField,
@@ -465,7 +465,7 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 			if end > in.BufLen {
 				return fmt.Errorf("field %d overflows buffer", i)
 			}
-			rule.strings = append(rule.strings, string(in.Buf[offset:end]))
+			r.strings = append(r.strings, string(in.Buf[offset:end]))
 			offset = end
 		}
 	}
@@ -473,16 +473,16 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 	return nil
 }
 
-func (rule *ruleData) setList(list string) error {
+func (r *ruleData) setList(list string) error {
 	switch list {
 	case "exit":
-		rule.flags = exitFilter
+		r.flags = exitFilter
 	case "task":
-		rule.flags = taskFilter
+		r.flags = taskFilter
 	case "user":
-		rule.flags = userFilter
+		r.flags = userFilter
 	case "exclude":
-		rule.flags = excludeFilter
+		r.flags = excludeFilter
 	default:
 		return fmt.Errorf("invalid list '%v'", list)
 	}
@@ -490,8 +490,8 @@ func (rule *ruleData) setList(list string) error {
 	return nil
 }
 
-func (rule *ruleData) getList() (string, error) {
-	switch rule.flags {
+func (r *ruleData) getList() (string, error) {
+	switch r.flags {
 	case exitFilter:
 		return "exit", nil
 	case taskFilter:
@@ -501,16 +501,16 @@ func (rule *ruleData) getList() (string, error) {
 	case excludeFilter:
 		return "exclude", nil
 	default:
-		return "", fmt.Errorf("invalid list flag '%v'", rule.flags)
+		return "", fmt.Errorf("invalid list flag '%v'", r.flags)
 	}
 }
 
-func (rule *ruleData) setAction(action string) error {
+func (r *ruleData) setAction(action string) error {
 	switch action {
 	case "always":
-		rule.action = alwaysAction
+		r.action = alwaysAction
 	case "never":
-		rule.action = neverAction
+		r.action = neverAction
 	default:
 		return fmt.Errorf("invalid action '%v'", action)
 	}
@@ -518,14 +518,14 @@ func (rule *ruleData) setAction(action string) error {
 	return nil
 }
 
-func (rule *ruleData) getAction() (string, error) {
-	switch rule.action {
+func (r *ruleData) getAction() (string, error) {
+	switch r.action {
 	case alwaysAction:
 		return "always", nil
 	case neverAction:
 		return "never", nil
 	default:
-		return "", fmt.Errorf("invalid action '%v'", rule.action)
+		return "", fmt.Errorf("invalid action '%v'", r.action)
 	}
 }
 

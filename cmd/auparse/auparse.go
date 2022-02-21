@@ -121,12 +121,12 @@ type streamHandler struct {
 
 func (s *streamHandler) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 	if err := s.outputMultipleMessages(msgs); err != nil {
-		log.Printf("[WARN] Failed writing message to output: %v", err)
+		log.Printf("[WARN] failed writing message to output: %v", err)
 	}
 }
 
 func (*streamHandler) EventsLost(count int) {
-	log.Printf("Detected the loss of %v sequences.", count)
+	log.Printf("detected the loss of %v sequences.", count)
 }
 
 func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) error {
@@ -145,7 +145,7 @@ func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) err
 
 	event, err := aucoalesce.CoalesceMessages(msgs)
 	if err != nil {
-		log.Printf("Failed to coalesce messages: %v", err)
+		log.Printf("failed to coalesce messages: %v", err)
 		return nil
 	}
 
@@ -156,14 +156,14 @@ func (s *streamHandler) outputMultipleMessages(msgs []*auparse.AuditMessage) err
 	switch *format {
 	case "json":
 		if err := s.printJSON(event); err != nil {
-			log.Printf("Failed to marshal event to JSON: %v", err)
+			log.Printf("failed to marshal event to JSON: %v", err)
 		}
 	case "yaml":
 		if _, err := s.output.Write([]byte("---\n")); err != nil {
 			return err
 		}
 		if err := s.printYAML(event); err != nil {
-			log.Printf("Failed to marshal message to YAML: %v", err)
+			log.Printf("failed to marshal message to YAML: %v", err)
 		}
 	default:
 		sm := event.Summary
@@ -188,11 +188,11 @@ func (s *streamHandler) outputSingleMessage(m *auparse.AuditMessage) error {
 	switch *format {
 	case "json":
 		if err := s.printJSON(m.ToMapStr()); err != nil {
-			log.Printf("Failed to marshal message to JSON: %v", err)
+			log.Printf("failed to marshal message to JSON: %v", err)
 		}
 	case "yaml":
 		if err := s.printYAML(m.ToMapStr()); err != nil {
-			log.Printf("Failed to marshal message to YAML: %v", err)
+			log.Printf("failed to marshal message to YAML: %v", err)
 		}
 	default:
 		if _, err := fmt.Fprintf(

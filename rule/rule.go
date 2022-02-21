@@ -541,30 +541,27 @@ func addSyscall(rule *ruleData, syscall string) error {
 
 	syscallNum, err := strconv.Atoi(syscall)
 	if err != nil {
-		var nerr *strconv.NumError
-		if errors.As(err, &nerr) {
-			if !errors.Is(nerr.Err, strconv.ErrSyntax) {
-				return fmt.Errorf("failed to parse syscall number '%v': %w", syscall, err)
-			}
+		if !errors.Is(err, strconv.ErrSyntax) {
+			return fmt.Errorf("failed to parse syscall number '%v': %w", syscall, err)
+		}
 
-			arch := rule.arch
-			if arch == "" {
-				arch, err = getRuntimeArch()
-				if err != nil {
-					return fmt.Errorf("failed to add syscall: %w", err)
-				}
+		arch := rule.arch
+		if arch == "" {
+			arch, err = getRuntimeArch()
+			if err != nil {
+				return fmt.Errorf("failed to add syscall: %w", err)
 			}
+		}
 
-			// Convert name to number.
-			table, found := reverseSyscall[arch]
-			if !found {
-				return fmt.Errorf("syscall table not found for arch %v", arch)
-			}
+		// Convert name to number.
+		table, found := reverseSyscall[arch]
+		if !found {
+			return fmt.Errorf("syscall table not found for arch %v", arch)
+		}
 
-			syscallNum, found = table[syscall]
-			if !found {
-				return fmt.Errorf("unknown syscall '%v' for arch %v", syscall, arch)
-			}
+		syscallNum, found = table[syscall]
+		if !found {
+			return fmt.Errorf("unknown syscall '%v' for arch %v", syscall, arch)
 		}
 	}
 
@@ -775,21 +772,18 @@ func getUID(uid string) (uint32, error) {
 
 	v, err := strconv.ParseUint(uid, 10, 32)
 	if err != nil {
-		var nerr *strconv.NumError
-		if errors.As(err, &nerr) {
-			if !errors.Is(nerr.Err, strconv.ErrSyntax) {
-				return 0, fmt.Errorf("failed to parse uid '%v': %w", uid, err)
-			}
+		if !errors.Is(err, strconv.ErrSyntax) {
+			return 0, fmt.Errorf("failed to parse uid '%v': %w", uid, err)
+		}
 
-			u, err := user.Lookup(uid)
-			if err != nil {
-				return 0, fmt.Errorf("failed to convert user '%v' to a numeric ID: %w", uid, err)
-			}
+		u, err := user.Lookup(uid)
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert user '%v' to a numeric ID: %w", uid, err)
+		}
 
-			v, err = strconv.ParseUint(u.Uid, 10, 32)
-			if err != nil {
-				return 0, fmt.Errorf("failed to parse uid '%v' belonging to user '%v': %w", u.Uid, u.Username, err)
-			}
+		v, err = strconv.ParseUint(u.Uid, 10, 32)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse uid '%v' belonging to user '%v': %w", u.Uid, u.Username, err)
 		}
 	}
 
@@ -799,21 +793,18 @@ func getUID(uid string) (uint32, error) {
 func getGID(gid string) (uint32, error) {
 	v, err := strconv.ParseUint(gid, 10, 32)
 	if err != nil {
-		var nerr *strconv.NumError
-		if errors.As(err, &nerr) {
-			if !errors.Is(nerr.Err, strconv.ErrSyntax) {
-				return 0, fmt.Errorf("failed to parse gid '%v': %w", gid, err)
-			}
+		if !errors.Is(err, strconv.ErrSyntax) {
+			return 0, fmt.Errorf("failed to parse gid '%v': %w", gid, err)
+		}
 
-			g, err := user.LookupGroup(gid)
-			if err != nil {
-				return 0, fmt.Errorf("failed to convert group '%v' to a numeric ID: %w", gid, err)
-			}
+		g, err := user.LookupGroup(gid)
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert group '%v' to a numeric ID: %w", gid, err)
+		}
 
-			v, err = strconv.ParseUint(g.Gid, 10, 32)
-			if err != nil {
-				return 0, fmt.Errorf("failed to parse gid '%v' belonging to group '%v': %w", g.Gid, g.Name, err)
-			}
+		v, err = strconv.ParseUint(g.Gid, 10, 32)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse gid '%v' belonging to group '%v': %w", g.Gid, g.Name, err)
 		}
 	}
 
@@ -823,25 +814,22 @@ func getGID(gid string) (uint32, error) {
 func getExitCode(exit string) (int32, error) {
 	v, err := strconv.ParseInt(exit, 0, 32)
 	if err != nil {
-		var nerr *strconv.NumError
-		if errors.As(err, &nerr) {
-			if !errors.Is(nerr.Err, strconv.ErrSyntax) {
-				return 0, fmt.Errorf("failed to parse exit code '%v': %w", exit, err)
-			}
-
-			sign := 1
-			code := exit
-			if strings.HasPrefix(exit, "-") {
-				sign = -1
-				code = exit[1:]
-			}
-
-			num, found := auparse.AuditErrnoToNum[code]
-			if !found {
-				return 0, fmt.Errorf("failed to convert error to exit code '%v'", exit)
-			}
-			v = int64(sign * num)
+		if !errors.Is(err, strconv.ErrSyntax) {
+			return 0, fmt.Errorf("failed to parse exit code '%v': %w", exit, err)
 		}
+
+		sign := 1
+		code := exit
+		if strings.HasPrefix(exit, "-") {
+			sign = -1
+			code = exit[1:]
+		}
+
+		num, found := auparse.AuditErrnoToNum[code]
+		if !found {
+			return 0, fmt.Errorf("failed to convert error to exit code '%v'", exit)
+		}
+		v = int64(sign * num)
 	}
 
 	return int32(v), nil
@@ -953,18 +941,15 @@ func getRuntimeArch() (string, error) {
 func getAuditMsgType(msgType string) (uint32, error) {
 	v, err := strconv.ParseUint(msgType, 0, 32)
 	if err != nil {
-		var nerr *strconv.NumError
-		if errors.As(err, &nerr) {
-			if !errors.Is(nerr.Err, strconv.ErrSyntax) {
-				return 0, fmt.Errorf("failed to parse msgtype '%v': %w", msgType, err)
-			}
-
-			typ, err := auparse.GetAuditMessageType(msgType)
-			if err != nil {
-				return 0, fmt.Errorf("failed to convert msgtype '%v' to numeric value: %w", msgType, err)
-			}
-			v = uint64(typ)
+		if !errors.Is(err, strconv.ErrSyntax) {
+			return 0, fmt.Errorf("failed to parse msgtype '%v': %w", msgType, err)
 		}
+
+		typ, err := auparse.GetAuditMessageType(msgType)
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert msgtype '%v' to numeric value: %w", msgType, err)
+		}
+		v = uint64(typ)
 	}
 
 	return uint32(v), nil

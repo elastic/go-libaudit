@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"os"
@@ -141,7 +142,7 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer client.DeleteRules()
+	defer deleteRules(t, client)
 
 	// Replace paths with ones in a temp dir for test environment consistency.
 	command = makePaths(t, tempDir, command)
@@ -149,8 +150,9 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	args := strings.Fields(command)
 	_, err = exec.Command("auditctl", args...).Output()
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			t.Fatalf("command=auditctl %v, stderr=%v, err=%v", command, string(exitError.Stderr), err)
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			t.Fatalf("command=auditctl %v, stderr=%v, err=%v", command, string(exitErr.Stderr), err)
 		}
 		t.Fatal(err)
 	}
@@ -171,7 +173,7 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 // a regular file or directory, then updates the paths to point to the one
 // created for the test. It returns the updated command that contains the test
 // paths.
-func makePaths(t testing.TB, tmpDir string, rule string) string {
+func makePaths(t testing.TB, tmpDir, rule string) string {
 	re := regexp.MustCompile(`(-w |dir=|path=)/(\S+)`)
 	matches := re.FindAllStringSubmatch(rule, -1)
 	for _, match := range matches {
@@ -197,4 +199,12 @@ func makePaths(t testing.TB, tmpDir string, rule string) string {
 
 	substitution := "$1" + filepath.Join(tmpDir, "$2")
 	return re.ReplaceAllString(rule, substitution)
+}
+
+func deleteRules(t testing.TB, client *libaudit.AuditClient) {
+	t.Helper()
+
+	if _, err := client.DeleteRules(); err != nil {
+		t.Errorf("failed to delete rules: %v", err)
+	}
 }

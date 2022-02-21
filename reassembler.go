@@ -98,7 +98,7 @@ func (r *Reassembler) PushMessage(msg *auparse.AuditMessage) {
 // timestamp and sequence number. If parsing fails then an error will be
 // returned. See PushMessage.
 func (r *Reassembler) Push(typ auparse.AuditMessageType, rawData []byte) error {
-	msg, err := auparse.Parse(auparse.AuditMessageType(typ), string(rawData))
+	msg, err := auparse.Parse(typ, string(rawData))
 	if err != nil {
 		return err
 	}

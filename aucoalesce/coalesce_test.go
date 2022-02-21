@@ -61,7 +61,7 @@ type testEventOutput struct {
 }
 
 func newTestEventOutput(testName string, event *Event) testEventOutput {
-	var errs []string
+	errs := make([]string, 0, len(event.Warnings))
 	for _, err := range event.Warnings {
 		errs = append(errs, err.Error())
 	}
@@ -72,7 +72,7 @@ func newTestEventOutput(testName string, event *Event) testEventOutput {
 func testCoalesceEvent(t *testing.T, file string) {
 	testEvents := readEventsFromYAML(t, file)
 
-	var events []testEventOutput
+	events := make([]testEventOutput, 0, len(testEvents))
 	for _, te := range testEvents {
 		event, err := CoalesceMessages(te.messages)
 		if err != nil {
@@ -130,7 +130,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 	}
 
 	// Create test cases from YAML file.
-	var testEvents []testEvent
+	testEvents := make([]testEvent, 0, len(cases))
 	for name, messages := range cases {
 		var msgs []*auparse.AuditMessage
 
@@ -160,9 +160,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 }
 
 func writeGoldenFile(name string, events []testEventOutput) error {
-	if strings.HasSuffix(name, ".yaml") {
-		name = name[:len(name)-len(".yaml")]
-	}
+	name = strings.TrimSuffix(name, ".yaml")
 
 	f, err := os.Create(name + ".json.golden")
 	if err != nil {
@@ -183,9 +181,7 @@ func writeGoldenFile(name string, events []testEventOutput) error {
 }
 
 func readGoldenFile(name string) ([]map[string]interface{}, error) {
-	if strings.HasSuffix(name, ".yaml") {
-		name = name[:len(name)-len(".yaml")]
-	}
+	name = strings.TrimSuffix(name, ".yaml")
 
 	data, err := ioutil.ReadFile(name + ".json.golden")
 	if err != nil {

@@ -124,8 +124,8 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	}
 
 	existingFields := make(map[field]int)
-	for idx, fieldId := range r.fields {
-		existingFields[fieldId] = idx
+	for idx, fieldID := range r.fields {
+		existingFields[fieldID] = idx
 	}
 
 	// Detect if rule is a watch.
@@ -135,13 +135,13 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 		extraFields, pos := false, 0
 		var path, key string
 	loop:
-		for _, fieldId := range r.fields {
-			switch fieldId {
+		for _, fieldID := range r.fields {
+			switch fieldID {
 			case keyField, pathField, dirField:
 				if pos >= len(r.strings) {
-					return "", fmt.Errorf("no buffer data for path field %d", fieldId)
+					return "", fmt.Errorf("no buffer data for path field %d", fieldID)
 				}
-				if fieldId == keyField {
+				if fieldID == keyField {
 					key = r.strings[pos]
 				} else {
 					path = r.strings[pos]
@@ -215,10 +215,10 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			return "", fmt.Errorf("no syscall table for arch %s", arch)
 		}
 		list := make([]string, len(r.syscalls))
-		for idx, syscallId := range r.syscalls {
-			list[idx], ok = syscallTable[int(syscallId)]
+		for idx, syscallID := range r.syscalls {
+			list[idx], ok = syscallTable[int(syscallID)]
 			if !ok {
-				return "", fmt.Errorf("syscall %d not found for arch %s", syscallId, arch)
+				return "", fmt.Errorf("syscall %d not found for arch %s", syscallID, arch)
 			}
 		}
 
@@ -227,18 +227,18 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 
 	// Parse fields
 	stringIndex := 0
-	for idx, fieldId := range r.fields {
+	for idx, fieldID := range r.fields {
 		op, found := reverseOperatorsTable[r.fieldFlags[idx]]
 		if !found {
 			return "", fmt.Errorf("field operator %x not found", r.fieldFlags[idx])
 		}
-		switch fieldId {
+		switch fieldID {
 		case archField:
 			// arch already handled
 		case fieldCompare:
 			fieldIds, found := reverseComparisonsTable[comparison(r.values[idx])]
 			if !found {
-				return "", errors.New("comparision code not valid")
+				return "", errors.New("comparison code not valid")
 			}
 			if fieldIds[1] < fieldIds[0] {
 				fieldIds[0], fieldIds[1] = fieldIds[1], fieldIds[0]
@@ -253,13 +253,13 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 				fields[0], op, fields[1]))
 
 		default:
-			lhs, found := reverseFieldsTable[fieldId]
+			lhs, found := reverseFieldsTable[fieldID]
 			if !found {
-				return "", fmt.Errorf("field %x not found", fieldId)
+				return "", fmt.Errorf("field %x not found", fieldID)
 			}
 			value := r.values[idx]
 			var rhs string
-			switch fieldId {
+			switch fieldID {
 			// Fields that take a string
 			case objectUserField, objectRoleField, objectTypeField, objectLevelLowField,
 				objectLevelHighField, pathField, dirField, subjectUserField,
@@ -388,75 +388,75 @@ type ruleData struct {
 	arch string
 }
 
-func (d ruleData) toAuditRuleData() (*auditRuleData, error) {
-	rule := &auditRuleData{auditRuleHeader: auditRuleHeader{
-		Flags:      d.flags,
-		Action:     d.action,
-		FieldCount: uint32(len(d.fields)),
+func (r ruleData) toAuditRuleData() (*auditRuleData, error) {
+	data := &auditRuleData{auditRuleHeader: auditRuleHeader{
+		Flags:      r.flags,
+		Action:     r.action,
+		FieldCount: uint32(len(r.fields)),
 	}}
 
-	if d.allSyscalls {
-		for i := range rule.Mask {
-			rule.Mask[i] = 0xFFFFFFFF
+	if r.allSyscalls {
+		for i := range data.Mask {
+			data.Mask[i] = 0xFFFFFFFF
 		}
 		// NOTE: This was added to match the binary output when listing rules
 		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
-		rule.Mask[len(rule.Mask)-1] = 0x0000FFFF
+		data.Mask[len(data.Mask)-1] = 0x0000FFFF
 	} else {
-		for _, syscallNum := range d.syscalls {
+		for _, syscallNum := range r.syscalls {
 			word := syscallNum / 32
 			bit := 1 << (syscallNum - (word * 32))
-			if int(word) > len(rule.Mask) {
+			if int(word) > len(data.Mask) {
 				return nil, fmt.Errorf("invalid syscall number %v", syscallNum)
 			}
-			rule.Mask[word] |= uint32(bit)
+			data.Mask[word] |= uint32(bit)
 		}
 	}
 
-	if len(d.fields) > len(rule.Fields) {
-		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(rule.Fields))
+	if len(r.fields) > len(data.Fields) {
+		return nil, fmt.Errorf("too many filters and keys, only %v total are supported", len(data.Fields))
 	}
-	for i := range d.fields {
-		rule.Fields[i] = d.fields[i]
-		rule.FieldFlags[i] = d.fieldFlags[i]
-		rule.Values[i] = d.values[i]
+	for i := range r.fields {
+		data.Fields[i] = r.fields[i]
+		data.FieldFlags[i] = r.fieldFlags[i]
+		data.Values[i] = r.values[i]
 	}
 
-	for _, s := range d.strings {
-		rule.Buf = append(rule.Buf, []byte(s)...)
+	for _, s := range r.strings {
+		data.Buf = append(data.Buf, []byte(s)...)
 	}
-	rule.BufLen = uint32(len(rule.Buf))
+	data.BufLen = uint32(len(data.Buf))
 
-	return rule, nil
+	return data, nil
 }
 
-func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
-	rule.flags = in.Flags
-	rule.action = in.Action
-	rule.fields = make([]field, in.FieldCount)
-	rule.allSyscalls = true
-	for i := 0; rule.allSyscalls && i < len(in.Mask)-1; i++ {
-		rule.allSyscalls = in.Mask[i] == 0xFFFFFFFF
+func (r *ruleData) fromAuditRuleData(in *auditRuleData) error {
+	r.flags = in.Flags
+	r.action = in.Action
+	r.fields = make([]field, in.FieldCount)
+	r.allSyscalls = true
+	for i := 0; r.allSyscalls && i < len(in.Mask)-1; i++ {
+		r.allSyscalls = in.Mask[i] == 0xFFFFFFFF
 	}
-	if !rule.allSyscalls {
+	if !r.allSyscalls {
 		for word, bits := range in.Mask {
 			for bit := uint32(0); bit < 32; bit++ {
 				if bits&(1<<bit) != 0 {
-					rule.syscalls = append(rule.syscalls, uint32(word)*32+bit)
+					r.syscalls = append(r.syscalls, uint32(word)*32+bit)
 				}
 			}
 		}
 	}
-	rule.fields = make([]field, in.FieldCount)
-	rule.fieldFlags = make([]operator, in.FieldCount)
-	rule.values = make([]uint32, in.FieldCount)
+	r.fields = make([]field, in.FieldCount)
+	r.fieldFlags = make([]operator, in.FieldCount)
+	r.values = make([]uint32, in.FieldCount)
 
 	offset := uint32(0)
 	for i := uint32(0); i < in.FieldCount; i++ {
-		rule.fields[i] = in.Fields[i]
-		rule.fieldFlags[i] = in.FieldFlags[i]
-		rule.values[i] = in.Values[i]
-		switch rule.fields[i] {
+		r.fields[i] = in.Fields[i]
+		r.fieldFlags[i] = in.FieldFlags[i]
+		r.values[i] = in.Values[i]
+		switch r.fields[i] {
 		case objectUserField, objectRoleField, objectTypeField, objectLevelLowField,
 			objectLevelHighField, pathField, dirField, subjectUserField,
 			subjectRoleField, subjectTypeField, subjectSensitivityField,
@@ -465,7 +465,7 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 			if end > in.BufLen {
 				return fmt.Errorf("field %d overflows buffer", i)
 			}
-			rule.strings = append(rule.strings, string(in.Buf[offset:end]))
+			r.strings = append(r.strings, string(in.Buf[offset:end]))
 			offset = end
 		}
 	}
@@ -473,16 +473,16 @@ func (rule *ruleData) fromAuditRuleData(in *auditRuleData) error {
 	return nil
 }
 
-func (rule *ruleData) setList(list string) error {
+func (r *ruleData) setList(list string) error {
 	switch list {
 	case "exit":
-		rule.flags = exitFilter
+		r.flags = exitFilter
 	case "task":
-		rule.flags = taskFilter
+		r.flags = taskFilter
 	case "user":
-		rule.flags = userFilter
+		r.flags = userFilter
 	case "exclude":
-		rule.flags = excludeFilter
+		r.flags = excludeFilter
 	default:
 		return fmt.Errorf("invalid list '%v'", list)
 	}
@@ -490,8 +490,8 @@ func (rule *ruleData) setList(list string) error {
 	return nil
 }
 
-func (rule *ruleData) getList() (string, error) {
-	switch rule.flags {
+func (r *ruleData) getList() (string, error) {
+	switch r.flags {
 	case exitFilter:
 		return "exit", nil
 	case taskFilter:
@@ -501,16 +501,16 @@ func (rule *ruleData) getList() (string, error) {
 	case excludeFilter:
 		return "exclude", nil
 	default:
-		return "", fmt.Errorf("invalid list flag '%v'", rule.flags)
+		return "", fmt.Errorf("invalid list flag '%v'", r.flags)
 	}
 }
 
-func (rule *ruleData) setAction(action string) error {
+func (r *ruleData) setAction(action string) error {
 	switch action {
 	case "always":
-		rule.action = alwaysAction
+		r.action = alwaysAction
 	case "never":
-		rule.action = neverAction
+		r.action = neverAction
 	default:
 		return fmt.Errorf("invalid action '%v'", action)
 	}
@@ -518,14 +518,14 @@ func (rule *ruleData) setAction(action string) error {
 	return nil
 }
 
-func (rule *ruleData) getAction() (string, error) {
-	switch rule.action {
+func (r *ruleData) getAction() (string, error) {
+	switch r.action {
 	case alwaysAction:
 		return "always", nil
 	case neverAction:
 		return "never", nil
 	default:
-		return "", fmt.Errorf("invalid action '%v'", rule.action)
+		return "", fmt.Errorf("invalid action '%v'", r.action)
 	}
 }
 
@@ -540,8 +540,8 @@ func addSyscall(rule *ruleData, syscall string) error {
 	rule.allSyscalls = false
 
 	syscallNum, err := strconv.Atoi(syscall)
-	if nerr, ok := err.(*strconv.NumError); ok {
-		if nerr.Err != strconv.ErrSyntax {
+	if err != nil {
+		if !errors.Is(err, strconv.ErrSyntax) {
 			return fmt.Errorf("failed to parse syscall number '%v': %w", syscall, err)
 		}
 
@@ -771,8 +771,8 @@ func getUID(uid string) (uint32, error) {
 	}
 
 	v, err := strconv.ParseUint(uid, 10, 32)
-	if nerr, ok := err.(*strconv.NumError); ok {
-		if nerr.Err != strconv.ErrSyntax {
+	if err != nil {
+		if !errors.Is(err, strconv.ErrSyntax) {
 			return 0, fmt.Errorf("failed to parse uid '%v': %w", uid, err)
 		}
 
@@ -792,8 +792,8 @@ func getUID(uid string) (uint32, error) {
 
 func getGID(gid string) (uint32, error) {
 	v, err := strconv.ParseUint(gid, 10, 32)
-	if nerr, ok := err.(*strconv.NumError); ok {
-		if nerr.Err != strconv.ErrSyntax {
+	if err != nil {
+		if !errors.Is(err, strconv.ErrSyntax) {
 			return 0, fmt.Errorf("failed to parse gid '%v': %w", gid, err)
 		}
 
@@ -813,8 +813,8 @@ func getGID(gid string) (uint32, error) {
 
 func getExitCode(exit string) (int32, error) {
 	v, err := strconv.ParseInt(exit, 0, 32)
-	if nerr, ok := err.(*strconv.NumError); ok {
-		if nerr.Err != strconv.ErrSyntax {
+	if err != nil {
+		if !errors.Is(err, strconv.ErrSyntax) {
 			return 0, fmt.Errorf("failed to parse exit code '%v': %w", exit, err)
 		}
 
@@ -878,7 +878,7 @@ func getArch(arch string) (string, uint32, error) {
 }
 
 // from a rule arch returned by kernel, decide what arch name to display
-func getDisplayArch(archId uint32) (string, error) {
+func getDisplayArch(archID uint32) (string, error) {
 	runtimeArchStr, err := getRuntimeArch()
 	if err != nil {
 		return "", err
@@ -888,7 +888,7 @@ func getDisplayArch(archId uint32) (string, error) {
 		return "", errors.New("current architecture not supported")
 	}
 	runtimeArch := auparse.AuditArch(runtimeArchU32)
-	requestedArch := auparse.AuditArch(archId)
+	requestedArch := auparse.AuditArch(archID)
 	if requestedArch == runtimeArch {
 		switch requestedArch {
 		case auparse.AUDIT_ARCH_AARCH64, auparse.AUDIT_ARCH_X86_64, auparse.AUDIT_ARCH_PPC64:
@@ -940,8 +940,8 @@ func getRuntimeArch() (string, error) {
 
 func getAuditMsgType(msgType string) (uint32, error) {
 	v, err := strconv.ParseUint(msgType, 0, 32)
-	if nerr, ok := err.(*strconv.NumError); ok {
-		if nerr.Err != strconv.ErrSyntax {
+	if err != nil {
+		if !errors.Is(err, strconv.ErrSyntax) {
 			return 0, fmt.Errorf("failed to parse msgtype '%v': %w", msgType, err)
 		}
 

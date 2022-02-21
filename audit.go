@@ -30,6 +30,8 @@ import (
 	"time"
 	"unsafe"
 
+	"go.uber.org/multierr"
+
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
 
@@ -106,8 +108,10 @@ func newAuditClient(netlinkGroups uint32, resp io.Writer) (*AuditClient, error) 
 
 	netlink, err := NewNetlinkClient(syscall.NETLINK_AUDIT, netlinkGroups, buf, resp)
 	if err != nil {
-		switch err {
-		case syscall.EINVAL, syscall.EPROTONOSUPPORT, syscall.EAFNOSUPPORT:
+		switch {
+		case errors.Is(err, syscall.EINVAL),
+			errors.Is(err, syscall.EPROTONOSUPPORT),
+			errors.Is(err, syscall.EAFNOSUPPORT):
 			return nil, fmt.Errorf("audit not supported by kernel: %w", err)
 		default:
 			return nil, fmt.Errorf("failed to open audit netlink socket: %w", err)
@@ -296,7 +300,7 @@ func (c *AuditClient) AddRule(rule []byte) error {
 	}
 
 	if err = ParseNetlinkError(ack.Data); err != nil {
-		if errno, ok := err.(syscall.Errno); ok && errno == syscall.EEXIST {
+		if errors.Is(err, syscall.EEXIST) {
 			return errors.New("rule exists")
 		}
 		return fmt.Errorf("error adding audit rule: %w", err)
@@ -383,7 +387,7 @@ func (c *AuditClient) SetFailure(fm FailureMode, wm WaitMode) error {
 
 // SetBacklogWaitTime sets the time that the kernel will wait for a buffer in
 // the backlog queue to become available before dropping the event. This has
-// the side-effect of blocking the thread that was invoking the syscall being
+// the side effect of blocking the thread that was invoking the syscall being
 // audited.
 // waitTime is measured in jiffies, default in kernel is 60*HZ (60 seconds).
 // A value of 0 disables the wait time completely, causing the failure mode
@@ -434,10 +438,10 @@ func (c *AuditClient) Close() error {
 				Mask: AuditStatusPID,
 				PID:  0,
 			}
-			c.set(status, NoWait)
+			err = c.set(status, NoWait)
 		}
 
-		err = c.Netlink.Close()
+		err = multierr.Append(err, c.Netlink.Close())
 	})
 
 	return err
@@ -448,8 +452,8 @@ func (c *AuditClient) Close() error {
 // same order as the operations have been performed. If it receives an error,
 // it is returned and no further ACKs are processed.
 func (c *AuditClient) WaitForPendingACKs() error {
-	for _, reqId := range c.pendingAcks {
-		ack, err := c.getReply(reqId)
+	for _, reqID := range c.pendingAcks {
+		ack, err := c.getReply(reqID)
 		if err != nil {
 			return err
 		}
@@ -476,10 +480,10 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 		for i := 0; i < 10; i++ {
 			msgs, err = c.Netlink.Receive(true, parseNetlinkAuditMessage)
 			if err != nil {
-				switch err {
-				case syscall.EINTR:
+				switch {
+				case errors.Is(err, syscall.EINTR):
 					continue
-				case syscall.EAGAIN:
+				case errors.Is(err, syscall.EAGAIN):
 					time.Sleep(50 * time.Millisecond)
 					continue
 				default:

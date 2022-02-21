@@ -78,7 +78,7 @@ func TestAuditClientGetStatusPermissionError(t *testing.T) {
 
 	// ECONNREFUSED means we are in a username space.
 	// EPERM means we are not root.
-	if err != syscall.ECONNREFUSED && err != syscall.EPERM {
+	if !errors.Is(err, syscall.ECONNREFUSED) && !errors.Is(err, syscall.EPERM) {
 		t.Fatal("unexpected error")
 	}
 }
@@ -176,7 +176,7 @@ func TestAddRule(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer c.Close()
-	defer c.DeleteRules()
+	defer deleteRules(t, c)
 
 	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
 	if err := c.AddRule(rawRule); err != nil {
@@ -205,7 +205,7 @@ func TestAddDuplicateRule(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer c.Close()
-	defer c.DeleteRules()
+	defer deleteRules(t, c)
 
 	// Add first rule.
 	rawRule, _ := base64.StdEncoding.DecodeString(testRule)
@@ -436,7 +436,7 @@ func TestMulticastAuditClient(t *testing.T) {
 	var msgCount int
 	for i := 0; i < 5; i++ {
 		msg, err := client.Receive(true)
-		if err == syscall.EAGAIN {
+		if errors.Is(err, syscall.EAGAIN) {
 			time.Sleep(500 * time.Millisecond)
 			continue
 		} else if err != nil {
@@ -528,7 +528,7 @@ func TestAuditClientReceive(t *testing.T) {
 	var msgCount int
 	for i := 0; i < 10; i++ {
 		msg, err := client.Receive(true)
-		if err == syscall.EAGAIN {
+		if errors.Is(err, syscall.EAGAIN) {
 			time.Sleep(500 * time.Millisecond)
 			continue
 		} else if err != nil {
@@ -872,19 +872,18 @@ func TestRuleParsing(t *testing.T) {
 	}
 }
 
-func extractDecimalNumber(s []int8, pos int) (value int, nextPos int) {
-	const aZero, aNine int8 = 0x30, 0x39
+func extractDecimalNumber(s []int8, pos int) (value, nextPos int) {
 	for value = 0; ; pos++ {
 		c := s[pos]
-		if c >= aZero && c <= aNine {
-			value = value*10 + int(c-aZero)
-		} else {
-			return value, pos + 1
+		if '0' <= c && c <= '9' {
+			value = value*10 + int(c-'0')
+			continue
 		}
+		return value, pos + 1
 	}
 }
 
-func kernelVersion() (major int, minor int, err error) {
+func kernelVersion() (major, minor int, err error) {
 	var info syscall.Utsname
 	if err = syscall.Uname(&info); err != nil {
 		return 0, 0, err
@@ -893,10 +892,18 @@ func kernelVersion() (major int, minor int, err error) {
 	// As all major non-Intel architecture return []uint8 instead of []int8 for Utsname.Release following conversion is required
 	temp := make([]int8, len(s))
 	for index, num := range s {
-		temp[index] = int8(num)
+		temp[index] = num
 	}
 
 	major, pos := extractDecimalNumber(temp, 0)
 	minor, _ = extractDecimalNumber(temp, pos)
 	return major, minor, nil
+}
+
+func deleteRules(t testing.TB, client *AuditClient) {
+	t.Helper()
+
+	if _, err := client.DeleteRules(); err != nil {
+		t.Errorf("failed to delete rules: %v", err)
+	}
 }

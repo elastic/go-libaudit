@@ -48,7 +48,7 @@ type ECSEntityData struct {
 }
 
 type ECSEntity struct {
-	ECSEntityData `json:",inline" yaml:",inline"`
+	ECSEntityData `yaml:",inline"`
 	Effective     ECSEntityData `json:"effective" yaml:"effective"`
 	Target        ECSEntityData `json:"target" yaml:"target"`
 	Changes       ECSEntityData `json:"changes" yaml:"changes"`
@@ -243,7 +243,7 @@ func normalizeCompound(msgs []*auparse.AuditMessage) (*Event, error) {
 	return event, nil
 }
 
-func newEvent(msg *auparse.AuditMessage, syscall *auparse.AuditMessage) *Event {
+func newEvent(msg, syscall *auparse.AuditMessage) *Event {
 	if msg == nil {
 		msg = syscall
 	}
@@ -474,10 +474,12 @@ func applyNormalization(event *Event) {
 		case 1:
 			norm = norms[0]
 		default:
+		nextNorm:
 			for _, n := range norms {
+				// Select normalization if all 'has_fields' are present.
 				for _, f := range n.HasFields.Values {
 					if _, found := event.Data[f]; !found {
-						continue
+						continue nextNorm
 					}
 				}
 				norm = n
@@ -512,7 +514,11 @@ func applyNormalization(event *Event) {
 	switch norm.Object.What {
 	case "file", "filesystem":
 		event.Summary.Object.Type = norm.Object.What
-		setFileObject(event, norm.Object.PathIndex)
+		if len(event.Paths) > 0 {
+			if err := setFileObject(event, norm.Object.PathIndex); err != nil {
+				event.Warnings = append(event.Warnings, fmt.Errorf("failed to set file object: %w", err))
+			}
+		}
 	case "socket":
 		event.Summary.Object.Type = norm.Object.What
 		setSocketObject(event)
@@ -761,7 +767,7 @@ func addFileSELinuxLabel(key, value string, event *Event) {
 	event.File.SELinux[key] = value
 }
 
-func setSocketObject(event *Event) error {
+func setSocketObject(event *Event) {
 	value, found := event.Data["socket_addr"]
 	if found {
 		event.Summary.Object.Primary = value
@@ -776,7 +782,6 @@ func setSocketObject(event *Event) error {
 	if found {
 		event.Summary.Object.Secondary = value
 	}
-	return nil
 }
 
 func setHowDefaults(event *Event) {

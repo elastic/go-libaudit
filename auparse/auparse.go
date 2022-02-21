@@ -315,12 +315,13 @@ func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing
 
+//nolint:errcheck // Continue enriching even if some fields do not exist.
 func enrichData(msg *AuditMessage) error {
 	normalizeUnsetID("auid", msg.fields)
 	normalizeUnsetID("old-auid", msg.fields)
 	normalizeUnsetID("ses", msg.fields)
 
-	// Many different message types can have subj field so check them all.
+	// Many message types can have subj field so check them all.
 	parseSELinuxContext("subj", msg.fields)
 
 	// Normalize success/res to result.

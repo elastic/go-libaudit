@@ -166,50 +166,7 @@ func TestParseLogLineFromFiles(t *testing.T) {
 	}
 
 	for _, name := range files {
-		f, err := os.Open(name)
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer f.Close()
-
-		// Read logs and parse events.
-		var events []*AuditMessage
-		s := bufio.NewScanner(bufio.NewReader(f))
-		var lineNum int
-		for s.Scan() {
-			line := s.Text()
-			lineNum++
-
-			event, err := ParseLogLine(line)
-			if err != nil && *update {
-				t.Logf("parsing failed at %v:%d on '%v' with error: %v",
-					name, lineNum, line, err)
-			}
-
-			events = append(events, event)
-		}
-
-		// Update golden files on -update.
-		if *update {
-			if err := writeGoldenFile(name, events); err != nil {
-				t.Fatal(err)
-			}
-			continue
-		}
-
-		// Compare events to golden events.
-		goldenEvents, err := readGoldenFile(name + ".golden")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		for i, gold := range goldenEvents {
-			if events[i] != nil {
-				assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", name, i+1)
-			} else {
-				assert.Nil(t, gold, "file: %v:%d", name, i+1)
-			}
-		}
+		testGoldenFile(t, name)
 	}
 }
 
@@ -242,6 +199,55 @@ func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
 		Tags:       msg.tags,
 		Data:       msg.data,
 		Error:      errorMsg,
+	}
+}
+
+func testGoldenFile(t *testing.T, name string) {
+	t.Helper()
+
+	f, err := os.Open(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	// Read logs and parse events.
+	var events []*AuditMessage
+	s := bufio.NewScanner(bufio.NewReader(f))
+	var lineNum int
+	for s.Scan() {
+		line := s.Text()
+		lineNum++
+
+		event, err := ParseLogLine(line)
+		if err != nil && *update {
+			t.Logf("parsing failed at %v:%d on '%v' with error: %v",
+				name, lineNum, line, err)
+		}
+
+		events = append(events, event)
+	}
+
+	// Update golden files on -update.
+	if *update {
+		if err := writeGoldenFile(name, events); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
+	// Compare events to golden events.
+	goldenEvents, err := readGoldenFile(name + ".golden")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i, gold := range goldenEvents {
+		if events[i] != nil {
+			assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", name, i+1)
+		} else {
+			assert.Nil(t, gold, "file: %v:%d", name, i+1)
+		}
 	}
 }
 

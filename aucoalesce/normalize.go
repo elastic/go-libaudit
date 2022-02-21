@@ -70,7 +70,7 @@ type Normalization struct {
 	RecordTypes Strings        `yaml:"record_types"`
 	Syscalls    Strings        `yaml:"syscalls"`
 	SourceIP    Strings        `yaml:"source_ip"`
-	HasFields   Strings        `yaml:"has_fields"`
+	HasFields   Strings        `yaml:"has_fields"` // Apply the normalization if all fields are present.
 	ECS         ECSMapping     `yaml:"ecs"`
 }
 
@@ -153,7 +153,7 @@ var (
 
 func resolveFieldReference(fieldRef string) (ref readReference) {
 	if ref = fromFieldReferences[fieldRef]; ref != nil {
-		return
+		return ref
 	}
 	if dot := strings.IndexByte(fieldRef, '.'); dot != -1 {
 		dict := fieldRef[:dot]

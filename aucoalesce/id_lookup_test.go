@@ -28,13 +28,14 @@ import (
 
 func TestUIDLookup(t *testing.T) {
 	uid := os.Getuid()
-	user := userLookup.LookupID(strconv.Itoa(uid))
-	user = userLookup.LookupID(strconv.Itoa(uid))
-	gid := os.Getgid()
-	group := groupLookup.LookupID(strconv.Itoa(gid))
-	group = groupLookup.LookupID(strconv.Itoa(gid))
+	assert.NotEmpty(t, userLookup.LookupID(strconv.Itoa(uid)))
+	// From cache.
+	assert.NotEmpty(t, userLookup.LookupID(strconv.Itoa(uid)))
 
-	t.Log(user, group)
+	gid := os.Getgid()
+	assert.NotEmpty(t, groupLookup.LookupID(strconv.Itoa(gid)))
+	// From cache.
+	assert.NotEmpty(t, groupLookup.LookupID(strconv.Itoa(gid)))
 }
 
 func TestResolveIDs(t *testing.T) {

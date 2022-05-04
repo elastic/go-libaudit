@@ -7,6 +7,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.3.0]
+
+### Added
+
 - Add ECS mappings for more audit anomaly events. [#70](https://github.com/elastic/go-libaudit/pull/70)
 - Add `BacklogWaitTimeActual` status field, which is available since Linux 5.9 [#93](https://github.com/elastic/go-libaudit/pull/93/files)
 - Add ECS normalizations for `TIME_ADJNTPVAL` and `TIME_INJOFFSET`. [#98](https://github.com/elastic/go-libaudit/pull/98)
@@ -21,8 +31,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 - Removed support for resolving syscall numbers to names for the ia64 architecture. [#96](https://github.com/elastic/go-libaudit/pull/96)
-
-### Deprecated
 
 ## [2.2.0]
 
@@ -216,7 +224,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/elastic/go-libaudit/compare/v2.3.0
+[2.2.0]: https://github.com/elastic/go-libaudit/compare/v2.2.0
 [2.1.0]: https://github.com/elastic/go-libaudit/compare/v2.1.0
 [2.0.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.2
 [2.0.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.1

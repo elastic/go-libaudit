@@ -615,7 +615,7 @@ func (s AuditStatus) toWireFormat() []byte {
 // struct.
 func (s *AuditStatus) FromWireFormat(buf []byte) error {
 	if len(buf) < sizeofAuditStatus {
-		return io.ErrUnexpectedEOF
+		*s = AuditStatus{}
 	}
 	copy((*[unsafe.Sizeof(AuditStatus{})]byte)(unsafe.Pointer(s))[:], buf)
 	return nil

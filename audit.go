@@ -603,17 +603,25 @@ type AuditStatus struct {
 	BacklogWaitTimeActual uint32          // Time the kernel has spent waiting while the backlog limit is exceeded.
 }
 
-const sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
+const (
+	sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
+
+	// MinSizeofAuditStatus is the minimum usable message size that
+	// is acceptable for unmarshaling from the wire format. Messages
+	// this size do not report backlog_wait_time_actual.
+	MinSizeofAuditStatus = sizeofAuditStatus - int(unsafe.Sizeof(uint32(0)))
+)
 
 func (s AuditStatus) toWireFormat() []byte {
 	return (*[sizeofAuditStatus]byte)(unsafe.Pointer(&s))[:]
 }
 
-// FromWireFormat unmarshals the given buffer to an AuditStatus object. Due to
-// changes in the audit_status struct in the kernel source this method does
-// not return an error if the buffer is smaller than the sizeof our AuditStatus
-// struct.
+// FromWireFormat unmarshals the given buffer to an AuditStatus object.
+// It returns io.ErrUnexpectedEOF if len(buf) is less than MinSizeofAuditStatus.
 func (s *AuditStatus) FromWireFormat(buf []byte) error {
+	if len(buf) < MinSizeofAuditStatus {
+		return io.ErrUnexpectedEOF
+	}
 	if len(buf) < sizeofAuditStatus {
 		*s = AuditStatus{}
 	}

@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -155,6 +156,73 @@ func TestExtractKeyValuePairs(t *testing.T) {
 		out := map[string]*field{}
 		extractKeyValuePairs(tc.in, out)
 		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
+	}
+}
+
+func BenchmarkExtractKeyValuePairs(b *testing.B) {
+	tests := []struct {
+		name string
+		in   string
+		out  map[string]*field
+	}{
+		{
+			"bpf message",
+			`arch=c000003e syscall=321 success=yes exit=0 a0=2 a1=c0059cd6e8 comm="pf-host-agent" exe="/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key="bpf" ARCH=x86_64 SYSCALL=bpf`,
+			map[string]*field{
+				"arch":    newField("c000003e"),
+				"syscall": newField("321"),
+				"success": {`yes`, `yes`},
+				"exit":    newField("0"),
+				"a0":      newField("2"),
+				"a1":      {"c0059cd6e8", "c0059cd6e8"},
+				"comm":    {`"pf-host-agent"`, `pf-host-agent`},
+				"exe":     {`"/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent"`, `/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent`},
+				"subj":    newField("unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023"),
+				"key":     {`"bpf"`, "bpf"},
+			},
+		},
+		{
+			"short message",
+			`x='grep "test" file' y=z`,
+			map[string]*field{
+				"x": {`'grep "test" file'`, `grep "test" file`},
+				"y": newField("z"),
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		b.Run(tc.name+"_old", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StartTimer()
+				out := map[string]*field{}
+				extractKeyValuePairs(tc.in, out)
+				b.StopTimer()
+				if !assert.Equal(b, tc.out, out, "failed on: %v", tc.in) {
+					b.FailNow()
+				}
+			}
+		})
+
+		b.Run(tc.name+"_new", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StartTimer()
+				out := extractKeyValuePairsNew(tc.in)
+				b.StopTimer()
+				for tk, tv := range tc.out {
+					result, ok := out[tk]
+					if !ok {
+						b.Fatalf("missing key %v in the output", tk)
+					}
+					if !reflect.DeepEqual(&result, tv) {
+						b.Fatalf("wrong field in output at key %s: expected %v, got %v",
+							tk, *tv, result)
+					}
+				}
+			}
+		})
+
 	}
 }
 

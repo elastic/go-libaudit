@@ -311,6 +311,29 @@ func extractKeyValuePairs(msg string, data map[string]*field) {
 	}
 }
 
+func extractKeyValuePairsNew(msg string) map[string]field {
+	data := make(map[string]field, 0)
+	matches := kvRegex.FindAllStringSubmatch(msg, -1)
+	for _, m := range matches {
+		key := m[1]
+		f := *newField(m[2])
+		f.Set(trimQuotesAndSpace(m[2]))
+
+		// Drop fields with useless values.
+		switch f.Value() {
+		case "", "?", "?,", "(null)":
+			continue
+		}
+
+		if key == "msg" {
+			data = extractKeyValuePairsNew(f.Value())
+		} else {
+			data[key] = f
+		}
+	}
+	return data
+}
+
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing

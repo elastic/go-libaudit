@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-GO111MODULE=off go get -u github.com/elastic/go-licenser
+go install github.com/elastic/go-licenser@latest
 go get -d -t ./...
 go mod download
 go mod verify
@@ -24,7 +24,7 @@ fi
 # Run the tests
 set +e
 mkdir -p build
-go get -v -u github.com/jstemmer/go-junit-report
+go install github.com/jstemmer/go-junit-report@latest
 export OUT_FILE="build/test-report.out"
 go test -v $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
 status=$?

@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fix change in behaviour that causes error when unmarshaling `AuditStatus` with a short buffer. [#110](https://github.com/elastic/go-libaudit/pull/110)
+
 ### Removed
 
 ### Deprecated

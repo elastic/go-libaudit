@@ -49,6 +49,25 @@ const (
 	syscallLogLine = `type=SYSCALL msg=` + syscallMsg
 )
 
+func TestFieldMap(t *testing.T) {
+	m := &fieldMap{}
+	mm := *m
+	mm["test"] = field{`'test'`, "test"}
+
+	f, err := m.find("test")
+	require.Nil(t, err)
+	assert.Equal(t, "test", f.value)
+
+	m.setFieldValue("test", "newVal")
+	assert.Equal(t, "newVal", mm["test"].value)
+
+	m.add("second", field{`'test'`, "test"})
+	f2, err := m.find("second")
+	require.Nil(t, err)
+	assert.Equal(t, "test", f2.value)
+	assert.Equal(t, "test", mm["second"].value)
+}
+
 func TestNormalizeAuditMessage(t *testing.T) {
 	tests := []struct {
 		typ AuditMessageType
@@ -193,10 +212,11 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 
 	for _, tc := range tests {
 		tc := tc
-		b.Run(tc.name+"_old", func(b *testing.B) {
+		b.Run(tc.name+"_current", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				b.StartTimer()
 				out := map[string]*field{}
+				b.StartTimer()
+				//out = extractKeyValuePairs(tc.in)
 				extractKeyValuePairs(tc.in, out)
 				b.StopTimer()
 				if !assert.Equal(b, tc.out, out, "failed on: %v", tc.in) {
@@ -205,10 +225,28 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 			}
 		})
 
-		b.Run(tc.name+"_new", func(b *testing.B) {
+		b.Run(tc.name+"_with_values_instead_of_pointers", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				b.StartTimer()
-				out := extractKeyValuePairsNew(tc.in)
+				out := extractKeyValuePairsFm(tc.in)
+				b.StopTimer()
+				for tk, tv := range tc.out {
+					result, ok := out[tk]
+					if !ok {
+						b.Fatalf("missing key %v in the output", tk)
+					}
+					if !reflect.DeepEqual(&result, tv) {
+						b.Fatalf("wrong field in output at key %s: expected %v, got %v",
+							tk, *tv, result)
+					}
+				}
+			}
+		})
+
+		b.Run(tc.name+"_with_pool", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StartTimer()
+				out := extractKeyValuePairsPool(tc.in)
 				b.StopTimer()
 				for tk, tv := range tc.out {
 					result, ok := out[tk]
@@ -226,6 +264,75 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 	}
 }
 
+func TestExtractAndEnrichData(t *testing.T) {
+	tests := []struct {
+		name   string
+		text   string
+		output map[string]string
+	}{
+		{
+			name: "syscall",
+			text: "type=SYSCALL msg=audit(1481076984.827:17): arch=c000003e syscall=313 success=yes exit=0 a0=0 a1=41a15c a2=0 a3=0 items=0 ppid=390 pid=391 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=\"modprobe\" exe=\"/usr/bin/kmod\" subj=system_u:system_r:insmod_t:s0 key=(null)",
+			output: map[string]string{
+				"a0":          "0",
+				"a1":          "41a15c",
+				"a2":          "0",
+				"a3":          "0",
+				"arch":        "x86_64",
+				"auid":        "unset",
+				"comm":        "modprobe",
+				"egid":        "0",
+				"euid":        "0",
+				"exe":         "/usr/bin/kmod",
+				"exit":        "0",
+				"fsgid":       "0",
+				"fsuid":       "0",
+				"gid":         "0",
+				"items":       "0",
+				"pid":         "391",
+				"ppid":        "390",
+				"result":      "success",
+				"ses":         "unset",
+				"sgid":        "0",
+				"subj_domain": "insmod_t",
+				"subj_level":  "s0",
+				"subj_role":   "system_r",
+				"subj_user":   "system_u",
+				"suid":        "0",
+				"syscall":     "finit_module",
+				"tty":         "(none)",
+				"uid":         "0",
+			},
+		},
+		{
+			"rhel_6",
+			`type=USER_CMD msg=audit(1488862769.030:19469538): user pid=3027 uid=497 auid=700 ses=11988 msg='cwd="/" cmd=2F7573722F6C696236342F6E6167696F732F706C7567696E732F636865636B5F617374657269736B5F7369705F7065657273202D7020313037 terminal=? res=success'`,
+			map[string]string{
+				"auid":   "700",
+				"cmd":    "/usr/lib64/nagios/plugins/check_asterisk_sip_peers -p 107",
+				"cwd":    "/",
+				"pid":    "3027",
+				"result": "success",
+				"ses":    "11988",
+				"uid":    "497",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			msg, err := ParseLogLine(tc.text)
+			if err != nil {
+				t.Fatalf("parsing message: %v", err)
+			}
+			data, err := msg.Data()
+			require.Nil(t, err)
+			assert.Equal(t, tc.output, data)
+		})
+	}
+}
+
 func TestParseLogLineFromFiles(t *testing.T) {
 	files, err := filepath.Glob("testdata/*.log")
 	if err != nil {
@@ -235,8 +342,8 @@ func TestParseLogLineFromFiles(t *testing.T) {
 		t.Fatal("no files found")
 	}
 
-	for _, name := range files {
-		testGoldenFile(t, name)
+	for _, filePath := range files {
+		testGoldenFile(t, filePath)
 	}
 }
 
@@ -272,53 +379,58 @@ func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
 	}
 }
 
-func testGoldenFile(t *testing.T, name string) {
+func testGoldenFile(t *testing.T, filePath string) {
 	t.Helper()
 
-	f, err := os.Open(name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	// Read logs and parse events.
-	var events []*AuditMessage
-	s := bufio.NewScanner(bufio.NewReader(f))
-	var lineNum int
-	for s.Scan() {
-		line := s.Text()
-		lineNum++
-
-		event, err := ParseLogLine(line)
-		if err != nil && *update {
-			t.Logf("parsing failed at %v:%d on '%v' with error: %v",
-				name, lineNum, line, err)
-		}
-
-		events = append(events, event)
-	}
+	events := loadAuditMessages(t, filePath)
 
 	// Update golden files on -update.
 	if *update {
-		if err := writeGoldenFile(name, events); err != nil {
+		if err := writeGoldenFile(filePath, events); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
 
 	// Compare events to golden events.
-	goldenEvents, err := readGoldenFile(name + ".golden")
+	goldenEvents, err := readGoldenFile(filePath + ".golden")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for i, gold := range goldenEvents {
 		if events[i] != nil {
-			assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", name, i+1)
+			assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", filePath, i+1)
 		} else {
-			assert.Nil(t, gold, "file: %v:%d", name, i+1)
+			assert.Nil(t, gold, "file: %v:%d", filePath, i+1)
 		}
 	}
+}
+
+func loadAuditMessages(tb testing.TB, name string) []*AuditMessage {
+	f, err := os.Open(name)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	defer f.Close()
+
+	// Read logs and parse events.
+	var messages []*AuditMessage
+	s := bufio.NewScanner(bufio.NewReader(f))
+	var lineNum int
+	for s.Scan() {
+		line := s.Text()
+		lineNum++
+
+		msg, err := ParseLogLine(line)
+		if err != nil && *update {
+			tb.Logf("parsing failed at %v:%d on '%v' with error: %v",
+				name, lineNum, line, err)
+		}
+
+		messages = append(messages, msg)
+	}
+	return messages
 }
 
 func writeGoldenFile(sourceName string, events []*AuditMessage) error {

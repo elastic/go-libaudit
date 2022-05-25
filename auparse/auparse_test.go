@@ -264,61 +264,62 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 	}
 }
 
-func TestExtractAndEnrichData(t *testing.T) {
-	tests := []struct {
-		name   string
-		text   string
-		output map[string]string
-	}{
-		{
-			name: "syscall",
-			text: "type=SYSCALL msg=audit(1481076984.827:17): arch=c000003e syscall=313 success=yes exit=0 a0=0 a1=41a15c a2=0 a3=0 items=0 ppid=390 pid=391 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=\"modprobe\" exe=\"/usr/bin/kmod\" subj=system_u:system_r:insmod_t:s0 key=(null)",
-			output: map[string]string{
-				"a0":          "0",
-				"a1":          "41a15c",
-				"a2":          "0",
-				"a3":          "0",
-				"arch":        "x86_64",
-				"auid":        "unset",
-				"comm":        "modprobe",
-				"egid":        "0",
-				"euid":        "0",
-				"exe":         "/usr/bin/kmod",
-				"exit":        "0",
-				"fsgid":       "0",
-				"fsuid":       "0",
-				"gid":         "0",
-				"items":       "0",
-				"pid":         "391",
-				"ppid":        "390",
-				"result":      "success",
-				"ses":         "unset",
-				"sgid":        "0",
-				"subj_domain": "insmod_t",
-				"subj_level":  "s0",
-				"subj_role":   "system_r",
-				"subj_user":   "system_u",
-				"suid":        "0",
-				"syscall":     "finit_module",
-				"tty":         "(none)",
-				"uid":         "0",
-			},
+var dataTests = []struct {
+	name   string
+	text   string
+	output map[string]string
+}{
+	{
+		name: "syscall",
+		text: "type=SYSCALL msg=audit(1481076984.827:17): arch=c000003e syscall=313 success=yes exit=0 a0=0 a1=41a15c a2=0 a3=0 items=0 ppid=390 pid=391 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=\"modprobe\" exe=\"/usr/bin/kmod\" subj=system_u:system_r:insmod_t:s0 key=(null)",
+		output: map[string]string{
+			"a0":          "0",
+			"a1":          "41a15c",
+			"a2":          "0",
+			"a3":          "0",
+			"arch":        "x86_64",
+			"auid":        "unset",
+			"comm":        "modprobe",
+			"egid":        "0",
+			"euid":        "0",
+			"exe":         "/usr/bin/kmod",
+			"exit":        "0",
+			"fsgid":       "0",
+			"fsuid":       "0",
+			"gid":         "0",
+			"items":       "0",
+			"pid":         "391",
+			"ppid":        "390",
+			"result":      "success",
+			"ses":         "unset",
+			"sgid":        "0",
+			"subj_domain": "insmod_t",
+			"subj_level":  "s0",
+			"subj_role":   "system_r",
+			"subj_user":   "system_u",
+			"suid":        "0",
+			"syscall":     "finit_module",
+			"tty":         "(none)",
+			"uid":         "0",
 		},
-		{
-			"rhel_6",
-			`type=USER_CMD msg=audit(1488862769.030:19469538): user pid=3027 uid=497 auid=700 ses=11988 msg='cwd="/" cmd=2F7573722F6C696236342F6E6167696F732F706C7567696E732F636865636B5F617374657269736B5F7369705F7065657273202D7020313037 terminal=? res=success'`,
-			map[string]string{
-				"auid":   "700",
-				"cmd":    "/usr/lib64/nagios/plugins/check_asterisk_sip_peers -p 107",
-				"cwd":    "/",
-				"pid":    "3027",
-				"result": "success",
-				"ses":    "11988",
-				"uid":    "497",
-			},
+	},
+	{
+		"user_cmd",
+		`type=USER_CMD msg=audit(1488862769.030:19469538): user pid=3027 uid=497 auid=700 ses=11988 msg='cwd="/" cmd=2F7573722F6C696236342F6E6167696F732F706C7567696E732F636865636B5F617374657269736B5F7369705F7065657273202D7020313037 terminal=? res=success'`,
+		map[string]string{
+			"auid":   "700",
+			"cmd":    "/usr/lib64/nagios/plugins/check_asterisk_sip_peers -p 107",
+			"cwd":    "/",
+			"pid":    "3027",
+			"result": "success",
+			"ses":    "11988",
+			"uid":    "497",
 		},
-	}
+	},
+}
 
+func TestExtractAndEnrichData(t *testing.T) {
+	tests := dataTests
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -329,6 +330,31 @@ func TestExtractAndEnrichData(t *testing.T) {
 			data, err := msg.Data()
 			require.Nil(t, err)
 			assert.Equal(t, tc.output, data)
+		})
+	}
+}
+
+func BenchmarkAuditMessageData(b *testing.B) {
+	tests := dataTests
+	for _, tc := range tests {
+		tc := tc
+		b.Run(tc.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StopTimer()
+				var (
+					data map[string]string
+					err  error
+				)
+				msg, errP := ParseLogLine(tc.text)
+				if errP != nil {
+					b.Fatalf("parsing message: %v", errP)
+				}
+				b.StartTimer()
+				data, err = msg.Data()
+				b.StopTimer()
+				require.Nil(b, err)
+				assert.Equal(b, tc.output, data)
+			}
 		})
 	}
 }

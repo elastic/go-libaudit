@@ -55,7 +55,6 @@ type AuditMessage struct {
 	Sequence   uint32           // Sequence parsed from payload.
 	RawData    string           // Raw message as a string.
 
-	fields *fieldMap
 	offset int               // offset is the index into RawData where the header ends and message begins.
 	data   map[string]string // The key value pairs parsed from the message.
 	tags   []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).
@@ -128,15 +127,15 @@ func (m *AuditMessage) Data() (map[string]string, error) {
 		return nil, m.error
 	}
 
-	*m.fields = extractKeyValuePairsFm(message)
+	extractedKv := extractKeyValuePairsPool(message)
+	defer func() { extractedKv = fieldMap{}; fieldPool.Put(extractedKv) }()
 
-	if err = m.enrichData(); err != nil {
+	if err = m.enrichDataNew(&extractedKv); err != nil {
 		m.error = err
 		return nil, m.error
 	}
-	d := *m.fields
-	m.data = make(map[string]string, len(d))
-	for k, f := range d {
+	m.data = make(map[string]string, len(extractedKv))
+	for k, f := range extractedKv {
 		m.data[k] = f.value
 	}
 
@@ -223,7 +222,6 @@ func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 		Sequence:   seq,
 		offset:     indexOfMessage(message[end:]),
 		RawData:    message,
-		fields:     &fieldMap{},
 	}
 	return msg, nil
 }
@@ -292,8 +290,8 @@ var (
 
 	kvregexPool = sync.Pool{
 		New: func() interface{} {
-			r := kvRegex
-			return r
+			r := *kvRegex
+			return &r
 		},
 	}
 
@@ -354,34 +352,33 @@ func extractKeyValuePairsFm(msg string) fieldMap {
 			}
 			continue
 		}
-		data[key] = field{orig: orig, value: value}
+		data.add(key, field{orig: orig, value: value})
 	}
 	return data
 }
 
 func extractKeyValuePairsPool(msg string) fieldMap {
 	data := fieldPool.Get().(fieldMap)
+
 	matches := kvRegex.FindAllStringSubmatch(msg, -1)
 	for _, m := range matches {
-		key := m[1]
-		f := newFieldVal(m[2])
-		f.Set(trimQuotesAndSpace(m[2]))
+		key, orig := m[1], m[2]
+		value := trimQuotesAndSpace(orig)
 
 		// Drop fields with useless values.
-		switch f.Value() {
+		switch value {
 		case "", "?", "?,", "(null)":
 			continue
 		}
 
 		if key == "msg" {
-			msgData := extractKeyValuePairsPool(f.value)
+			msgData := extractKeyValuePairsPool(value)
 			for mk, mv := range msgData {
 				data.add(mk, mv)
 			}
-			fieldPool.Put(msgData)
 			continue
 		}
-		data[key] = f
+		data.add(key, field{orig: orig, value: value})
 	}
 	return data
 }
@@ -410,69 +407,67 @@ func extractKeyValuePairs(msg string, data map[string]*field) {
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing
-
-//nolint:errcheck // Continue enriching even if some fields do not exist.
-func (msg *AuditMessage) enrichData() error {
-	msg.fields.normalizeUnsetID("auid")
-	msg.fields.normalizeUnsetID("old-auid")
-	msg.fields.normalizeUnsetID("ses")
+func (m *AuditMessage) enrichDataNew(data *fieldMap) error {
+	data.normalizeUnsetID("auid")
+	data.normalizeUnsetID("old-auid")
+	data.normalizeUnsetID("ses")
 
 	// Many message types can have subj field so check them all.
-	_ = msg.fields.parseSELinuxContext("subj")
+	_ = data.parseSELinuxContext("subj")
 
 	// Normalize success/res to result.
-	_ = msg.fields.result()
+	_ = data.result()
 
 	// Convert exit codes to named POSIX exit codes.
-	_ = msg.fields.exit()
+	_ = data.exit()
 
 	// Normalize keys that are of the form key="key=user_command".
-	auditRuleKeyNew(msg)
+	m.auditRuleKeyNew(data)
 
-	_ = msg.fields.hexDecode("cwd")
+	_ = data.hexDecode("cwd")
 
-	switch msg.RecordType {
+	switch m.RecordType {
 	case AUDIT_SECCOMP:
-		if err := msg.fields.setSignalName(); err != nil {
+		if err := data.setSignalName(); err != nil {
 			return err
 		}
 		fallthrough
 	case AUDIT_SYSCALL:
-		if err := msg.fields.arch(); err != nil {
+		if err := data.arch(); err != nil {
 			return err
 		}
-		if err := msg.fields.setSyscallName(); err != nil {
+		if err := data.setSyscallName(); err != nil {
 			return err
 		}
-		if err := msg.fields.hexDecode("exe"); err != nil {
+		if err := data.hexDecode("exe"); err != nil {
 			return err
 		}
 	case AUDIT_SOCKADDR:
-		if err := msg.fields.saddr(); err != nil {
+		if err := data.saddr(); err != nil {
 			return err
 		}
 	case AUDIT_PROCTITLE:
-		if err := msg.fields.hexDecode("proctitle"); err != nil {
+		if err := data.hexDecode("proctitle"); err != nil {
 			return err
 		}
 	case AUDIT_USER_CMD:
-		if err := msg.fields.hexDecode("cmd"); err != nil {
+		if err := data.hexDecode("cmd"); err != nil {
 			return err
 		}
 	case AUDIT_TTY, AUDIT_USER_TTY:
-		if err := msg.fields.hexDecode("data"); err != nil {
+		if err := data.hexDecode("data"); err != nil {
 			return err
 		}
 	case AUDIT_EXECVE:
-		if err := msg.fields.execveArgs(); err != nil {
+		if err := data.execveArgs(); err != nil {
 			return err
 		}
 	case AUDIT_PATH:
-		_ = msg.fields.parseSELinuxContext("obj")
-		_ = msg.fields.hexDecode("name")
+		_ = data.parseSELinuxContext("obj")
+		_ = data.hexDecode("name")
 	case AUDIT_USER_LOGIN:
 		// acct only exists in failed logins.
-		_ = msg.fields.hexDecode("acct")
+		_ = data.hexDecode("acct")
 	}
 
 	return nil
@@ -485,7 +480,7 @@ func (fm *fieldMap) arch() error {
 		return err
 	}
 
-	arch, err := strconv.ParseInt(field.Value(), 16, 64)
+	arch, err := strconv.ParseInt(field.value, 16, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse arch: %w", err)
 	}
@@ -546,7 +541,7 @@ func (fm *fieldMap) saddr() error {
 
 	fm.delete("saddr")
 	for k, v := range saddrData {
-		fm.add(k, *newField(v))
+		fm.add(k, newFieldVal(v))
 	}
 	return nil
 }
@@ -557,7 +552,7 @@ func (fm *fieldMap) normalizeUnsetID(key string) {
 		return
 	}
 
-	switch f.Value() {
+	switch f.value {
 	case "4294967295", "-1":
 		fm.setFieldValue(key, "unset")
 	}
@@ -625,7 +620,7 @@ func (fm *fieldMap) parseSELinuxContext(key string) error {
 	fm.delete(key)
 
 	for i, part := range contextParts {
-		fm.add(key+keys[i], *newField(part))
+		fm.add(key+keys[i], newFieldVal(part))
 	}
 	return nil
 }
@@ -645,34 +640,34 @@ func (fm *fieldMap) result() error {
 
 	switch v := strings.ToLower(field.value); {
 	case v == "yes", v == "1", strings.HasPrefix(v, "suc"):
-		fm.add("result", *newField("success"))
+		fm.add("result", newFieldVal("success"))
 	default:
-		fm.add("result", *newField("fail"))
+		fm.add("result", newFieldVal("fail"))
 	}
 	return nil
 }
 
-func auditRuleKeyNew(msg *AuditMessage) {
-	field, err := msg.fields.find("key")
+func (m *AuditMessage) auditRuleKeyNew(data *fieldMap) {
+	field, err := data.find("key")
 	if err != nil {
 		return
 	}
-	msg.fields.delete("key")
+	data.delete("key")
 
 	// Handle hex encoded data (e.g. key=28696E7).
 	if decodedData, err := decodeUppercaseHexString(field.orig); err == nil {
 		keys := strings.Split(string(decodedData), string([]byte{0x01}))
-		msg.tags = keys
+		m.tags = keys
 		return
 	}
 
 	parts := strings.SplitN(field.Value(), "=", 2)
 	if len(parts) == 1 {
 		// Handle key="net".
-		msg.tags = parts
+		m.tags = parts
 	} else if len(parts) == 2 {
 		// Handle key="key=net".
-		msg.tags = parts[1:]
+		m.tags = parts[1:]
 	}
 }
 
@@ -682,7 +677,7 @@ func (fm *fieldMap) exit() error {
 		return err
 	}
 
-	exitCode, err := strconv.Atoi(field.Value())
+	exitCode, err := strconv.Atoi(field.value)
 	if err != nil {
 		return fmt.Errorf("failed to parse exit: %w", err)
 	}

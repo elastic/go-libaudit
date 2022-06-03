@@ -210,6 +210,25 @@ func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 	return msg, nil
 }
 
+func ParseBytes(typ AuditMessageType, messageBytes []byte, msg *AuditMessage) error {
+	message := strings.TrimSpace(string(messageBytes))
+
+	timestamp, seq, end, err := parseAuditHeader(message)
+	if err != nil {
+		return err
+	}
+
+	*msg = AuditMessage{
+		RecordType: typ,
+		Timestamp:  timestamp,
+		Sequence:   seq,
+		offset:     indexOfMessage(message[end:]),
+		RawData:    message,
+	}
+
+	return nil
+}
+
 // parseAuditHeader parses the timestamp and sequence number from the audit
 // message header that has the form of "audit(1490137971.011:50406):".
 func parseAuditHeader(line string) (time.Time, uint32, int, error) {
@@ -334,6 +353,7 @@ func extractKeyValuePairs(msg string) fieldMap {
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing.
+//
 //nolint:errcheck // Continue enriching even if some fields do not exist.
 func (m *AuditMessage) enrichData(data fieldMap) error {
 	data.normalizeUnsetID("auid")

@@ -61,6 +61,42 @@ type AuditMessage struct {
 	error  error             // Error that occurred while parsing.
 }
 
+// Parse parses an audit message in the format it was received from the kernel.
+// It expects a message type, which is the message type value from the netlink
+// header, and a message, which is raw data from the netlink message. The
+// message should begin the the audit header that contains the timestamp and
+// sequence number -- "audit(1488862769.030:19469538)".
+//
+// A non-nil error is returned if it fails to parse the message header
+// (timestamp, sequence).
+func (self *AuditMessage) Parse(typ AuditMessageType, message string) error {
+	message = strings.TrimSpace(message)
+
+	timestamp, seq, end, err := parseAuditHeader(message)
+	if err != nil {
+		return err
+	}
+
+	self.RecordType = typ
+	self.Timestamp = timestamp
+	self.Sequence = seq
+	self.offset = indexOfMessage(message[end:])
+	self.RawData = message
+
+	return nil
+}
+
+func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
+	msg := &AuditMessage{}
+
+	err := msg.Parse(typ, message)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
 type field struct {
 	orig  string // Original field value parse from message (including quotes).
 	value string // Parsed and enriched value.
@@ -182,32 +218,6 @@ func ParseLogLine(line string) (*AuditMessage, error) {
 
 	msg := line[msgIndex+len(msgToken):]
 	return Parse(typ, msg)
-}
-
-// Parse parses an audit message in the format it was received from the kernel.
-// It expects a message type, which is the message type value from the netlink
-// header, and a message, which is raw data from the netlink message. The
-// message should begin the the audit header that contains the timestamp and
-// sequence number -- "audit(1488862769.030:19469538)".
-//
-// A non-nil error is returned if it fails to parse the message header
-// (timestamp, sequence).
-func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
-	message = strings.TrimSpace(message)
-
-	timestamp, seq, end, err := parseAuditHeader(message)
-	if err != nil {
-		return nil, err
-	}
-
-	msg := &AuditMessage{
-		RecordType: typ,
-		Timestamp:  timestamp,
-		Sequence:   seq,
-		offset:     indexOfMessage(message[end:]),
-		RawData:    message,
-	}
-	return msg, nil
 }
 
 // parseAuditHeader parses the timestamp and sequence number from the audit

@@ -242,7 +242,7 @@ func (c *AuditClient) DeleteRules() (int, error) {
 	}
 
 	for i, rule := range rules {
-		if err := c.DeleteRule(rule); err != nil {
+		if err := c.DeleteRule(rule); err != nil && !errors.Is(err, syscall.ENOENT) {
 			return 0, fmt.Errorf("failed to delete rule %v of %v: %w", i, len(rules), err)
 		}
 	}
@@ -251,6 +251,8 @@ func (c *AuditClient) DeleteRules() (int, error) {
 }
 
 // DeleteRule deletes the given rule (specified in binary format).
+// This can return errors from the underlying subsystem calls. syscall.ENOENT can
+// be safely ignored as it indicates the rule to be deleted doesn't exist.
 func (c *AuditClient) DeleteRule(rule []byte) error {
 	msg := syscall.NetlinkMessage{
 		Header: syscall.NlMsghdr{
@@ -266,9 +268,17 @@ func (c *AuditClient) DeleteRule(rule []byte) error {
 		return fmt.Errorf("failed sending delete rule request: %w", err)
 	}
 
-	_, err = c.getReply(seq)
+	ack, err := c.getReply(seq)
 	if err != nil {
 		return fmt.Errorf("failed to get ACK to rule delete request: %w", err)
+	}
+
+	if ack.Header.Type != syscall.NLMSG_ERROR {
+		return fmt.Errorf("unexpected ACK to AUDIT_DEL_RULE, got type=%d", ack.Header.Type)
+	}
+
+	if err = ParseNetlinkError(ack.Data); err != nil {
+		return fmt.Errorf("error deleting audit rule: %w", err)
 	}
 
 	return nil

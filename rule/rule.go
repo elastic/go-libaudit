@@ -111,6 +111,22 @@ func Build(rule Rule) (WireFormat, error) {
 // the current machine. This is misleading, so this code will print the actual
 // architecture.
 func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
+	return ToCommandLineAddRemove(wf, resolveIds, true)
+}
+
+// ToCommandLineAddRemove decodes a WireFormat into a command-line rule.
+// When resolveIds is set, it tries to resolve the argument to UIDs, GIDs,
+// file_type fields.
+// When addRule is set, it indicates the rule is being added to the system.
+// When addRule is unset, it indicates the rule is being removed from the system.
+// `auditctl -l` always prints the numeric (non-resolved) representation of
+// this fields, so when the flag is set to false, the output is the same as
+// auditctl.
+// There is an exception to this rule when parsing the `arch` field:
+// auditctl always prints "b64" or "b32" even for architectures other than
+// the current machine. This is misleading, so this code will print the actual
+// architecture.
+func ToCommandLineAddRemove(wf WireFormat, resolveIds, addRule bool) (rule string, err error) {
 	ar, err := fromWireFormat(wf)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse wire format: %w", err)
@@ -162,7 +178,15 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 			}
 		}
 		if !extraFields {
-			arguments := []string{"-w", path, "-p", permission(r.values[permIdx]).String()}
+			addRemove := "-w"
+			if !addRule {
+				addRemove = "-W"
+			}
+
+			arguments := []string{
+				addRemove, path, "-p",
+				permission(r.values[permIdx]).String(),
+			}
 			if len(key) > 0 {
 				arguments = append(arguments, "-k", key)
 			}
@@ -171,11 +195,12 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 	}
 
 	// Parse rule as syscall type
-
-	arguments := []string{
-		"-a",
-		fmt.Sprintf("%s,%s", act, list),
+	addRemove := "-a"
+	if !addRule {
+		addRemove = "-d"
 	}
+
+	arguments := []string{addRemove, fmt.Sprintf("%s,%s", act, list)}
 
 	// Parse arch field first, if present
 	// Here there is a significant difference to what auditctl does.

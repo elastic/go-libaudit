@@ -41,7 +41,7 @@ const (
 
 // Build builds an audit rule.
 func Build(rule Rule) (WireFormat, error) {
-	data := &ruleData{allSyscalls: true}
+	data := &ruleData{}
 	var err error
 
 	switch v := rule.(type) {
@@ -49,6 +49,14 @@ func Build(rule Rule) (WireFormat, error) {
 		if err = data.setList(v.List); err != nil {
 			return nil, err
 		}
+
+		// While it's possible to set syscalls on lists other than the 'exit' list
+		// they don't actually do anything since the syscall information isn't
+		// available at that time.  Don't assume that all syscalls are enabled.
+		if data.flags == exitFilter {
+			data.allSyscalls = true
+		}
+
 		if err = data.setAction(v.Action); err != nil {
 			return nil, err
 		}

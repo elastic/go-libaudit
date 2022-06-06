@@ -24,7 +24,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -66,44 +65,30 @@ type field struct {
 	value string // Parsed and enriched value.
 }
 
-func newField(orig string) *field   { return &field{orig: orig, value: orig} }
-func newFieldVal(orig string) field { return field{orig: orig, value: orig} }
-func (f *field) Orig() string       { return f.orig }
-func (f *field) Value() string      { return f.value }
-func (f *field) Set(value string)   { f.value = value }
+func newField(orig string) field { return field{orig: orig, value: orig} }
 
 type fieldMap map[string]field
 
-func (fm *fieldMap) add(key string, f field) {
-	m := *fm
-	m[key] = f
+func (fm fieldMap) add(key string, f field) {
+	fm[key] = f
 }
 
-func (fm *fieldMap) setFieldValue(key, value string) {
-	m := *fm
-	if f, ok := m[key]; ok {
-		m[key] = field{f.orig, value}
+func (fm fieldMap) setFieldValue(key, value string) {
+	if f, ok := fm[key]; ok {
+		fm[key] = field{f.orig, value}
 	}
 	return
 }
 
-func (fm *fieldMap) find(key string) (field, error) {
-	m := *fm
-	if f, ok := m[key]; ok {
+func (fm fieldMap) find(key string) (field, error) {
+	if f, ok := fm[key]; ok {
 		return f, nil
 	}
 	return field{}, fmt.Errorf("%s key not found", key)
 }
 
-func (fm *fieldMap) delete(key string) {
-	delete(*fm, key)
-}
-
-// A pool of intermediate maps to relief pressure from the GC
-var fieldPool = sync.Pool{
-	New: func() interface{} {
-		return fieldMap{}
-	},
+func (fm fieldMap) delete(key string) {
+	delete(fm, key)
 }
 
 // Data returns the key-value pairs that are contained in the audit message.
@@ -127,13 +112,12 @@ func (m *AuditMessage) Data() (map[string]string, error) {
 		return nil, m.error
 	}
 
-	extractedKv := extractKeyValuePairsPool(message)
-	defer func() { extractedKv = fieldMap{}; fieldPool.Put(extractedKv) }()
-
-	if err = m.enrichDataNew(&extractedKv); err != nil {
+	extractedKv := extractKeyValuePairs(message)
+	if err = m.enrichData(extractedKv); err != nil {
 		m.error = err
 		return nil, m.error
 	}
+
 	m.data = make(map[string]string, len(extractedKv))
 	for k, f := range extractedKv {
 		m.data[k] = f.value
@@ -288,13 +272,6 @@ var (
 	// value pairs.
 	kvRegex = regexp.MustCompile(`([a-z0-9_-]+)=((?:[^"'\s]+)|'(?:\\'|[^'])*'|"(?:\\"|[^"])*")`)
 
-	kvregexPool = sync.Pool{
-		New: func() interface{} {
-			r := *kvRegex
-			return &r
-		},
-	}
-
 	// avcMessageRegex matches the beginning of SELinux AVC messages to parse
 	// the seresult and seperms parameters.
 	// Example: "avc:  denied  { read } for  "
@@ -330,36 +307,8 @@ func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 	return msg, nil
 }
 
-func extractKeyValuePairsFm(msg string) fieldMap {
+func extractKeyValuePairs(msg string) fieldMap {
 	data := make(fieldMap, 0)
-	r := kvregexPool.Get().(*regexp.Regexp)
-	defer kvregexPool.Put(r)
-
-	matches := r.FindAllStringSubmatch(msg, -1)
-	for _, m := range matches {
-		key, orig := m[1], m[2]
-		value := trimQuotesAndSpace(orig)
-
-		// Drop fields with useless values.
-		switch value {
-		case "", "?", "?,", "(null)":
-			continue
-		}
-
-		if key == "msg" {
-			for mk, mv := range extractKeyValuePairsFm(value) {
-				data.add(mk, mv)
-			}
-			continue
-		}
-		data.add(key, field{orig: orig, value: value})
-	}
-	return data
-}
-
-func extractKeyValuePairsPool(msg string) fieldMap {
-	data := fieldPool.Get().(fieldMap)
-
 	matches := kvRegex.FindAllStringSubmatch(msg, -1)
 	for _, m := range matches {
 		key, orig := m[1], m[2]
@@ -372,8 +321,7 @@ func extractKeyValuePairsPool(msg string) fieldMap {
 		}
 
 		if key == "msg" {
-			msgData := extractKeyValuePairsPool(value)
-			for mk, mv := range msgData {
+			for mk, mv := range extractKeyValuePairs(value) {
 				data.add(mk, mv)
 			}
 			continue
@@ -381,33 +329,12 @@ func extractKeyValuePairsPool(msg string) fieldMap {
 		data.add(key, field{orig: orig, value: value})
 	}
 	return data
-}
-
-func extractKeyValuePairs(msg string, data map[string]*field) {
-	matches := kvRegex.FindAllStringSubmatch(msg, -1)
-	for _, m := range matches {
-		key := m[1]
-		f := newField(m[2])
-		f.Set(trimQuotesAndSpace(m[2]))
-
-		// Drop fields with useless values.
-		switch f.Value() {
-		case "", "?", "?,", "(null)":
-			continue
-		}
-
-		if key == "msg" {
-			extractKeyValuePairs(f.Value(), data)
-		} else {
-			data[key] = f
-		}
-	}
 }
 
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing
-func (m *AuditMessage) enrichDataNew(data *fieldMap) error {
+func (m *AuditMessage) enrichData(data fieldMap) error {
 	data.normalizeUnsetID("auid")
 	data.normalizeUnsetID("old-auid")
 	data.normalizeUnsetID("ses")
@@ -473,7 +400,7 @@ func (m *AuditMessage) enrichDataNew(data *fieldMap) error {
 	return nil
 }
 
-func (fm *fieldMap) arch() error {
+func (fm fieldMap) arch() error {
 	const key = "arch"
 	field, err := fm.find(key)
 	if err != nil {
@@ -489,7 +416,7 @@ func (fm *fieldMap) arch() error {
 	return nil
 }
 
-func (fm *fieldMap) setSyscallName() error {
+func (fm fieldMap) setSyscallName() error {
 	field, err := fm.find("syscall")
 	if err != nil {
 		return err
@@ -511,7 +438,7 @@ func (fm *fieldMap) setSyscallName() error {
 	return nil
 }
 
-func (fm *fieldMap) setSignalName() error {
+func (fm fieldMap) setSignalName() error {
 	field, err := fm.find("sig")
 	if err != nil {
 		return err
@@ -528,7 +455,7 @@ func (fm *fieldMap) setSignalName() error {
 	return nil
 }
 
-func (fm *fieldMap) saddr() error {
+func (fm fieldMap) saddr() error {
 	field, err := fm.find("saddr")
 	if err != nil {
 		return err
@@ -541,12 +468,12 @@ func (fm *fieldMap) saddr() error {
 
 	fm.delete("saddr")
 	for k, v := range saddrData {
-		fm.add(k, newFieldVal(v))
+		fm.add(k, newField(v))
 	}
 	return nil
 }
 
-func (fm *fieldMap) normalizeUnsetID(key string) {
+func (fm fieldMap) normalizeUnsetID(key string) {
 	f, err := fm.find(key)
 	if err != nil {
 		return
@@ -558,7 +485,7 @@ func (fm *fieldMap) normalizeUnsetID(key string) {
 	}
 }
 
-func (fm *fieldMap) hexDecode(key string) error {
+func (fm fieldMap) hexDecode(key string) error {
 	field, err := fm.find(key)
 	if err != nil {
 		return err
@@ -577,13 +504,13 @@ func (fm *fieldMap) hexDecode(key string) error {
 	return nil
 }
 
-func (fm *fieldMap) execveArgs() error {
+func (fm fieldMap) execveArgs() error {
 	argc, err := fm.find("argc")
 	if err != nil {
 		return err
 	}
 
-	count, err := strconv.ParseUint(argc.Value(), 10, 32)
+	count, err := strconv.ParseUint(argc.value, 10, 32)
 	if err != nil {
 		return fmt.Errorf("failed to convert argc='%v' to number: %w", argc, err)
 	}
@@ -596,7 +523,7 @@ func (fm *fieldMap) execveArgs() error {
 			return fmt.Errorf("failed to find arg %v", key)
 		}
 
-		if ascii, err := hexToString(arg.Orig()); err == nil {
+		if ascii, err := hexToString(arg.orig); err == nil {
 			fm.setFieldValue(key, ascii)
 		}
 	}
@@ -606,7 +533,7 @@ func (fm *fieldMap) execveArgs() error {
 
 // parseSELinuxContext parses a SELinux security context of the form
 // 'user:role:domain:level:category'.
-func (fm *fieldMap) parseSELinuxContext(key string) error {
+func (fm fieldMap) parseSELinuxContext(key string) error {
 	f, err := fm.find(key)
 	if err != nil {
 		return err
@@ -620,12 +547,12 @@ func (fm *fieldMap) parseSELinuxContext(key string) error {
 	fm.delete(key)
 
 	for i, part := range contextParts {
-		fm.add(key+keys[i], newFieldVal(part))
+		fm.add(key+keys[i], newField(part))
 	}
 	return nil
 }
 
-func (fm *fieldMap) result() error {
+func (fm fieldMap) result() error {
 	// Syscall messages use "success". Other messages use "res".
 	field, err := fm.find("success")
 	if err != nil {
@@ -640,14 +567,14 @@ func (fm *fieldMap) result() error {
 
 	switch v := strings.ToLower(field.value); {
 	case v == "yes", v == "1", strings.HasPrefix(v, "suc"):
-		fm.add("result", newFieldVal("success"))
+		fm.add("result", newField("success"))
 	default:
-		fm.add("result", newFieldVal("fail"))
+		fm.add("result", newField("fail"))
 	}
 	return nil
 }
 
-func (m *AuditMessage) auditRuleKeyNew(data *fieldMap) {
+func (m *AuditMessage) auditRuleKeyNew(data fieldMap) {
 	field, err := data.find("key")
 	if err != nil {
 		return
@@ -661,7 +588,7 @@ func (m *AuditMessage) auditRuleKeyNew(data *fieldMap) {
 		return
 	}
 
-	parts := strings.SplitN(field.Value(), "=", 2)
+	parts := strings.SplitN(field.value, "=", 2)
 	if len(parts) == 1 {
 		// Handle key="net".
 		m.tags = parts
@@ -671,7 +598,7 @@ func (m *AuditMessage) auditRuleKeyNew(data *fieldMap) {
 	}
 }
 
-func (fm *fieldMap) exit() error {
+func (fm fieldMap) exit() error {
 	field, err := fm.find("exit")
 	if err != nil {
 		return err

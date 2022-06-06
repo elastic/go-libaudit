@@ -25,7 +25,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -129,11 +128,11 @@ func TestGetAuditMessageType(t *testing.T) {
 func TestExtractKeyValuePairs(t *testing.T) {
 	tests := []struct {
 		in  string
-		out map[string]*field
+		out fieldMap
 	}{
 		{
 			`argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"'`,
-			map[string]*field{
+			fieldMap{
 				"argc": newField("4"),
 				"a0":   {`"cat"`, `cat`},
 				"a1":   {`"btest=test"`, `btest=test`},
@@ -143,28 +142,28 @@ func TestExtractKeyValuePairs(t *testing.T) {
 		},
 		{
 			`x='grep "test" file' y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`'grep "test" file'`, `grep "test" file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x="grep 'test' file" y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`"grep 'test' file"`, `grep 'test' file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x="grep \"test\" file" y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`"grep \"test\" file"`, `grep \"test\" file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x='grep \'test\' file' y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`'grep \'test\' file'`, `grep \'test\' file`},
 				"y": newField("z"),
 			},
@@ -172,8 +171,7 @@ func TestExtractKeyValuePairs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		out := map[string]*field{}
-		extractKeyValuePairs(tc.in, out)
+		out := extractKeyValuePairs(tc.in)
 		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
 	}
 }
@@ -182,12 +180,12 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 	tests := []struct {
 		name string
 		in   string
-		out  map[string]*field
+		out  fieldMap
 	}{
 		{
 			"bpf message",
 			`arch=c000003e syscall=321 success=yes exit=0 a0=2 a1=c0059cd6e8 comm="pf-host-agent" exe="/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key="bpf" ARCH=x86_64 SYSCALL=bpf`,
-			map[string]*field{
+			fieldMap{
 				"arch":    newField("c000003e"),
 				"syscall": newField("321"),
 				"success": {`yes`, `yes`},
@@ -203,7 +201,7 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 		{
 			"short message",
 			`x='grep "test" file' y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`'grep "test" file'`, `grep "test" file`},
 				"y": newField("z"),
 			},
@@ -214,53 +212,14 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 		tc := tc
 		b.Run(tc.name+"_current", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				out := map[string]*field{}
 				b.StartTimer()
-				//out = extractKeyValuePairs(tc.in)
-				extractKeyValuePairs(tc.in, out)
+				out := extractKeyValuePairs(tc.in)
 				b.StopTimer()
 				if !assert.Equal(b, tc.out, out, "failed on: %v", tc.in) {
 					b.FailNow()
 				}
 			}
 		})
-
-		b.Run(tc.name+"_with_values_instead_of_pointers", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				b.StartTimer()
-				out := extractKeyValuePairsFm(tc.in)
-				b.StopTimer()
-				for tk, tv := range tc.out {
-					result, ok := out[tk]
-					if !ok {
-						b.Fatalf("missing key %v in the output", tk)
-					}
-					if !reflect.DeepEqual(&result, tv) {
-						b.Fatalf("wrong field in output at key %s: expected %v, got %v",
-							tk, *tv, result)
-					}
-				}
-			}
-		})
-
-		b.Run(tc.name+"_with_pool", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				b.StartTimer()
-				out := extractKeyValuePairsPool(tc.in)
-				b.StopTimer()
-				for tk, tv := range tc.out {
-					result, ok := out[tk]
-					if !ok {
-						b.Fatalf("missing key %v in the output", tk)
-					}
-					if !reflect.DeepEqual(&result, tv) {
-						b.Fatalf("wrong field in output at key %s: expected %v, got %v",
-							tk, *tv, result)
-					}
-				}
-			}
-		})
-
 	}
 }
 

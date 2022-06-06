@@ -227,9 +227,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added auparse package for parsing audit logs.
 
 [Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.0...HEAD
-[2.3.0]: https://github.com/elastic/go-libaudit/compare/v2.3.0
-[2.2.0]: https://github.com/elastic/go-libaudit/compare/v2.2.0
-[2.1.0]: https://github.com/elastic/go-libaudit/compare/v2.1.0
+[2.3.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.0
+[2.2.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.2.0
+[2.1.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.1.0
 [2.0.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.2
 [2.0.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.1
 [2.0.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.0.0

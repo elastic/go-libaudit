@@ -45,6 +45,8 @@ var (
 	errInvalidAuditHeader = errors.New("invalid audit message header")
 	// errParseFailure indicates a generic failure to parse.
 	errParseFailure = errors.New("failed to parse audit message")
+	// errInvalidResult indicates a that neither "success" and "res" keys are not found
+	errInvalidResult = errors.New("success and res key not found")
 )
 
 // AuditMessage represents a single audit message.
@@ -75,9 +77,8 @@ func (fm fieldMap) add(key string, f field) {
 
 func (fm fieldMap) setFieldValue(key, value string) {
 	if f, ok := fm[key]; ok {
-		fm[key] = field{f.orig, value}
+		fm[key] = field{orig: f.orig, value: value}
 	}
-	return
 }
 
 func (fm fieldMap) find(key string) (field, error) {
@@ -333,25 +334,26 @@ func extractKeyValuePairs(msg string) fieldMap {
 
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
-// Enrichment after KV parsing
+// Enrichment after KV parsing.
+//nolint:errcheck // Continue enriching even if some fields do not exist.
 func (m *AuditMessage) enrichData(data fieldMap) error {
 	data.normalizeUnsetID("auid")
 	data.normalizeUnsetID("old-auid")
 	data.normalizeUnsetID("ses")
 
 	// Many message types can have subj field so check them all.
-	_ = data.parseSELinuxContext("subj")
+	data.parseSELinuxContext("subj")
 
 	// Normalize success/res to result.
-	_ = data.result()
+	data.result()
 
 	// Convert exit codes to named POSIX exit codes.
-	_ = data.exit()
+	data.exit()
 
 	// Normalize keys that are of the form key="key=user_command".
 	m.auditRuleKeyNew(data)
 
-	_ = data.hexDecode("cwd")
+	data.hexDecode("cwd")
 
 	switch m.RecordType {
 	case AUDIT_SECCOMP:
@@ -390,11 +392,11 @@ func (m *AuditMessage) enrichData(data fieldMap) error {
 			return err
 		}
 	case AUDIT_PATH:
-		_ = data.parseSELinuxContext("obj")
-		_ = data.hexDecode("name")
+		data.parseSELinuxContext("obj")
+		data.hexDecode("name")
 	case AUDIT_USER_LOGIN:
 		// acct only exists in failed logins.
-		_ = data.hexDecode("acct")
+		data.hexDecode("acct")
 	}
 
 	return nil
@@ -558,7 +560,7 @@ func (fm fieldMap) result() error {
 	if err != nil {
 		field, err = fm.find("res")
 		if err != nil {
-			return errors.New("success and res key not found")
+			return errInvalidResult
 		}
 		fm.delete("res")
 	} else {

@@ -209,15 +209,9 @@ func BenchmarkExtractKeyValuePairs(b *testing.B) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
-		b.Run(tc.name+"_current", func(b *testing.B) {
+		b.Run(tc.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				b.StartTimer()
-				out := extractKeyValuePairs(tc.in)
-				b.StopTimer()
-				if !assert.Equal(b, tc.out, out, "failed on: %v", tc.in) {
-					b.FailNow()
-				}
+				extractKeyValuePairs(tc.in)
 			}
 		})
 	}
@@ -278,9 +272,7 @@ var dataTests = []struct {
 }
 
 func TestExtractAndEnrichData(t *testing.T) {
-	tests := dataTests
-	for _, tc := range tests {
-		tc := tc
+	for _, tc := range dataTests {
 		t.Run(tc.name, func(t *testing.T) {
 			msg, err := ParseLogLine(tc.text)
 			if err != nil {
@@ -294,22 +286,16 @@ func TestExtractAndEnrichData(t *testing.T) {
 }
 
 func BenchmarkAuditMessageData(b *testing.B) {
-	tests := dataTests
-	for _, tc := range tests {
-		tc := tc
+	for _, tc := range dataTests {
 		b.Run(tc.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				b.StopTimer()
-				var (
-					data map[string]string
-					err  error
-				)
 				msg, errP := ParseLogLine(tc.text)
 				if errP != nil {
 					b.Fatalf("parsing message: %v", errP)
 				}
 				b.StartTimer()
-				data, err = msg.Data()
+				data, err := msg.Data()
 				b.StopTimer()
 				require.Nil(b, err)
 				assert.Equal(b, tc.output, data)
@@ -414,6 +400,9 @@ func loadAuditMessages(tb testing.TB, name string) []*AuditMessage {
 		}
 
 		messages = append(messages, msg)
+	}
+	if err := s.Err(); err != nil {
+		tb.Fatalf("incomplete file loading: %v", err)
 	}
 	return messages
 }

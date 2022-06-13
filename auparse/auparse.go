@@ -45,6 +45,8 @@ var (
 	errInvalidAuditHeader = errors.New("invalid audit message header")
 	// errParseFailure indicates a generic failure to parse.
 	errParseFailure = errors.New("failed to parse audit message")
+	// errInvalidResult indicates a that neither "success" and "res" keys are not found
+	errInvalidResult = errors.New("success and res key not found")
 )
 
 // AuditMessage represents a single audit message.
@@ -54,7 +56,6 @@ type AuditMessage struct {
 	Sequence   uint32           // Sequence parsed from payload.
 	RawData    string           // Raw message as a string.
 
-	fields map[string]*field
 	offset int               // offset is the index into RawData where the header ends and message begins.
 	data   map[string]string // The key value pairs parsed from the message.
 	tags   []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).
@@ -66,10 +67,30 @@ type field struct {
 	value string // Parsed and enriched value.
 }
 
-func newField(orig string) *field { return &field{orig: orig, value: orig} }
-func (f *field) Orig() string     { return f.orig }
-func (f *field) Value() string    { return f.value }
-func (f *field) Set(value string) { f.value = value }
+func newField(orig string) field { return field{orig: orig, value: orig} }
+
+type fieldMap map[string]field
+
+func (fm fieldMap) add(key string, f field) {
+	fm[key] = f
+}
+
+func (fm fieldMap) setFieldValue(key, value string) {
+	if f, ok := fm[key]; ok {
+		fm[key] = field{orig: f.orig, value: value}
+	}
+}
+
+func (fm fieldMap) find(key string) (field, error) {
+	if f, ok := fm[key]; ok {
+		return f, nil
+	}
+	return field{}, fmt.Errorf("%s key not found", key)
+}
+
+func (fm fieldMap) delete(key string) {
+	delete(fm, key)
+}
 
 // Data returns the key-value pairs that are contained in the audit message.
 // This information is parsed from the raw message text the first time this
@@ -92,18 +113,15 @@ func (m *AuditMessage) Data() (map[string]string, error) {
 		return nil, m.error
 	}
 
-	m.fields = map[string]*field{}
-	defer func() { m.fields = nil }()
-	extractKeyValuePairs(message, m.fields)
-
-	if err = enrichData(m); err != nil {
+	extractedKv := extractKeyValuePairs(message)
+	if err = m.enrichData(extractedKv); err != nil {
 		m.error = err
 		return nil, m.error
 	}
 
-	m.data = make(map[string]string, len(m.fields))
-	for k, f := range m.fields {
-		m.data[k] = f.Value()
+	m.data = make(map[string]string, len(extractedKv))
+	for k, f := range extractedKv {
+		m.data[k] = f.value
 	}
 
 	return m.data, m.error
@@ -290,208 +308,211 @@ func normalizeAuditMessage(typ AuditMessageType, msg string) (string, error) {
 	return msg, nil
 }
 
-func extractKeyValuePairs(msg string, data map[string]*field) {
+func extractKeyValuePairs(msg string) fieldMap {
+	data := make(fieldMap, 0)
 	matches := kvRegex.FindAllStringSubmatch(msg, -1)
 	for _, m := range matches {
-		key := m[1]
-		f := newField(m[2])
-		f.Set(trimQuotesAndSpace(m[2]))
+		key, orig := m[1], m[2]
+		value := trimQuotesAndSpace(orig)
 
 		// Drop fields with useless values.
-		switch f.Value() {
+		switch value {
 		case "", "?", "?,", "(null)":
 			continue
 		}
 
 		if key == "msg" {
-			extractKeyValuePairs(f.Value(), data)
-		} else {
-			data[key] = f
+			for mk, mv := range extractKeyValuePairs(value) {
+				data.add(mk, mv)
+			}
+			continue
 		}
+		data.add(key, field{orig: orig, value: value})
 	}
+	return data
 }
 
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
-// Enrichment after KV parsing
-
+// Enrichment after KV parsing.
 //nolint:errcheck // Continue enriching even if some fields do not exist.
-func enrichData(msg *AuditMessage) error {
-	normalizeUnsetID("auid", msg.fields)
-	normalizeUnsetID("old-auid", msg.fields)
-	normalizeUnsetID("ses", msg.fields)
+func (m *AuditMessage) enrichData(data fieldMap) error {
+	data.normalizeUnsetID("auid")
+	data.normalizeUnsetID("old-auid")
+	data.normalizeUnsetID("ses")
 
 	// Many message types can have subj field so check them all.
-	parseSELinuxContext("subj", msg.fields)
+	data.parseSELinuxContext("subj")
 
 	// Normalize success/res to result.
-	result(msg.fields)
+	data.result()
 
 	// Convert exit codes to named POSIX exit codes.
-	exit(msg.fields)
+	data.exit()
 
 	// Normalize keys that are of the form key="key=user_command".
-	auditRuleKey(msg)
+	m.auditRuleKeyNew(data)
 
-	hexDecode("cwd", msg.fields)
+	data.hexDecode("cwd")
 
-	switch msg.RecordType {
+	switch m.RecordType {
 	case AUDIT_SECCOMP:
-		if err := setSignalName(msg.fields); err != nil {
+		if err := data.setSignalName(); err != nil {
 			return err
 		}
 		fallthrough
 	case AUDIT_SYSCALL:
-		if err := arch(msg.fields); err != nil {
+		if err := data.arch(); err != nil {
 			return err
 		}
-		if err := setSyscallName(msg.fields); err != nil {
+		if err := data.setSyscallName(); err != nil {
 			return err
 		}
-		if err := hexDecode("exe", msg.fields); err != nil {
+		if err := data.hexDecode("exe"); err != nil {
 			return err
 		}
 	case AUDIT_SOCKADDR:
-		if err := saddr(msg.fields); err != nil {
+		if err := data.saddr(); err != nil {
 			return err
 		}
 	case AUDIT_PROCTITLE:
-		if err := hexDecode("proctitle", msg.fields); err != nil {
+		if err := data.hexDecode("proctitle"); err != nil {
 			return err
 		}
 	case AUDIT_USER_CMD:
-		if err := hexDecode("cmd", msg.fields); err != nil {
+		if err := data.hexDecode("cmd"); err != nil {
 			return err
 		}
 	case AUDIT_TTY, AUDIT_USER_TTY:
-		if err := hexDecode("data", msg.fields); err != nil {
+		if err := data.hexDecode("data"); err != nil {
 			return err
 		}
 	case AUDIT_EXECVE:
-		if err := execveArgs(msg.fields); err != nil {
+		if err := data.execveArgs(); err != nil {
 			return err
 		}
 	case AUDIT_PATH:
-		parseSELinuxContext("obj", msg.fields)
-		hexDecode("name", msg.fields)
+		data.parseSELinuxContext("obj")
+		data.hexDecode("name")
 	case AUDIT_USER_LOGIN:
 		// acct only exists in failed logins.
-		hexDecode("acct", msg.fields)
+		data.hexDecode("acct")
 	}
 
 	return nil
 }
 
-func arch(data map[string]*field) error {
-	field, found := data["arch"]
-	if !found {
-		return errors.New("arch key not found")
+func (fm fieldMap) arch() error {
+	const key = "arch"
+	field, err := fm.find(key)
+	if err != nil {
+		return err
 	}
 
-	arch, err := strconv.ParseInt(field.Value(), 16, 64)
+	arch, err := strconv.ParseInt(field.value, 16, 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse arch: %w", err)
 	}
 
-	field.Set(AuditArch(arch).String())
+	fm.setFieldValue(key, AuditArch(arch).String())
 	return nil
 }
 
-func setSyscallName(data map[string]*field) error {
-	field, found := data["syscall"]
-	if !found {
-		return errors.New("syscall key not found")
+func (fm fieldMap) setSyscallName() error {
+	field, err := fm.find("syscall")
+	if err != nil {
+		return err
 	}
 
-	syscall, err := strconv.Atoi(field.Value())
+	syscall, err := strconv.Atoi(field.value)
 	if err != nil {
 		return fmt.Errorf("failed to parse syscall: %w", err)
 	}
 
-	arch, found := data["arch"]
-	if !found {
+	arch, err := fm.find("arch")
+	if err != nil {
 		return errors.New("arch key not found so syscall cannot be translated to a name")
 	}
 
-	if name, found := AuditSyscalls[arch.Value()][syscall]; found {
-		field.Set(name)
+	if name, found := AuditSyscalls[arch.value][syscall]; found {
+		fm.setFieldValue("syscall", name)
 	}
 	return nil
 }
 
-func setSignalName(data map[string]*field) error {
-	field, found := data["sig"]
-	if !found {
-		return errors.New("sig key not found")
+func (fm fieldMap) setSignalName() error {
+	field, err := fm.find("sig")
+	if err != nil {
+		return err
 	}
 
-	signalNum, err := strconv.Atoi(field.Value())
+	signalNum, err := strconv.Atoi(field.value)
 	if err != nil {
 		return fmt.Errorf("failed to parse sig: %w", err)
 	}
 
 	if signalName := unix.SignalName(syscall.Signal(signalNum)); signalName != "" {
-		field.Set(signalName)
+		fm.setFieldValue("sig", signalName)
 	}
 	return nil
 }
 
-func saddr(data map[string]*field) error {
-	field, found := data["saddr"]
-	if !found {
-		return errors.New("saddr key not found")
+func (fm fieldMap) saddr() error {
+	field, err := fm.find("saddr")
+	if err != nil {
+		return err
 	}
 
-	saddrData, err := parseSockaddr(field.Value())
+	saddrData, err := parseSockaddr(field.value)
 	if err != nil {
 		return fmt.Errorf("failed to parse saddr: %w", err)
 	}
 
-	delete(data, "saddr")
+	fm.delete("saddr")
 	for k, v := range saddrData {
-		data[k] = newField(v)
+		fm.add(k, newField(v))
 	}
 	return nil
 }
 
-func normalizeUnsetID(key string, data map[string]*field) {
-	field, found := data[key]
-	if !found {
+func (fm fieldMap) normalizeUnsetID(key string) {
+	f, err := fm.find(key)
+	if err != nil {
 		return
 	}
 
-	switch field.Value() {
+	switch f.value {
 	case "4294967295", "-1":
-		field.Set("unset")
+		fm.setFieldValue(key, "unset")
 	}
 }
 
-func hexDecode(key string, data map[string]*field) error {
-	field, found := data[key]
-	if !found {
-		return fmt.Errorf("%v key not found", key)
+func (fm fieldMap) hexDecode(key string) error {
+	field, err := fm.find(key)
+	if err != nil {
+		return err
 	}
 
 	// Use the original value that may or may not contain a leading quote.
-	decodedStrings, err := hexToStrings(field.Orig())
+	decodedStrings, err := hexToStrings(field.orig)
 	if err != nil {
 		// Field is not in hex. Ignore.
 		return nil
 	}
 
 	if len(decodedStrings) > 0 {
-		field.Set(strings.Join(decodedStrings, " "))
+		fm.setFieldValue(key, strings.Join(decodedStrings, " "))
 	}
 	return nil
 }
 
-func execveArgs(data map[string]*field) error {
-	argc, found := data["argc"]
-	if !found {
-		return errors.New("argc key not found")
+func (fm fieldMap) execveArgs() error {
+	argc, err := fm.find("argc")
+	if err != nil {
+		return err
 	}
 
-	count, err := strconv.ParseUint(argc.Value(), 10, 32)
+	count, err := strconv.ParseUint(argc.value, 10, 32)
 	if err != nil {
 		return fmt.Errorf("failed to convert argc='%v' to number: %w", argc, err)
 	}
@@ -499,13 +520,13 @@ func execveArgs(data map[string]*field) error {
 	for i := 0; i < int(count); i++ {
 		key := "a" + strconv.Itoa(i)
 
-		arg, found := data[key]
-		if !found {
+		arg, err := fm.find(key)
+		if err != nil {
 			return fmt.Errorf("failed to find arg %v", key)
 		}
 
-		if ascii, err := hexToString(arg.Orig()); err == nil {
-			arg.Set(ascii)
+		if ascii, err := hexToString(arg.orig); err == nil {
+			fm.setFieldValue(key, ascii)
 		}
 	}
 
@@ -514,78 +535,78 @@ func execveArgs(data map[string]*field) error {
 
 // parseSELinuxContext parses a SELinux security context of the form
 // 'user:role:domain:level:category'.
-func parseSELinuxContext(key string, data map[string]*field) error {
-	field, found := data[key]
-	if !found {
-		return fmt.Errorf("%v key not found", key)
+func (fm fieldMap) parseSELinuxContext(key string) error {
+	f, err := fm.find(key)
+	if err != nil {
+		return err
 	}
 
 	keys := []string{"_user", "_role", "_domain", "_level", "_category"}
-	contextParts := strings.SplitN(field.Value(), ":", len(keys))
+	contextParts := strings.SplitN(f.value, ":", len(keys))
 	if len(contextParts) == 0 {
 		return fmt.Errorf("failed to split SELinux context field %v", key)
 	}
-	delete(data, key)
+	fm.delete(key)
 
 	for i, part := range contextParts {
-		data[key+keys[i]] = newField(part)
+		fm.add(key+keys[i], newField(part))
 	}
 	return nil
 }
 
-func result(data map[string]*field) error {
+func (fm fieldMap) result() error {
 	// Syscall messages use "success". Other messages use "res".
-	field, found := data["success"]
-	if !found {
-		field, found = data["res"]
-		if !found {
-			return errors.New("success and res key not found")
+	field, err := fm.find("success")
+	if err != nil {
+		field, err = fm.find("res")
+		if err != nil {
+			return errInvalidResult
 		}
-		delete(data, "res")
+		fm.delete("res")
 	} else {
-		delete(data, "success")
+		fm.delete("success")
 	}
 
-	switch v := strings.ToLower(field.Value()); {
+	switch v := strings.ToLower(field.value); {
 	case v == "yes", v == "1", strings.HasPrefix(v, "suc"):
-		data["result"] = newField("success")
+		fm.add("result", newField("success"))
 	default:
-		data["result"] = newField("fail")
+		fm.add("result", newField("fail"))
 	}
 	return nil
 }
 
-func auditRuleKey(msg *AuditMessage) {
-	field, found := msg.fields["key"]
-	if !found {
+func (m *AuditMessage) auditRuleKeyNew(data fieldMap) {
+	field, err := data.find("key")
+	if err != nil {
 		return
 	}
-	delete(msg.fields, "key")
+	data.delete("key")
 
 	// Handle hex encoded data (e.g. key=28696E7).
-	if decodedData, err := decodeUppercaseHexString(field.Orig()); err == nil {
+	if decodedData, err := decodeUppercaseHexString(field.orig); err == nil {
 		keys := strings.Split(string(decodedData), string([]byte{0x01}))
-		msg.tags = keys
+		m.tags = keys
 		return
 	}
 
-	parts := strings.SplitN(field.Value(), "=", 2)
+	parts := strings.SplitN(field.value, "=", 2)
 	if len(parts) == 1 {
 		// Handle key="net".
-		msg.tags = parts
+		m.tags = parts
 	} else if len(parts) == 2 {
 		// Handle key="key=net".
-		msg.tags = parts[1:]
+		m.tags = parts[1:]
 	}
 }
 
-func exit(data map[string]*field) error {
-	field, found := data["exit"]
-	if !found {
-		return errors.New("exit key not found")
+func (fm fieldMap) exit() error {
+	field, err := fm.find("exit")
+	if err != nil {
+		return err
 	}
 
-	exitCode, err := strconv.Atoi(field.Value())
+	exitCode, err := strconv.Atoi(field.value)
 	if err != nil {
 		return fmt.Errorf("failed to parse exit: %w", err)
 	}
@@ -599,6 +620,6 @@ func exit(data map[string]*field) error {
 		return nil
 	}
 
-	field.Set(name)
+	fm.setFieldValue("exit", name)
 	return nil
 }

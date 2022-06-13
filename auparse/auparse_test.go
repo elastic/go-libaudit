@@ -48,6 +48,25 @@ const (
 	syscallLogLine = `type=SYSCALL msg=` + syscallMsg
 )
 
+func TestFieldMap(t *testing.T) {
+	m := &fieldMap{}
+	mm := *m
+	mm["test"] = field{`'test'`, "test"}
+
+	f, err := m.find("test")
+	require.Nil(t, err)
+	assert.Equal(t, "test", f.value)
+
+	m.setFieldValue("test", "newVal")
+	assert.Equal(t, "newVal", mm["test"].value)
+
+	m.add("second", field{`'test'`, "test"})
+	f2, err := m.find("second")
+	require.Nil(t, err)
+	assert.Equal(t, "test", f2.value)
+	assert.Equal(t, "test", mm["second"].value)
+}
+
 func TestNormalizeAuditMessage(t *testing.T) {
 	tests := []struct {
 		typ AuditMessageType
@@ -109,11 +128,11 @@ func TestGetAuditMessageType(t *testing.T) {
 func TestExtractKeyValuePairs(t *testing.T) {
 	tests := []struct {
 		in  string
-		out map[string]*field
+		out fieldMap
 	}{
 		{
 			`argc=4 a0="cat" a1="btest=test" a2="-f" a3="regex=8"'`,
-			map[string]*field{
+			fieldMap{
 				"argc": newField("4"),
 				"a0":   {`"cat"`, `cat`},
 				"a1":   {`"btest=test"`, `btest=test`},
@@ -123,28 +142,28 @@ func TestExtractKeyValuePairs(t *testing.T) {
 		},
 		{
 			`x='grep "test" file' y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`'grep "test" file'`, `grep "test" file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x="grep 'test' file" y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`"grep 'test' file"`, `grep 'test' file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x="grep \"test\" file" y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`"grep \"test\" file"`, `grep \"test\" file`},
 				"y": newField("z"),
 			},
 		},
 		{
 			`x='grep \'test\' file' y=z`,
-			map[string]*field{
+			fieldMap{
 				"x": {`'grep \'test\' file'`, `grep \'test\' file`},
 				"y": newField("z"),
 			},
@@ -152,9 +171,136 @@ func TestExtractKeyValuePairs(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		out := map[string]*field{}
-		extractKeyValuePairs(tc.in, out)
+		out := extractKeyValuePairs(tc.in)
 		assert.Equal(t, tc.out, out, "failed on: %v", tc.in)
+	}
+}
+
+func BenchmarkExtractKeyValuePairs(b *testing.B) {
+	tests := []struct {
+		name string
+		in   string
+		out  fieldMap
+	}{
+		{
+			"bpf message",
+			`arch=c000003e syscall=321 success=yes exit=0 a0=2 a1=c0059cd6e8 comm="pf-host-agent" exe="/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key="bpf" ARCH=x86_64 SYSCALL=bpf`,
+			fieldMap{
+				"arch":    newField("c000003e"),
+				"syscall": newField("321"),
+				"success": {`yes`, `yes`},
+				"exit":    newField("0"),
+				"a0":      newField("2"),
+				"a1":      {"c0059cd6e8", "c0059cd6e8"},
+				"comm":    {`"pf-host-agent"`, `pf-host-agent`},
+				"exe":     {`"/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent"`, `/optimyze.cloud/prodfiler/pf-host-agent/pf-host-agent`},
+				"subj":    newField("unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023"),
+				"key":     {`"bpf"`, "bpf"},
+			},
+		},
+		{
+			"short message",
+			`x='grep "test" file' y=z`,
+			fieldMap{
+				"x": {`'grep "test" file'`, `grep "test" file`},
+				"y": newField("z"),
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		b.Run(tc.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				extractKeyValuePairs(tc.in)
+			}
+		})
+	}
+}
+
+var dataTests = []struct {
+	name   string
+	text   string
+	output map[string]string
+}{
+	{
+		name: "syscall",
+		text: "type=SYSCALL msg=audit(1481076984.827:17): arch=c000003e syscall=313 success=yes exit=0 a0=0 a1=41a15c a2=0 a3=0 items=0 ppid=390 pid=391 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=\"modprobe\" exe=\"/usr/bin/kmod\" subj=system_u:system_r:insmod_t:s0 key=(null)",
+		output: map[string]string{
+			"a0":          "0",
+			"a1":          "41a15c",
+			"a2":          "0",
+			"a3":          "0",
+			"arch":        "x86_64",
+			"auid":        "unset",
+			"comm":        "modprobe",
+			"egid":        "0",
+			"euid":        "0",
+			"exe":         "/usr/bin/kmod",
+			"exit":        "0",
+			"fsgid":       "0",
+			"fsuid":       "0",
+			"gid":         "0",
+			"items":       "0",
+			"pid":         "391",
+			"ppid":        "390",
+			"result":      "success",
+			"ses":         "unset",
+			"sgid":        "0",
+			"subj_domain": "insmod_t",
+			"subj_level":  "s0",
+			"subj_role":   "system_r",
+			"subj_user":   "system_u",
+			"suid":        "0",
+			"syscall":     "finit_module",
+			"tty":         "(none)",
+			"uid":         "0",
+		},
+	},
+	{
+		"user_cmd",
+		`type=USER_CMD msg=audit(1488862769.030:19469538): user pid=3027 uid=497 auid=700 ses=11988 msg='cwd="/" cmd=2F7573722F6C696236342F6E6167696F732F706C7567696E732F636865636B5F617374657269736B5F7369705F7065657273202D7020313037 terminal=? res=success'`,
+		map[string]string{
+			"auid":   "700",
+			"cmd":    "/usr/lib64/nagios/plugins/check_asterisk_sip_peers -p 107",
+			"cwd":    "/",
+			"pid":    "3027",
+			"result": "success",
+			"ses":    "11988",
+			"uid":    "497",
+		},
+	},
+}
+
+func TestExtractAndEnrichData(t *testing.T) {
+	for _, tc := range dataTests {
+		t.Run(tc.name, func(t *testing.T) {
+			msg, err := ParseLogLine(tc.text)
+			if err != nil {
+				t.Fatalf("parsing message: %v", err)
+			}
+			data, err := msg.Data()
+			require.Nil(t, err)
+			assert.Equal(t, tc.output, data)
+		})
+	}
+}
+
+func BenchmarkAuditMessageData(b *testing.B) {
+	for _, tc := range dataTests {
+		b.Run(tc.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StopTimer()
+				msg, errP := ParseLogLine(tc.text)
+				if errP != nil {
+					b.Fatalf("parsing message: %v", errP)
+				}
+				b.StartTimer()
+				data, err := msg.Data()
+				b.StopTimer()
+				require.Nil(b, err)
+				assert.Equal(b, tc.output, data)
+			}
+		})
 	}
 }
 
@@ -167,8 +313,8 @@ func TestParseLogLineFromFiles(t *testing.T) {
 		t.Fatal("no files found")
 	}
 
-	for _, name := range files {
-		testGoldenFile(t, name)
+	for _, filePath := range files {
+		testGoldenFile(t, filePath)
 	}
 }
 
@@ -204,53 +350,61 @@ func NewStoredAuditMessage(msg *AuditMessage) *StoredAuditMessage {
 	}
 }
 
-func testGoldenFile(t *testing.T, name string) {
+func testGoldenFile(t *testing.T, filePath string) {
 	t.Helper()
 
-	f, err := os.Open(name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	// Read logs and parse events.
-	var events []*AuditMessage
-	s := bufio.NewScanner(bufio.NewReader(f))
-	var lineNum int
-	for s.Scan() {
-		line := s.Text()
-		lineNum++
-
-		event, err := ParseLogLine(line)
-		if err != nil && *update {
-			t.Logf("parsing failed at %v:%d on '%v' with error: %v",
-				name, lineNum, line, err)
-		}
-
-		events = append(events, event)
-	}
+	events := loadAuditMessages(t, filePath)
 
 	// Update golden files on -update.
 	if *update {
-		if err := writeGoldenFile(name, events); err != nil {
+		if err := writeGoldenFile(filePath, events); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
 
 	// Compare events to golden events.
-	goldenEvents, err := readGoldenFile(name + ".golden")
+	goldenEvents, err := readGoldenFile(filePath + ".golden")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for i, gold := range goldenEvents {
 		if events[i] != nil {
-			assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", name, i+1)
+			assert.Equal(t, gold, NewStoredAuditMessage(events[i]), "file: %v:%d", filePath, i+1)
 		} else {
-			assert.Nil(t, gold, "file: %v:%d", name, i+1)
+			assert.Nil(t, gold, "file: %v:%d", filePath, i+1)
 		}
 	}
+}
+
+func loadAuditMessages(tb testing.TB, name string) []*AuditMessage {
+	f, err := os.Open(name)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	defer f.Close()
+
+	// Read logs and parse events.
+	var messages []*AuditMessage
+	s := bufio.NewScanner(bufio.NewReader(f))
+	var lineNum int
+	for s.Scan() {
+		line := s.Text()
+		lineNum++
+
+		msg, err := ParseLogLine(line)
+		if err != nil && *update {
+			tb.Logf("parsing failed at %v:%d on '%v' with error: %v",
+				name, lineNum, line, err)
+		}
+
+		messages = append(messages, msg)
+	}
+	if err := s.Err(); err != nil {
+		tb.Fatalf("incomplete file loading: %v", err)
+	}
+	return messages
 }
 
 func writeGoldenFile(sourceName string, events []*AuditMessage) error {

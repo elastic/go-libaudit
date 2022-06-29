@@ -608,8 +608,10 @@ const (
 
 	// MinSizeofAuditStatus is the minimum usable message size that
 	// is acceptable for unmarshaling from the wire format. Messages
-	// this size do not report backlog_wait_time_actual.
-	MinSizeofAuditStatus = sizeofAuditStatus - int(unsafe.Sizeof(uint32(0)))
+	// this size do not report features after the FeatureBitmap field.
+	// Users should consult the feature bitmap to determine which
+	// features are valid.
+	MinSizeofAuditStatus = int(unsafe.Offsetof(AuditStatus{}.FeatureBitmap) + unsafe.Sizeof(AuditStatus{}.FeatureBitmap))
 )
 
 func (s AuditStatus) toWireFormat() []byte {

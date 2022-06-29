@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix change in behaviour that causes error when unmarshaling `AuditStatus` with a short buffer. [#110](https://github.com/elastic/go-libaudit/pull/110)
 - Reduce heap allocations when parsing and enriching auditd events. [#111](https://github.com/elastic/go-libaudit/pull/111)
+- Relax short buffer requirement further to allow for kernels that do not support the backlog wait feature. [#113](https://github.com/elastic/go-libaudit/pull/113)
 
 ### Removed
 

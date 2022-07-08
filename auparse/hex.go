@@ -25,6 +25,8 @@ import (
 	"net"
 	"strconv"
 	"strings"
+
+	"github.com/elastic/go-libaudit/v2/internal"
 )
 
 const nullTerminator = "\x00"
@@ -40,7 +42,7 @@ func hexToString(h string) (string, error) {
 		output = output[:nullTerm]
 	}
 
-	return string(output), nil
+	return internal.UnsafeByteSlice2String(output), nil
 }
 
 func hexToStrings(h string) ([]string, error) {

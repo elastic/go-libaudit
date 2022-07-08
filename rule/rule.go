@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
+	"github.com/elastic/go-libaudit/v2/internal"
 )
 
 //go:generate sh -c "go tool cgo -godefs defs_kernel_types.go > zkernel_types.go && gofmt -w zkernel_types.go"
@@ -465,7 +466,7 @@ func (r *ruleData) fromAuditRuleData(in *auditRuleData) error {
 			if end > in.BufLen {
 				return fmt.Errorf("field %d overflows buffer", i)
 			}
-			r.strings = append(r.strings, string(in.Buf[offset:end]))
+			r.strings = append(r.strings, internal.UnsafeByteSlice2String(in.Buf[offset:end]))
 			offset = end
 		}
 	}
@@ -990,7 +991,7 @@ func (bits permission) String() string {
 	if bits&attrPerm != 0 {
 		perms = append(perms, 'a')
 	}
-	return string(perms)
+	return internal.UnsafeByteSlice2String(perms)
 }
 
 func getFiletype(filetype string) (filetype, error) {

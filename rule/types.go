@@ -37,8 +37,8 @@ type Rule interface {
 
 // DeleteAllRule deletes all existing rules.
 type DeleteAllRule struct {
-	Type Type
 	Keys []string // Delete rules that have these keys.
+	Type Type
 }
 
 // TypeOf returns DeleteAllRuleType.
@@ -47,10 +47,10 @@ func (r *DeleteAllRule) TypeOf() Type { return r.Type }
 // FileWatchRule is used to audit access to particular files or directories
 // that you may be interested in.
 type FileWatchRule struct {
-	Type        Type
 	Path        string
 	Permissions []AccessType
 	Keys        []string
+	Type        Type
 }
 
 // TypeOf returns FileWatchRuleType.
@@ -58,12 +58,12 @@ func (r *FileWatchRule) TypeOf() Type { return r.Type }
 
 // SyscallRule is used to audit invocations of specific syscalls.
 type SyscallRule struct {
-	Type     Type
 	List     string
 	Action   string
 	Filters  []FilterSpec
 	Syscalls []string
 	Keys     []string
+	Type     Type
 }
 
 // TypeOf returns either AppendSyscallRuleType or PrependSyscallRuleType.
@@ -106,10 +106,10 @@ const (
 
 // FilterSpec defines a filter to apply to a syscall rule.
 type FilterSpec struct {
-	Type       FilterType
 	LHS        string
 	Comparator string
 	RHS        string
+	Type       FilterType
 }
 
 func (f *FilterSpec) String() string {

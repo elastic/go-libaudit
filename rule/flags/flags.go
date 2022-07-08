@@ -85,9 +85,7 @@ func Parse(args string) (rule.Rule, error) {
 
 // ruleFlagSet is a used to parse the flags used in an audit rule.
 type ruleFlagSet struct {
-	Type rule.Type
-
-	DeleteAll bool // [-D] Delete all rules.
+	flagSet *flag.FlagSet
 
 	// Audit Rule
 	Prepend  addFlag    // -A Prepend rule (list,action) or (action,list).
@@ -101,7 +99,9 @@ type ruleFlagSet struct {
 
 	Key stringList // -k Key(s) to associate with the rule.
 
-	flagSet *flag.FlagSet
+	Type rule.Type
+
+	DeleteAll bool // [-D] Delete all rules.
 }
 
 func newRuleFlagSet() *ruleFlagSet {

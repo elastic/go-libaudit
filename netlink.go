@@ -59,13 +59,13 @@ type NetlinkParser func([]byte) ([]syscall.NetlinkMessage, error)
 
 // NetlinkClient is a generic client for sending and receiving netlink messages.
 type NetlinkClient struct {
-	fd         int              // File descriptor used for communication.
+	respWriter io.Writer
 	src        syscall.Sockaddr // Local socket address.
 	dest       syscall.Sockaddr // Remote socket address (client assumes the dest is the kernel).
-	pid        uint32           // Port ID of the local socket.
-	seq        uint32           // Sequence number used in outgoing messages.
 	readBuf    []byte
-	respWriter io.Writer
+	fd         int    // File descriptor used for communication.
+	pid        uint32 // Port ID of the local socket.
+	seq        uint32 // Sequence number used in outgoing messages.
 }
 
 // NewNetlinkClient creates a new NetlinkClient. It creates a socket and binds

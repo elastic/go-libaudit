@@ -54,15 +54,16 @@ type Stream interface {
 // sequence number unless a late message is received that falls outside of the
 // sequences held in memory.
 type Reassembler struct {
-	closed int32 // closed is set to 1 when after the Reassembler is closed.
+	// stream is the callback interface used for delivering completed events.
+	stream Stream
 
 	// cache contains the in-flight event messages. Eviction occurs when an
 	// event is completed via an EOE message, the cache reaches max size
 	// (lowest sequence is evicted first), or an event expires base on time.
 	list *eventList
 
-	// stream is the callback interface used for delivering completed events.
-	stream Stream
+	// closed is set to 1 when after the Reassembler is closed.
+	closed int32
 }
 
 // NewReassembler returns a new Reassembler. maxInFlight controls the maximum
@@ -198,11 +199,11 @@ func (e *event) IsExpired() bool {
 
 type eventList struct {
 	sync.Mutex
-	seqs    sequenceNumSlice
 	events  map[sequenceNum]*event
-	lastSeq sequenceNum
+	seqs    sequenceNumSlice
 	maxSize int
 	timeout time.Duration
+	lastSeq sequenceNum
 }
 
 func newEventList(maxSize int, timeout time.Duration) *eventList {

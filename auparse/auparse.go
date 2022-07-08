@@ -51,15 +51,14 @@ var (
 
 // AuditMessage represents a single audit message.
 type AuditMessage struct {
-	RecordType AuditMessageType // Record type from netlink header.
-	Timestamp  time.Time        // Timestamp parsed from payload in netlink message.
-	Sequence   uint32           // Sequence parsed from payload.
-	RawData    string           // Raw message as a string.
-
-	offset int               // offset is the index into RawData where the header ends and message begins.
-	data   map[string]string // The key value pairs parsed from the message.
-	tags   []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).
-	error  error             // Error that occurred while parsing.
+	Timestamp  time.Time         // Timestamp parsed from payload in netlink message.
+	error      error             // Error that occurred while parsing.
+	data       map[string]string // The key value pairs parsed from the message.
+	RawData    string            // Raw message as a string.
+	tags       []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).
+	offset     int               // offset is the index into RawData where the header ends and message begins.
+	Sequence   uint32            // Sequence parsed from payload.
+	RecordType AuditMessageType  // Record type from netlink header.
 }
 
 type field struct {

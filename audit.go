@@ -404,8 +404,8 @@ func (c *AuditClient) SetBacklogWaitTime(waitTime int32, wm WaitMode) error {
 
 // RawAuditMessage is a raw audit message received from the kernel.
 type RawAuditMessage struct {
-	Type auparse.AuditMessageType
 	Data []byte // RawData is backed by the read buffer so make a copy.
+	Type auparse.AuditMessageType
 }
 
 // Receive reads an audit message from the netlink socket. If you are going to

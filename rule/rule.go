@@ -373,19 +373,15 @@ func addKeys(data *ruleData, keys []string) error {
 }
 
 type ruleData struct {
-	flags  filter
-	action action
-
-	allSyscalls bool
+	arch        string
+	fieldFlags  []operator
+	strings     []string
 	syscalls    []uint32
-
-	fields     []field
-	values     []uint32
-	fieldFlags []operator
-
-	strings []string
-
-	arch string
+	fields      []field
+	values      []uint32
+	flags       filter
+	action      action
+	allSyscalls bool
 }
 
 func (r ruleData) toAuditRuleData() (*auditRuleData, error) {

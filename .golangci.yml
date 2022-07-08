@@ -97,6 +97,10 @@ linters-settings:
     checks:
       - all
       - -ST1001 # ST1001 - Dot imports are discouraged
+  govet:
+    # Enable analyzers in addition to defaults.
+    enable:
+      - fieldalignment
 
 issues:
   include:
@@ -111,3 +115,6 @@ issues:
       linters:
         - errcheck
       text: 'out[\w.]+Write'
+    # Ignore struct alignment in tests.
+    - path: '(.+)_test\.go'
+      text: 'fieldalignment'

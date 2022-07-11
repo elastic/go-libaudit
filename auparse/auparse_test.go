@@ -95,7 +95,7 @@ func TestNormalizeAuditMessage(t *testing.T) {
 }
 
 func TestParseAuditHeader(t *testing.T) {
-	ts, seq, end, err := parseAuditHeader([]byte(syscallMsg))
+	ts, seq, end, err := parseAuditHeader(syscallMsg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -450,9 +450,8 @@ func readGoldenFile(name string) ([]*StoredAuditMessage, error) {
 }
 
 func BenchmarkParseAuditHeader(b *testing.B) {
-	msg := []byte(syscallMsg)
 	for i := 0; i < b.N; i++ {
-		_, _, _, err := parseAuditHeader(msg)
+		_, _, _, err := parseAuditHeader(syscallMsg)
 		if err != nil {
 			b.Fatal(err)
 		}

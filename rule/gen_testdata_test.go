@@ -180,15 +180,16 @@ func makePaths(t testing.TB, tmpDir, rule string) []string {
 
 	for i, arg := range args {
 		var prefix, path string
-		if arg == "-w" {
+		switch {
+		case arg == "-w":
 			path = args[i+1]
-		} else if strings.HasPrefix(arg, "dir=") {
+		case strings.HasPrefix(arg, "dir="):
 			prefix = "dir="
 			path = strings.TrimPrefix(arg, prefix)
-		} else if strings.HasPrefix(arg, "path=") {
+		case strings.HasPrefix(arg, "path="):
 			prefix = "path="
 			path = strings.TrimPrefix(arg, prefix)
-		} else {
+		default:
 			continue
 		}
 

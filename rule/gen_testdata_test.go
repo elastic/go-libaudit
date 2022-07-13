@@ -145,9 +145,9 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	defer deleteRules(t, client)
 
 	// Replace paths with ones in a temp dir for test environment consistency.
-	command = makePaths(t, tempDir, command)
+	args := makePaths(t, tempDir, command)
 
-	_, err = exec.Command("sh", "-c", "auditctl "+command).Output()
+	_, err = exec.Command("auditctl", args...).Output()
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
@@ -165,14 +165,14 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 		t.Fatalf("expected 1 rule but got %d", len(rules))
 	}
 
-	return command, rules[0]
+	return shellquote.Join(args...), rules[0]
 }
 
 // makePaths extracts any paths from the command, creates the path as either
 // a regular file or directory, then updates the paths to point to the one
-// created for the test. It returns the updated command that contains the test
-// paths.
-func makePaths(t testing.TB, tmpDir, rule string) string {
+// created for the test. It returns the updated command arguments which contain
+// the test paths.
+func makePaths(t testing.TB, tmpDir, rule string) []string {
 	args, err := shellquote.Split(rule)
 	if err != nil {
 		t.Fatal(err)
@@ -217,7 +217,7 @@ func makePaths(t testing.TB, tmpDir, rule string) string {
 		}
 	}
 
-	return shellquote.Join(args...)
+	return args
 }
 
 func deleteRules(t testing.TB, client *libaudit.AuditClient) {

@@ -30,10 +30,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
+	"github.com/kballard/go-shellquote"
 	"gopkg.in/yaml.v2"
 
 	"github.com/elastic/go-libaudit/v2"
@@ -145,9 +145,8 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 	defer deleteRules(t, client)
 
 	// Replace paths with ones in a temp dir for test environment consistency.
-	command = makePaths(t, tempDir, command)
+	args := makePaths(t, tempDir, command)
 
-	args := strings.Fields(command)
 	_, err = exec.Command("auditctl", args...).Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -166,39 +165,60 @@ func auditctlExec(t testing.TB, command string) (string, []byte) {
 		t.Fatalf("expected 1 rule but got %d", len(rules))
 	}
 
-	return command, rules[0]
+	return shellquote.Join(args...), rules[0]
 }
 
 // makePaths extracts any paths from the command, creates the path as either
 // a regular file or directory, then updates the paths to point to the one
-// created for the test. It returns the updated command that contains the test
-// paths.
-func makePaths(t testing.TB, tmpDir, rule string) string {
-	re := regexp.MustCompile(`(-w |dir=|path=)/(\S+)`)
-	matches := re.FindAllStringSubmatch(rule, -1)
-	for _, match := range matches {
-		path := match[2]
-		realPath := filepath.Join(tmpDir, path)
+// created for the test. It returns the updated command arguments which contain
+// the test paths.
+func makePaths(t testing.TB, tmpDir, rule string) []string {
+	args, err := shellquote.Split(rule)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i, arg := range args {
+		var prefix, path string
+		switch {
+		case arg == "-w":
+			path = args[i+1]
+		case strings.HasPrefix(arg, "dir="):
+			prefix = "dir="
+			path = strings.TrimPrefix(arg, prefix)
+		case strings.HasPrefix(arg, "path="):
+			prefix = "path="
+			path = strings.TrimPrefix(arg, prefix)
+		default:
+			continue
+		}
+
+		testPath := filepath.Join(tmpDir, path)
 
 		if strings.HasSuffix(path, "/") {
 			// Treat paths with trailing slashes as a directory to monitor.
-			if err := os.MkdirAll(realPath, 0o700); err != nil {
+			if err := os.MkdirAll(testPath, 0o700); err != nil {
 				t.Fatal(err)
 			}
 		} else {
 			// Touch a file.
-			dir := filepath.Dir(realPath)
+			dir := filepath.Dir(testPath)
 			if err := os.MkdirAll(dir, 0o700); err != nil {
 				t.Fatal(err)
 			}
-			if err := ioutil.WriteFile(realPath, nil, 0o600); err != nil {
+			if err := ioutil.WriteFile(testPath, nil, 0o600); err != nil {
 				t.Fatal(err)
 			}
 		}
+
+		if prefix == "" {
+			args[i+1] = testPath
+		} else {
+			args[i] = prefix + testPath
+		}
 	}
 
-	substitution := "$1" + filepath.Join(tmpDir, "$2")
-	return re.ReplaceAllString(rule, substitution)
+	return args
 }
 
 func deleteRules(t testing.TB, client *libaudit.AuditClient) {

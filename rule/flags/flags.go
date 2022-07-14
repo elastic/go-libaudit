@@ -28,15 +28,22 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/kballard/go-shellquote"
+
 	"github.com/elastic/go-libaudit/v2/rule"
 )
 
 // Parse parses an audit rule specified using flags. It can parse delete all
 // commands (-D), file watch rules (-w), and syscall rules (-a or -A).
-func Parse(args string) (rule.Rule, error) {
+func Parse(s string) (rule.Rule, error) {
+	args, err := shellquote.Split(s)
+	if err != nil {
+		return nil, err
+	}
+
 	// Parse the flags.
 	ruleFlagSet := newRuleFlagSet()
-	if err := ruleFlagSet.flagSet.Parse(strings.Fields(args)); err != nil {
+	if err := ruleFlagSet.flagSet.Parse(args); err != nil {
 		return nil, err
 	}
 	if err := ruleFlagSet.validate(); err != nil {

@@ -1,0 +1,3 @@
+-w "/folder with space" -p wa -k path-double-quoted
+
+-w '/folder with space' -p wa -k path-single-quoted

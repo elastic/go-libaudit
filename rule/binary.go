@@ -35,6 +35,7 @@ type WireFormat []byte
 // fields.  It corresponds with AUDIT_ADD_RULE, AUDIT_DEL_RULE and
 // AUDIT_LIST_RULES requests.
 // https://github.com/linux-audit/audit-kernel/blob/v3.15/include/uapi/linux/audit.h#L423-L437
+//nolint:govet // This struct needs to match the kernel struct so cannot be aligned.
 type auditRuleData struct {
 	auditRuleHeader
 	Buf []byte // String fields.

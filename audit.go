@@ -606,12 +606,13 @@ type AuditStatus struct {
 const (
 	sizeofAuditStatus = int(unsafe.Sizeof(AuditStatus{}))
 
-	// MinSizeofAuditStatus is the minimum usable message size that
-	// is acceptable for unmarshaling from the wire format. Messages
-	// this size do not report features after the FeatureBitmap field.
+	// MinSizeofAuditStatus is the minimum usable message size for
+	// the earliest 2.6.32 kernel supported by Go.
+	// https://elixir.bootlin.com/linux/v2.6.32/source/include/linux/audit.h#L317
+	// Messages this size do not report features after the Backlog field.
 	// Users should consult the feature bitmap to determine which
 	// features are valid.
-	MinSizeofAuditStatus = int(unsafe.Offsetof(AuditStatus{}.FeatureBitmap) + unsafe.Sizeof(AuditStatus{}.FeatureBitmap))
+	MinSizeofAuditStatus = int(unsafe.Offsetof(AuditStatus{}.Backlog) + unsafe.Sizeof(AuditStatus{}.Backlog))
 )
 
 func (s AuditStatus) toWireFormat() []byte {

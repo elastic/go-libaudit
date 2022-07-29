@@ -18,7 +18,6 @@
 package auparse
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"regexp"
@@ -196,7 +195,7 @@ func ParseLogLine(line string) (*AuditMessage, error) {
 func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 	message = strings.TrimSpace(message)
 
-	timestamp, seq, end, err := parseAuditHeader([]byte(message))
+	timestamp, seq, end, err := parseAuditHeader(message)
 	if err != nil {
 		return nil, err
 	}
@@ -213,41 +212,41 @@ func Parse(typ AuditMessageType, message string) (*AuditMessage, error) {
 
 // parseAuditHeader parses the timestamp and sequence number from the audit
 // message header that has the form of "audit(1490137971.011:50406):".
-func parseAuditHeader(line []byte) (time.Time, uint32, int, error) {
+func parseAuditHeader(line string) (time.Time, uint32, int, error) {
 	// Find tokens.
-	start := bytes.IndexRune(line, '(')
+	start := strings.IndexRune(line, '(')
 	if start == -1 {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
-	dot := bytes.IndexRune(line[start:], '.')
+	dot := strings.IndexRune(line[start:], '.')
 	if dot == -1 {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
 	dot += start
-	sep := bytes.IndexRune(line[dot:], ':')
+	sep := strings.IndexRune(line[dot:], ':')
 	if sep == -1 {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
 	sep += dot
-	end := bytes.IndexRune(line[sep:], ')')
+	end := strings.IndexRune(line[sep:], ')')
 	if end == -1 {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
 	end += sep
 
 	// Parse timestamp.
-	sec, err := strconv.ParseInt(string(line[start+1:dot]), 10, 64)
+	sec, err := strconv.ParseInt(line[start+1:dot], 10, 64)
 	if err != nil {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
-	msec, err := strconv.ParseInt(string(line[dot+1:sep]), 10, 64)
+	msec, err := strconv.ParseInt(line[dot+1:sep], 10, 64)
 	if err != nil {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}
 	tm := time.Unix(sec, msec*int64(time.Millisecond)).UTC()
 
 	// Parse sequence.
-	sequence, err := strconv.ParseUint(string(line[sep+1:end]), 10, 32)
+	sequence, err := strconv.ParseUint(line[sep+1:end], 10, 32)
 	if err != nil {
 		return time.Time{}, 0, 0, errInvalidAuditHeader
 	}

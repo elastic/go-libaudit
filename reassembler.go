@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
-	"github.com/elastic/go-libaudit/v2/internal"
 )
 
 var errReassemblerClosed = errors.New("reassembler closed")
@@ -94,12 +93,12 @@ func (r *Reassembler) PushMessage(msg *auparse.AuditMessage) {
 	r.callback(evicted, lost)
 }
 
-// Push pushes a new audit message into the Reassembler. This is a convenence
+// Push pushes a new audit message into the Reassembler. This is a convenience
 // function that handles calling auparse.Parse() to extract the message's
-// timestamp and sequence number. If parsing fails then an error will be
-// returned. See PushMessage.
+// timestamp and sequence number. It copies the rawData contents. If parsing
+// fails then an error will be returned. See PushMessage.
 func (r *Reassembler) Push(typ auparse.AuditMessageType, rawData []byte) error {
-	msg, err := auparse.Parse(typ, internal.UnsafeByteSlice2String(rawData))
+	msg, err := auparse.Parse(typ, string(rawData))
 	if err != nil {
 		return err
 	}

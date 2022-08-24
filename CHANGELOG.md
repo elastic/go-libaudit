@@ -9,11 +9,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Reduce allocations when converting bytes to strings for received messages. [#116](https://github.com/elastic/go-libaudit/pull/116) [#122](https://github.com/elastic/go-libaudit/pull/122)
-
 ### Removed
 
 ### Deprecated
+
+## [2.3.2]
+
+### Changed
+
+- Reduce allocations when converting bytes to strings for received messages. [#116](https://github.com/elastic/go-libaudit/pull/116) [#122](https://github.com/elastic/go-libaudit/pull/122)
 
 ## [2.3.1]
 
@@ -238,7 +242,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.2...HEAD
+[2.3.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.2
 [2.3.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.1
 [2.3.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.0
 [2.2.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.2.0

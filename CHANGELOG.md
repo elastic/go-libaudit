@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Reduce allocations when converting bytes to strings for received messages. [#116](https://github.com/elastic/go-libaudit/pull/116) [#120](https://github.com/elastic/go-libaudit/pull/120)
+- Reduce allocations when converting bytes to strings for received messages. [#116](https://github.com/elastic/go-libaudit/pull/116) [#120](https://github.com/elastic/go-libaudit/pull/122)
 
 ### Removed
 

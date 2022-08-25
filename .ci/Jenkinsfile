@@ -48,6 +48,19 @@ pipeline {
         }
       }
     }
+    stage('Microbench') {
+      options { skipDefaultCheckout() }
+      steps {
+        deleteDir()
+        unstash 'source'
+        withGoEnv(){
+          dir("${BASE_DIR}"){
+            sh(label: 'test', script: '.ci/test.sh')
+            generateGoBenchmarkDiff(file: 'bench.out', filter: 'exclude')
+          }
+        }
+      }
+    }
   }
   post {
     cleanup {

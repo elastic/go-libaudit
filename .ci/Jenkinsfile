@@ -55,7 +55,7 @@ pipeline {
         unstash 'source'
         withGoEnv(){
           dir("${BASE_DIR}"){
-            sh(label: 'test', script: '.ci/test.sh')
+            sh(label: 'bench', script: '.ci/bench.sh')
             generateGoBenchmarkDiff(file: 'bench.out', filter: 'exclude')
           }
         }

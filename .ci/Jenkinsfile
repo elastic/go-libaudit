@@ -48,6 +48,20 @@ pipeline {
         }
       }
     }
+    stage('Microbench') {
+      options { skipDefaultCheckout() }
+      steps {
+        deleteDir()
+        unstash 'source'
+        withGoEnv(){
+          dir("${BASE_DIR}"){
+            sh(label: 'bench', script: '.ci/bench.sh')
+            sendBenchmarks(file: 'bench.out', index: 'benchmark-go-libaudit', useGoBench: true)
+            generateGoBenchmarkDiff(file: 'bench.out', filter: 'exclude')
+          }
+        }
+      }
+    }
   }
   post {
     cleanup {

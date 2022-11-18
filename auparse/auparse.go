@@ -59,6 +59,7 @@ type AuditMessage struct {
 	data   map[string]string // The key value pairs parsed from the message.
 	tags   []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).
 	error  error             // Error that occurred while parsing.
+	Owner  interface{}
 }
 
 type field struct {

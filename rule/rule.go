@@ -28,7 +28,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/elastic/go-libaudit/v2/auparse"
+	"github.com/SEKOIA-IO/go-libaudit/v2/auparse"
 )
 
 //go:generate sh -c "go tool cgo -godefs defs_kernel_types.go > zkernel_types.go && gofmt -w zkernel_types.go"
@@ -400,7 +400,7 @@ func (r ruleData) toAuditRuleData() (*auditRuleData, error) {
 			data.Mask[i] = 0xFFFFFFFF
 		}
 		// NOTE: This was added to match the binary output when listing rules
-		// from the kernel. See https://github.com/elastic/go-libaudit/pull/97.
+		// from the kernel. See https://github.com/SEKOIA-IO/go-libaudit/pull/97.
 		data.Mask[len(data.Mask)-1] = 0x0000FFFF
 	} else {
 		for _, syscallNum := range r.syscalls {

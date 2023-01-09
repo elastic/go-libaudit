@@ -24,7 +24,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/elastic/go-libaudit/v2/auparse"
+	"github.com/SEKOIA-IO/go-libaudit/v2/auparse"
 )
 
 var errReassemblerClosed = errors.New("reassembler closed")

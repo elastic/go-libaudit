@@ -27,7 +27,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/go-libaudit/v2/auparse"
+	"github.com/SEKOIA-IO/go-libaudit/v2/auparse"
 )
 
 // modeBlockDevice is the file mode bit representing block devices. This OS

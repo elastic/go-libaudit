@@ -36,8 +36,8 @@ import (
 	"github.com/kballard/go-shellquote"
 	"gopkg.in/yaml.v2"
 
-	"github.com/elastic/go-libaudit/v2"
-	"github.com/elastic/go-libaudit/v2/sys"
+	"github.com/SEKOIA-IO/go-libaudit/v2"
+	"github.com/SEKOIA-IO/go-libaudit/v2/sys"
 )
 
 var update = flag.Bool("update", false, "update .golden.yml files")

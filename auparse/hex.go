@@ -26,7 +26,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/elastic/go-libaudit/v2/internal"
+	"github.com/SEKOIA-IO/go-libaudit/v2/internal"
 )
 
 const nullTerminator = "\x00"

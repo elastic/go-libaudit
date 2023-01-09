@@ -32,7 +32,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	"github.com/elastic/go-libaudit/v2/auparse"
+	"github.com/SEKOIA-IO/go-libaudit/v2/auparse"
 )
 
 var update = flag.Bool("update", false, "update .golden files")

@@ -37,13 +37,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/elastic/go-libaudit/v2/rule"
-	"github.com/elastic/go-libaudit/v2/rule/flags"
-	"github.com/elastic/go-libaudit/v2/sys"
+	"github.com/SEKOIA-IO/go-libaudit/v2/rule"
+	"github.com/SEKOIA-IO/go-libaudit/v2/rule/flags"
+	"github.com/SEKOIA-IO/go-libaudit/v2/sys"
 )
 
 // This can be run inside of Docker with:
-// docker run -it --rm -v `pwd`:/go/src/github.com/elastic/go-libaudit --pid=host --privileged golang:1.10.2 /bin/bash
+// docker run -it --rm -v `pwd`:/go/src/github.com/SEKOIA-IO/go-libaudit --pid=host --privileged golang:1.10.2 /bin/bash
 
 var (
 	hexdump   = flag.Bool("hexdump", false, "dump kernel responses to stdout in hexdump -C format")

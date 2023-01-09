@@ -1,4 +1,4 @@
-module github.com/elastic/go-libaudit/v2
+module github.com/SEKOIA-IO/go-libaudit/v2
 
 go 1.16
 

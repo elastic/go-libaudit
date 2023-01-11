@@ -19,6 +19,7 @@ package libaudit
 
 import (
 	"errors"
+	"math"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -154,10 +155,13 @@ func (p sequenceNumSlice) Len() int      { return len(p) }
 func (p sequenceNumSlice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 func (p sequenceNumSlice) Sort()         { sort.Sort(p) }
 
+func sequenceHasRollover(i, j sequenceNum) bool {
+	return abs(int64(i)-int64(j)) > maxSortRange
+}
+
 func (p sequenceNumSlice) Less(i, j int) bool {
 	// Handle sequence number rollover.
-	diff := abs(int64(p[i]) - int64(p[j]))
-	if diff > maxSortRange {
+	if sequenceHasRollover(p[i], p[j]) {
 		return p[i] > p[j]
 	}
 
@@ -198,19 +202,21 @@ func (e *event) IsExpired() bool {
 
 type eventList struct {
 	sync.Mutex
-	seqs    sequenceNumSlice
-	events  map[sequenceNum]*event
-	lastSeq sequenceNum
-	maxSize int
-	timeout time.Duration
+	seqs             sequenceNumSlice
+	events           map[sequenceNum]*event
+	lastSeq          sequenceNum
+	maxSize          int
+	timeout          time.Duration
+	missingSequences map[sequenceNum]time.Time
 }
 
 func newEventList(maxSize int, timeout time.Duration) *eventList {
 	return &eventList{
-		seqs:    make([]sequenceNum, 0, maxSize+1),
-		events:  make(map[sequenceNum]*event, maxSize+1),
-		maxSize: maxSize,
-		timeout: timeout,
+		seqs:             make([]sequenceNum, 0, maxSize+1),
+		events:           make(map[sequenceNum]*event, maxSize+1),
+		maxSize:          maxSize,
+		timeout:          timeout,
+		missingSequences: make(map[sequenceNum]time.Time, maxSize+1),
 	}
 }
 
@@ -242,13 +248,14 @@ func (l *eventList) Clear() ([]*event, int) {
 		seq = l.seqs[0]
 		event := l.events[seq]
 
-		if l.lastSeq > 0 {
-			lost += int(seq) - int(l.lastSeq) - 1
-		}
-		l.lastSeq = seq
+		lost += l.processSequence(seq)
 		evicted = append(evicted, event)
 		l.remove()
 	}
+
+	// All remaining missing sequences are marked as lost
+	lost += len(l.missingSequences)
+	l.missingSequences = make(map[sequenceNum]time.Time, l.maxSize+1)
 
 	return evicted, lost
 }
@@ -301,10 +308,7 @@ func (l *eventList) CleanUp() ([]*event, int) {
 		event := l.events[seq]
 
 		if event.complete || size > l.maxSize || event.IsExpired() {
-			if l.lastSeq > 0 {
-				lost += int(seq) - int(l.lastSeq) - 1
-			}
-			l.lastSeq = seq
+			lost += l.processSequence(seq)
 			evicted = append(evicted, event)
 			l.remove()
 			continue
@@ -313,5 +317,98 @@ func (l *eventList) CleanUp() ([]*event, int) {
 		break
 	}
 
+	lost += l.cleanExpiredMissingSequences()
+
 	return evicted, lost
+}
+
+// trackMissingSequences marks all the sequences between the start sequence and the end sequence
+// as missing, start and end excluded
+func (l *eventList) trackMissingSequences(start, end sequenceNum) int {
+	missingSequences := end - start - 1
+	if missingSequences == 0 {
+		return 0 // No missing sequences
+	}
+	var lost int
+	if missingSequences > sequenceNum(l.maxSize) {
+		// The gap is bigger than the maximum size allowed.
+		// We keep only the last ones and discard the others
+		newStart := end - sequenceNum(l.maxSize) - 1 // -1 to offset the + 1 in the for loop below
+		lost += int(newStart - start)
+		start = newStart
+	}
+	// If we have too many missing events we remove the old ones
+	nextMapSize := int(missingSequences + sequenceNum(len(l.missingSequences)))
+	if nextMapSize > l.maxSize {
+		lost += l.removeOldestMissingSequences(nextMapSize - l.maxSize)
+	}
+	// Add new sequences to the missing ones
+	l.addMissingSequencesToMap(start, end)
+	return lost
+}
+
+// addMissingSequencesToMap effectively adds the missing sequence to the tracking map
+func (l *eventList) addMissingSequencesToMap(start, end sequenceNum) {
+	if start > end {
+		// We lost events during the sequence id rollover
+		// so we fill the gap until the end and start again from 0
+		maxSeq := sequenceNum(math.MaxUint32)
+		seq := start + 1
+		for {
+			l.missingSequences[seq] = time.Now().Add(l.timeout)
+			if seq == maxSeq {
+				break
+			}
+			seq++
+		}
+		start = maxSeq // maxSeq + 1  == 0
+	}
+	for seq := start + 1; seq < end; seq++ {
+		l.missingSequences[seq] = time.Now().Add(l.timeout)
+	}
+}
+
+// cleanExpiredMissingSequences remove from tracking expired missing sequences
+// and returns their number
+func (l *eventList) cleanExpiredMissingSequences() int {
+	lost := 0
+	now := time.Now()
+	for seq, expireTime := range l.missingSequences {
+		if now.After(expireTime) {
+			delete(l.missingSequences, seq)
+			lost += 1
+		}
+	}
+	return lost
+}
+
+// removeOldestMissingSequences removes the oldest n sequences from the map
+func (l *eventList) removeOldestMissingSequences(n int) int {
+	sequences := make(sequenceNumSlice, 0, l.maxSize+1)
+	for seq := range l.missingSequences {
+		sequences = append(sequences, seq)
+	}
+	sequences.Sort()
+	if n > len(sequences) {
+		n = len(sequences) // avoid having errors while slicing sequences
+	}
+	for _, seq := range sequences[:n] {
+		delete(l.missingSequences, seq)
+	}
+	return n
+}
+
+func (l *eventList) processSequence(seq sequenceNum) int {
+	delete(l.missingSequences, seq) // In case the sequence was marked as missing
+	if seq <= l.lastSeq && !sequenceHasRollover(l.lastSeq, seq) {
+		// We already handled a sequence after this one,
+		// so no need to add missing sequences nor update the last sequence
+		return 0
+	}
+	var lost int
+	if l.lastSeq > 0 {
+		lost = l.trackMissingSequences(l.lastSeq, seq)
+	}
+	l.lastSeq = seq
+	return lost
 }

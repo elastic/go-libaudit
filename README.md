@@ -18,7 +18,7 @@ Package documentation can be found on [GoDoc][godocs].
 Installation can be done with a normal `go get`:
 
 ```
-$ go get github.com/elastic/go-libaudit
+$ go get github.com/SEKOIA-IO/go-libaudit
 ```
 
 ### audit example
@@ -29,7 +29,7 @@ and outputs the data it receives to stdout. The system's `auditd` process
 should be stopped first.
 
 ```
-$ go install github.com/elastic/go-libaudit/cmd/audit@main
+$ go install github.com/SEKOIA-IO/go-libaudit/cmd/audit@main
 $ sudo $GOPATH/bin/audit -d
 ```
 
@@ -40,7 +40,7 @@ process or the output of the _audit_ example command. It combines related log
 messages that are a part of the same event.
 
 ```
-$ go install github.com/elastic/go-libaudit/cmd/auparse@main
+$ go install github.com/SEKOIA-IO/go-libaudit/cmd/auparse@main
 $ sudo cat /var/log/audit/audit.log | auparse
 ---
 type=CRED_ACQ msg=audit(1481077334.302:545): pid=1444 uid=0 auid=1000 ses=4 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='op=PAM:setcred grantors=pam_env,pam_unix acct="root" exe="/usr/bin/sudo" hostname=? addr=? terminal=/dev/pts/1 res=success'

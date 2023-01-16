@@ -156,3 +156,67 @@ func TestSequenceNumSliceSort(t *testing.T) {
 
 	assert.Equal(t, expected, seqs)
 }
+
+func TestUnorderedSequencesNoLostEvents(t *testing.T) {
+	list := newEventList(5, 1*time.Second)
+	list.Put(&auparse.AuditMessage{Sequence: uint32(2), RecordType: auparse.AUDIT_PROCTITLE})
+	list.CleanUp()
+	list.Put(&auparse.AuditMessage{Sequence: uint32(1), RecordType: auparse.AUDIT_PROCTITLE})
+	list.CleanUp()
+	list.Put(&auparse.AuditMessage{Sequence: uint32(3), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost := list.CleanUp()
+	assert.Equal(t, 0, lost)
+	_, lost = list.Clear()
+	assert.Equal(t, 0, lost)
+
+	list = newEventList(5, 1*time.Second)
+	list.Put(&auparse.AuditMessage{Sequence: uint32(1), RecordType: auparse.AUDIT_PROCTITLE})
+	list.CleanUp()
+	list.Put(&auparse.AuditMessage{Sequence: uint32(3), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.CleanUp()
+	assert.Equal(t, 0, lost) // Event 2 is not lost yet
+	list.Put(&auparse.AuditMessage{Sequence: uint32(2), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.CleanUp()
+	assert.Equal(t, 0, lost)
+	_, lost = list.Clear()
+	assert.Equal(t, 0, lost)
+}
+
+func TestLostEventsOnClear(t *testing.T) {
+	list := newEventList(5, 1*time.Second)
+	var lost int
+
+	list.Put(&auparse.AuditMessage{Sequence: uint32(1), RecordType: auparse.AUDIT_PROCTITLE})
+	list.CleanUp()
+	list.Put(&auparse.AuditMessage{Sequence: uint32(3), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.CleanUp()
+	assert.Equal(t, 0, lost) // Event is not lost yet
+	_, lost = list.Clear()
+	assert.Equal(t, 1, lost) // Now it is really lost
+}
+
+func TestLostEventsOnClearRollover(t *testing.T) {
+	list := newEventList(5, 1*time.Second)
+	var lost int
+
+	list.Put(&auparse.AuditMessage{Sequence: uint32(4294967293), RecordType: auparse.AUDIT_PROCTITLE})
+	list.Put(&auparse.AuditMessage{Sequence: uint32(3), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.Clear()
+	assert.Equal(t, 5, lost)
+}
+
+func TestLostEventsOnTimeout(t *testing.T) {
+	list := newEventList(5, 1*time.Millisecond)
+	var lost int
+
+	list.Put(&auparse.AuditMessage{Sequence: uint32(1), RecordType: auparse.AUDIT_PROCTITLE})
+	list.Put(&auparse.AuditMessage{Sequence: uint32(3), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.CleanUp()
+	assert.Equal(t, 0, lost) // Event is not lost yet
+	list.Put(&auparse.AuditMessage{Sequence: uint32(100), RecordType: auparse.AUDIT_PROCTITLE})
+	_, lost = list.CleanUp()
+	assert.Equal(t, 92, lost) // The maxSize is set to 5 so we get all the other events
+	time.Sleep(2 * time.Millisecond)
+	_, lost = list.CleanUp()
+	assert.Equal(t, 5, lost)
+}

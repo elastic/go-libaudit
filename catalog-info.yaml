@@ -5,7 +5,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: go-libaudit
-  description: Go Licenser - Adds a license header to any Go source files
+  description: go-libaudit is a library for communicating with the Linux Audit Framework.
 
 spec:
   type: library

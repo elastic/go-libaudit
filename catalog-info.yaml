@@ -33,7 +33,7 @@ spec:
     kind: Pipeline
     metadata:
       name: go-libaudit
-      description: Buildkite pipeline for the Go Licenser project
+      description: Buildkite pipeline for the Go libaudit project
     spec:
       repository: elastic/go-libaudit
       pipeline_file: ".buildkite/pipeline.yml"

@@ -1,5 +1,23 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
 
+env:
+  SETUP_GOLANG_VERSION: '1.17.6'
+
 steps:
-  - label: "Example test"
-    command: echo "Hello!"
+  - label: ":linux: Test on Go ${SETUP_GOLANG_VERSION}"
+    key: test
+    command:
+      - ".buildkite/scripts/test.sh"
+    agents:
+      image: golang:${SETUP_GOLANG_VERSION}
+      cpu: "8"
+      memory: "4G"
+
+  - label: ":linux: Microbench"
+    key: benchmark
+    command:
+      - ".buildkite/scripts/bench.sh"
+    agents:
+      image: golang:${SETUP_GOLANG_VERSION}
+      cpu: "8"
+      memory: "4G"

@@ -51,3 +51,7 @@ git log --format=%B -n 1
 
 # Ensure buildkite groups are rendered
 echo ""
+
+echo "Golang version:"
+SETUP_GOLANG_VERSION=$(cat .go-version)
+echo "${SETUP_GOLANG_VERSION}"

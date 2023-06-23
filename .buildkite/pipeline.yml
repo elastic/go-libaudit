@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
 
-# env:
-#   SETUP_GOLANG_VERSION: '1.17.6'
+env:
+  SETUP_GOLANG_VERSION: '1.17.10'
 
 steps:
   - label: "just for test"

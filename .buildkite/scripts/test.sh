@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+echo "am i?"
+id -u
+whoami
+
 go install github.com/elastic/go-licenser@latest
 go get -d -t ./...
 go mod download

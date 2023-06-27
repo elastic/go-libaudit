@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
+id -u $(whoami)
 
 go install github.com/elastic/go-licenser@latest
 go get -d -t ./...
@@ -9,7 +10,7 @@ go mod verify
 if go mod tidy ; then
     if [ -z "$(git status --porcelain go.mod go.sum)" ] ; then
         echo "Go module manifest has not changed."
-    else 
+    else
         echo "Go module manifest changed. Run 'go mod tidy'" 1>&2
         exit 1
     fi
@@ -17,7 +18,7 @@ fi
 go-licenser -d
 
 if find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read ; then
-    echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2 
+    echo "Code differs from gofmt's style. Run 'gofmt -s -w .'" 1>&2
     exit 1
 fi
 

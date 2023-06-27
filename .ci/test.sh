@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
-id -u $(whoami)
+id -u
+whoami
 
 go install github.com/elastic/go-licenser@latest
 go get -d -t ./...

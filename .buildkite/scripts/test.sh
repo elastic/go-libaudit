@@ -22,28 +22,39 @@ if find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read ; then
 fi
 
 # Run the tests
-useradd -m -s /bin/bash testuser
-set +e
-mkdir -p build
 go install github.com/jstemmer/go-junit-report@latest
+IS_TEST_FAIL=false
+run_test_prepare_junit() {
+    local temporary_file="build/test-report.out"
+    local junit_output=${1:-test-report.out}
+    local root=${2:-false}
+    local go_env=${3:-''} # e.g. GOARCH=386
+    set +e
+    list="$(go list ./... | grep -v /vendor/)"
+    list_string="${list//$'\n'/ }"
+    if [[ $root == "true" ]]; then
+        su -c "${go_env} go test -v ${list_string}" testuser | tee ${temporary_file}
+        [[ $? -gt 0 ]] && IS_TEST_FAIL=true
+    else
+        useradd -m -s /bin/bash testuser
+        su -c "${go_env} go test -v ${list_string}" testuser | tee ${temporary_file}
+        [[ $? -gt 0 ]] && IS_TEST_FAIL=true
+        userdel testuser
+    fi
+    go-junit-report > "${junit_output}" < ${temporary_file}
+    set -e
+}
 
-export OUT_FILE="build/test-report.out"
-command="$(go list ./... | grep -v /vendor/)"
-su -c "go test -v ${command//$'\n'/' '}" testuser | tee ${OUT_FILE}
-status=$?
-go-junit-report > "build/junit-noroot.xml" < ${OUT_FILE}
+mkdir -p build
+run_test_prepare_junit "build/junit-noroot.xml" false
+run_test_prepare_junit "build/junit-386-noroot.xml" false "GOARCH=386"
 
-OUT_FILE="build/test-report-386.out"
-su -c "GOARCH=386 go test -v ${command//$'\n'/' '}" testuser | tee ${OUT_FILE}
-if [ $? -gt 0 ] ; then
-    status=1
-fi
-go-junit-report > "build/junit-386-noroot.xml" < ${OUT_FILE}
-if [ $status -gt 0 ] ; then
+if [[ ${IS_TEST_FAIL} == 'true' ]]; then
+    echo "TESTS FAIL"
     exit 1
 fi
-set -x
 
+# Check build
 mkdir -p build/bin
 go build -o build/bin/audit ./cmd/audit/
 go build -o build/bin/auparse ./cmd/auparse/

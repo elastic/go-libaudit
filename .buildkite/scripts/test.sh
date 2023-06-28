@@ -26,16 +26,17 @@ if find . -name '*.go' | grep -v vendor | xargs gofmt -s -l | read ; then
 fi
 
 # Run the tests
+useradd -s /bin/bash testuser
 set +e
 mkdir -p build
 go install github.com/jstemmer/go-junit-report@latest
 export OUT_FILE="build/test-report.out"
-go test $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
+su -c "go test $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}" testuser
 status=$?
 go-junit-report > "build/junit.xml" < ${OUT_FILE}
 
 OUT_FILE="build/test-report-386.out"
-GOARCH=386 go test $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
+su -c "GOARCH=386 go test $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}" testuser
 if [ $? -gt 0 ] ; then
     status=1
 fi

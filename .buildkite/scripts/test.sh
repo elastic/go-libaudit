@@ -28,12 +28,12 @@ mkdir -p build
 go install github.com/jstemmer/go-junit-report@latest
 export OUT_FILE="build/test-report.out"
 command="$(go list ./... | grep -v /vendor/)"
-su -c "go test ${command//$'\n'/' '} | tee ${OUT_FILE}" testuser
+su -c "go test ${command//$'\n'/' '}" testuser | tee ${OUT_FILE}
 status=$?
 go-junit-report > "build/junit.xml" < ${OUT_FILE}
 
 OUT_FILE="build/test-report-386.out"
-su -c "GOARCH=386 go test ${command//$'\n'/' '} | tee ${OUT_FILE}" testuser
+su -c "GOARCH=386 go test ${command//$'\n'/' '}" testuser | tee ${OUT_FILE}
 # GOARCH=386 go test $(go list ./... | grep -v /vendor/) | tee ${OUT_FILE}
 if [ $? -gt 0 ] ; then
     status=1

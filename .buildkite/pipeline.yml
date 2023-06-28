@@ -10,6 +10,8 @@ steps:
       image: golang:${SETUP_GOLANG_VERSION}
       cpu: "8"
       memory: "4G"
+    artifact_paths:
+      - "build/junit-*.xml"
 
   - label: ":junit: Junit annotate"
     plugins:

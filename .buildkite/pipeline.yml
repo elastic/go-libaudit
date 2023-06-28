@@ -1,10 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
+# SETUP_GOLANG_VERSION set-up on post-checkout hook
 
 steps:
-  - label: "just for test"
-    command:
-      - "echo env:${SETUP_GOLANG_VERSION}"
-
   - label: ":linux: Test on Go ${SETUP_GOLANG_VERSION}"
     key: test
     command:

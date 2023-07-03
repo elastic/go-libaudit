@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
-# SETUP_GOLANG_VERSION set-up on post-checkout hook
+
+env:
+  SETUP_GOLANG_VERSION: '1.17.6'
 
 steps:
   - label: ":linux: Test on Go ${SETUP_GOLANG_VERSION}"
@@ -32,3 +34,5 @@ steps:
       image: golang:${SETUP_GOLANG_VERSION}
       cpu: "8"
       memory: "4G"
+    artifact_paths:
+      - "bench.out"

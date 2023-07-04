@@ -33,7 +33,7 @@ run_test_prepare_junit() {
     list="$(go list ./... | grep -v /vendor/)"
     list_string="${list//$'\n'/ }"
     if [[ $root == "true" ]]; then
-        su -c "${go_env} go test -v ${list_string}" testuser | tee ${temporary_file}
+        ${go_env} go test -v ${list_string} | tee ${temporary_file}
         [[ $? -gt 0 ]] && IS_TEST_FAIL=true
     else
         useradd -m -s /bin/bash testuser

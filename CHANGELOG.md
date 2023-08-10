@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Expanded the bitmask applied to ECS `file.mode` in the aucoalesce package so that the SUID, SGID, and sticky bits can be represented. [#137](https://github.com/elastic/go-libaudit/issues/137)
+
 ### Removed
 
 ### Deprecated

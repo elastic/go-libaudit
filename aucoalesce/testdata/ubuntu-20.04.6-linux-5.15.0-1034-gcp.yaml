@@ -1,0 +1,9 @@
+---
+tests:
+  # https://github.com/elastic/go-libaudit/issues/137
+  file_mode_preservation: |
+    type=SYSCALL msg=audit(1686666551.525:28860764): arch=c000003e syscall=59 success=yes exit=0 a0=55d85d6719d0 a1=55d85d69c970 a2=55d85d720450 a3=8 items=2 ppid=2380071 pid=2380168 auid=1005 uid=1005 gid=1006 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts0 ses=1456 comm="dash" exe="/usr/bin/dash" subj=unconfined key="susp_shell"
+    type=EXECVE msg=audit(1686666551.525:28860764): argc=2 a0="dash" a1="-p"
+    type=PATH msg=audit(1686666551.525:28860764): item=0 name="/usr/bin/dash" inode=1593 dev=08:01 mode=0106755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+    type=PATH msg=audit(1686666551.525:28860764): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=4382 dev=08:01 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+    type=PROCTITLE msg=audit(1686666551.525:28860764): proctitle=64617368002D70

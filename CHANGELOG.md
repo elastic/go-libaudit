@@ -9,11 +9,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Expanded the bitmask applied to ECS `file.mode` in the aucoalesce package so that the SUID, SGID, and sticky bits can be represented. [#137](https://github.com/elastic/go-libaudit/issues/137)
-
 ### Removed
 
 ### Deprecated
+
+## [2.3.3]
+
+### Changed
+
+- Expanded the bitmask applied to ECS `file.mode` in the aucoalesce package so that the SUID, SGID, and sticky bits can be represented. [#137](https://github.com/elastic/go-libaudit/issues/137)
 
 ## [2.3.2]
 
@@ -244,7 +248,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.2...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.3...HEAD
+[2.3.3]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.3
 [2.3.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.2
 [2.3.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.1
 [2.3.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.0

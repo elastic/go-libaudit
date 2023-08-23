@@ -10,24 +10,21 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Read .go-version file
         id: goversion
         run: echo "version=$(cat .go-version)" >> $GITHUB_OUTPUT
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v4
         with:
           go-version: "${{ steps.goversion.outputs.version }}"
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.44.2
+          version: v1.54.2
           args: --timeout=5m
 
           # Ignore pre-existing issues.
           only-new-issues: true
-
-          # Use the Go version specified in .go-version for consistency.
-          skip-go-installation: true

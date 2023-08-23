@@ -2,7 +2,6 @@
 set -euxo pipefail
 
 go install github.com/elastic/go-licenser@latest
-go get -d -t ./...
 go mod download
 go mod verify
 

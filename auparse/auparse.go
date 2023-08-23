@@ -334,6 +334,7 @@ func extractKeyValuePairs(msg string) fieldMap {
 func trimQuotesAndSpace(v string) string { return strings.Trim(v, `'" `) }
 
 // Enrichment after KV parsing.
+//
 //nolint:errcheck // Continue enriching even if some fields do not exist.
 func (m *AuditMessage) enrichData(data fieldMap) error {
 	data.normalizeUnsetID("auid")

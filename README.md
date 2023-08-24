@@ -1,9 +1,7 @@
 # go-libaudit
 
-[![Build Status](https://beats-ci.elastic.co/job/Library/job/go-libaudit-mbp/job/master/badge/icon)](https://beats-ci.elastic.co/job/Library/job/go-libaudit-mbp/job/master/)
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
 
-[travis]: http://travis-ci.org/elastic/go-libaudit
 [godocs]: http://godoc.org/github.com/elastic/go-libaudit
 
 go-libaudit is a library for Go (golang) for communicating with the Linux Audit

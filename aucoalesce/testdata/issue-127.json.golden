@@ -1,0 +1,84 @@
+[
+  {
+    "test_name": "multiple_avc_messages",
+    "event": {
+      "@timestamp": "2022-11-11T15:17:18.476Z",
+      "sequence": 649407,
+      "category": "mac-decision",
+      "record_type": "avc",
+      "result": "unknown",
+      "session": "",
+      "summary": {
+        "actor": {
+          "primary": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955"
+        },
+        "action": "violated-selinux-policy",
+        "object": {
+          "primary": "system_u:object_r:sysctl_crypto_t:s0",
+          "secondary": "dir"
+        },
+        "how": "cephcsi"
+      },
+      "user": {},
+      "process": {
+        "pid": "4059486",
+        "name": "cephcsi"
+      },
+      "data": {
+        "dev": "proc",
+        "ino": "475090959",
+        "name": "crypto",
+        "path": "/proc/sys/crypto/fips_enabled",
+        "permissive": "1",
+        "scontext": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955",
+        "seperms": "search",
+        "seresult": "denied",
+        "tclass": "dir",
+        "tcontext": "system_u:object_r:sysctl_crypto_t:s0"
+      },
+      "ecs": {
+        "event": {},
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    },
+    "warnings": [
+      "duplicate key (comm) from AVC message",
+      "duplicate key (comm) from AVC message",
+      "duplicate key (comm) from AVC message",
+      "duplicate key (dev) from AVC message",
+      "duplicate key (dev) from AVC message",
+      "duplicate key (dev) from AVC message",
+      "duplicate key (ino) from AVC message",
+      "duplicate key (ino) from AVC message",
+      "duplicate key (ino) from AVC message",
+      "duplicate key (name) from AVC message",
+      "duplicate key (name) from AVC message",
+      "duplicate key (permissive) from AVC message",
+      "duplicate key (permissive) from AVC message",
+      "duplicate key (permissive) from AVC message",
+      "duplicate key (pid) from AVC message",
+      "duplicate key (pid) from AVC message",
+      "duplicate key (pid) from AVC message",
+      "duplicate key (scontext) from AVC message",
+      "duplicate key (scontext) from AVC message",
+      "duplicate key (scontext) from AVC message",
+      "duplicate key (seperms) from AVC message",
+      "duplicate key (seperms) from AVC message",
+      "duplicate key (seperms) from AVC message",
+      "duplicate key (seresult) from AVC message",
+      "duplicate key (seresult) from AVC message",
+      "duplicate key (seresult) from AVC message",
+      "duplicate key (tclass) from AVC message",
+      "duplicate key (tclass) from AVC message",
+      "duplicate key (tclass) from AVC message",
+      "duplicate key (tcontext) from AVC message",
+      "duplicate key (tcontext) from AVC message",
+      "duplicate key (tcontext) from AVC message"
+    ]
+  }
+]

@@ -54,11 +54,22 @@
         "arch": "x86_64",
         "entries": "0",
         "exit": "0",
-        "family": "2",
         "syscall": "unshare",
         "table": "filter",
         "tty": "(none)"
       },
+      "netfilter_cfg_data": [
+        {
+          "entries": "0",
+          "family": "2",
+          "table": "filter"
+        },
+        {
+          "entries": "0",
+          "family": "10",
+          "table": "filter"
+        }
+      ],
       "ecs": {
         "event": {
           "category": [
@@ -79,9 +90,7 @@
       }
     },
     "warnings": [
-      "duplicate key (entries) from NETFILTER_CFG message",
-      "duplicate key (family) from NETFILTER_CFG message",
-      "duplicate key (table) from NETFILTER_CFG message"
+      "duplicate key (family) from NETFILTER_CFG message"
     ]
   }
 ]

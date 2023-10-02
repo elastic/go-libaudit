@@ -548,6 +548,27 @@ normalizations:
     ecs:
       <<: *ecs-process
       type: change
+  - action: created-anonymous-file
+    object:
+      what: file
+    syscalls:
+      # memfd_create - create an anonymous file
+      - memfd_create
+    ecs:
+      <<: *ecs-file
+      type: creation
+  - action: allocated-shared-memory
+    object:
+      what: memory
+    syscalls:
+      # shmget - allocates a System V shared memory segment
+      - shmget
+  - action: controlled-shared-memory
+    object:
+      what: memory
+    syscalls:
+      # shmctl - System V shared memory control
+      - shmctl
 
   # Currently unhandled
   # this list comes from parsing linux man pages at https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git
@@ -609,7 +630,6 @@ normalizations:
   # setrlimit - get/set resource limits
   # prlimit - get/set resource limits
   # tee - duplicating pipe content
-  # shmget - allocates a System V shared memory segment
   # create_module - create a loadable module entry
   # gettimeofday - get / set time
   # timer_create - create a POSIX per-process timer
@@ -687,7 +707,6 @@ normalizations:
   # fsync - synchronize a file's in-core state with storage device
   # fdatasync - synchronize a file's in-core state with storage device
   # syscalls - Linux system calls
-  # memfd_create - create an anonymous file
   # modify_ldt - get or set a per-process LDT entry
   # get_kernel_syms - retrieve exported kernel and module symbols
   # lseek - reposition read/write file offset
@@ -712,7 +731,6 @@ normalizations:
   # arch_prctl - set architecture-specific thread state
   # uselib - load shared library
   # sendfile - transfer data between file descriptors
-  # shmctl - System V shared memory control
   # epoll_wait - wait for an I/O event on an epoll file descriptor
   # epoll_pwait - wait for an I/O event on an epoll file descriptor
   # sigaltstack - set and/or get signal stack context

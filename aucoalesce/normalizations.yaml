@@ -569,6 +569,12 @@ normalizations:
     syscalls:
       # shmctl - System V shared memory control
       - shmctl
+  - action: socket-created
+    object:
+      what: socket
+    syscalls:
+      # socket - create an endpoint for communication
+      - socket
 
   # Currently unhandled
   # this list comes from parsing linux man pages at https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git
@@ -694,7 +700,6 @@ normalizations:
   # sigsuspend - wait for a signal
   # rt_sigsuspend - wait for a signal
   # exit_group - exit all threads in a process
-  # socket - create an endpoint for communication
   # ioctl_userfaultfd - create a file descriptor for handling page faults in user space
   # sched_get_priority_max - get static priority range
   # sched_get_priority_min  - get static priority range

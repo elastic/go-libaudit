@@ -77,6 +77,7 @@ const (
 	ppidField               field = 0x12
 	permField               field = 0x6a
 	persField               field = 0xa
+	saddrFamField           field = 0x71
 	sgidField               field = 0x7
 	suidField               field = 0x3
 	subjectClearanceField   field = 0x11

@@ -1,3 +1,5 @@
 ## This is to check if the system is making or recieving connections
 ## externally
 -a always,exit -F arch=b64 -S accept,connect -F key=external-access
+-a always,exit -F arch=b64 -S connect,accept,listen,bind -F a2=16 -F saddr_fam=2 -F success=1 -F key=network-v4
+-a always,exit -F arch=b64 -S connect,accept,listen,bind -F a2=24 -F saddr_fam=10 -F success=1 -F key=network-v6

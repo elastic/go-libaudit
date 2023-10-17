@@ -745,6 +745,23 @@ func addFilter(rule *ruleData, lhs, comparator, rhs string) error {
 			return err
 		}
 		rule.values = append(rule.values, inode)
+	case saddrFamField:
+		// Convert RHS to number.
+		num, err := parseNum(rhs)
+		if err != nil {
+			return err
+		}
+		const (
+			// include/linux/socket.h
+			afInet  = 2
+			afInet6 = 10
+		)
+		switch num {
+		case afInet, afInet6:
+		default:
+			return fmt.Errorf("saddr_fam must be 2 or 10: have %d", num)
+		}
+		rule.values = append(rule.values, num)
 	case devMajorField, devMinorField, successField, ppidField:
 		// Flag must be FilterExit.
 		if rule.flags != exitFilter {

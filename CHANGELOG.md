@@ -7,7 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Support `saddr_fam` filters. [#145](https://github.com/elastic/go-libaudit/pull/145)
+
 ### Changed
+
+- Update Vagrant file gvm and ubuntu versions. [#145](https://github.com/elastic/go-libaudit/pull/145)
 
 ### Removed
 

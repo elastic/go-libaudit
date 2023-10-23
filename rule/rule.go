@@ -32,6 +32,7 @@ import (
 )
 
 //go:generate sh -c "go tool cgo -godefs defs_kernel_types.go > zkernel_types.go && gofmt -w zkernel_types.go"
+//go:generate go run github.com/elastic/go-licenser
 
 const (
 	maxKeyLength = 256  // AUDIT_MAX_KEY_LEN

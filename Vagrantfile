@@ -11,7 +11,7 @@ SCRIPT
 install_gvm = <<SCRIPT
 mkdir -p ~/bin
 if [ ! -e "~/bin/gvm" ]; then
-  curl -sL -o ~/bin/gvm https://github.com/andrewkroh/gvm/releases/download/v0.4.0/gvm-linux-amd64
+  curl -sL -o ~/bin/gvm https://github.com/andrewkroh/gvm/releases/download/v0.5.2/gvm-linux-amd64
   chmod +x ~/bin/gvm
   ~/bin/gvm #{GO_VERSION}
   echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
@@ -29,7 +29,7 @@ rm -f golangci-lint-#{GOLANGCI_LINT_VERSION}-linux-amd64.deb
 SCRIPT
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/impish64"
+  config.vm.box = "ubuntu/mantic64"
   config.vm.network :forwarded_port, guest: 22, host: 2228, id: "ssh", auto_correct: true
   config.vm.provision "shell", inline: create_symlink, privileged: false
   config.vm.provision "shell", inline: install_gvm, privileged: false

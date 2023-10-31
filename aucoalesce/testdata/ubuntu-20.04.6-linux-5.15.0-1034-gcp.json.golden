@@ -1,0 +1,124 @@
+[
+  {
+    "test_name": "file_mode_preservation",
+    "event": {
+      "@timestamp": "2023-06-13T14:29:11.525Z",
+      "sequence": 28860764,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "success",
+      "session": "1456",
+      "tags": [
+        "susp_shell"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1005",
+          "secondary": "1005"
+        },
+        "action": "executed",
+        "object": {
+          "type": "file",
+          "primary": "/usr/bin/dash"
+        },
+        "how": "/usr/bin/dash"
+      },
+      "user": {
+        "ids": {
+          "auid": "1005",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "1006",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "1005"
+        },
+        "selinux": {
+          "user": "unconfined"
+        }
+      },
+      "process": {
+        "pid": "2380168",
+        "ppid": "2380071",
+        "title": "dash -p",
+        "name": "dash",
+        "exe": "/usr/bin/dash",
+        "args": [
+          "dash",
+          "-p"
+        ]
+      },
+      "file": {
+        "path": "/usr/bin/dash",
+        "device": "00:00",
+        "inode": "1593",
+        "mode": "6755",
+        "uid": "0",
+        "gid": "0"
+      },
+      "data": {
+        "a0": "55d85d6719d0",
+        "a1": "55d85d69c970",
+        "a2": "55d85d720450",
+        "a3": "8",
+        "arch": "x86_64",
+        "argc": "2",
+        "exit": "0",
+        "syscall": "execve",
+        "tty": "pts0"
+      },
+      "paths": [
+        {
+          "cap_fe": "0",
+          "cap_fi": "0",
+          "cap_fp": "0",
+          "cap_frootid": "0",
+          "cap_fver": "0",
+          "dev": "08:01",
+          "inode": "1593",
+          "item": "0",
+          "mode": "0106755",
+          "name": "/usr/bin/dash",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        },
+        {
+          "cap_fe": "0",
+          "cap_fi": "0",
+          "cap_fp": "0",
+          "cap_frootid": "0",
+          "cap_fver": "0",
+          "dev": "08:01",
+          "inode": "4382",
+          "item": "1",
+          "mode": "0100755",
+          "name": "/lib64/ld-linux-x86-64.so.2",
+          "nametype": "NORMAL",
+          "ogid": "0",
+          "ouid": "0",
+          "rdev": "00:00"
+        }
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "start"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    }
+  }
+]

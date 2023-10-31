@@ -723,7 +723,7 @@ func setFileObject(event *Event, pathIndexHint int) error {
 		}
 
 		m := os.FileMode(mode)
-		event.File.Mode = fmt.Sprintf("%#04o", m.Perm())
+		event.File.Mode = fmt.Sprintf("%04o", 0o7777&m)
 
 		switch {
 		case m.IsRegular():

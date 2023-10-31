@@ -87,6 +87,7 @@ const (
 	ppidField               field = C.AUDIT_PPID
 	permField               field = C.AUDIT_PERM
 	persField               field = C.AUDIT_PERS
+	saddrFamField           field = C.AUDIT_SADDR_FAM
 	sgidField               field = C.AUDIT_SGID
 	suidField               field = C.AUDIT_SUID
 	subjectClearanceField   field = C.AUDIT_SUBJ_CLR

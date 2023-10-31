@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json
+
+# env SETUP_GOLANG_VERSION set up on pre-command hook
+
+steps:
+  - label: ":linux: Test on Go ${SETUP_GOLANG_VERSION}"
+    key: test
+    command:
+      - ".buildkite/scripts/test.sh"
+    agents:
+      image: golang:${SETUP_GOLANG_VERSION}
+      cpu: "8"
+      memory: "4G"
+    artifact_paths:
+      - "build/junit-*.xml"
+
+  - label: ":junit: Junit annotate"
+    plugins:
+      - junit-annotate#v2.4.1:
+          artifacts: "build/junit-*.xml"
+          fail-build-on-error: true
+    agents:
+      provider: "gcp" #junit plugin requires docker
+    depends_on:
+      - step: "test"
+        allow_failure: true
+
+  - label: ":linux: Microbench"
+    key: benchmark
+    command:
+      - ".buildkite/scripts/bench.sh"
+    agents:
+      image: golang:${SETUP_GOLANG_VERSION}
+      cpu: "8"
+      memory: "4G"
+    artifact_paths:
+      - "bench.out"

@@ -92,6 +92,7 @@ var operatorsTable = map[string]operator{
 	">=": greaterThanOrEqualOperator,
 }
 
+// include/uapi/linux/audit.h
 var fieldsTable = map[string]field{
 	"auid":         auidField,
 	"arch":         archField,
@@ -125,6 +126,7 @@ var fieldsTable = map[string]field{
 	"ppid":         ppidField,
 	"perm":         permField,
 	"pers":         persField,
+	"saddr_fam":    saddrFamField,
 	"sgid":         sgidField,
 	"suid":         suidField,
 	"subj_clr":     subjectClearanceField,

@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Update syscall and architecture tables. [#147](https://github.com/elastic/go-libaudit/pull/147)
+
 ### Removed
 
 ### Deprecated

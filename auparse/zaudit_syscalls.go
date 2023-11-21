@@ -328,6 +328,8 @@ var AuditSyscalls = map[string]map[int]string{
 		447: "memfd_secret",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"arm": {
 		0:   "restart_syscall",
@@ -741,6 +743,8 @@ var AuditSyscalls = map[string]map[int]string{
 		446: "landlock_restrict_self",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"i386": {
 		0:   "restart_syscall",
@@ -1182,6 +1186,8 @@ var AuditSyscalls = map[string]map[int]string{
 		447: "memfd_secret",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"ppc": {
 		1:   "exit",
@@ -1609,6 +1615,8 @@ var AuditSyscalls = map[string]map[int]string{
 		446: "landlock_restrict_self",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"s390": {
 		1:   "exit",
@@ -1992,6 +2000,8 @@ var AuditSyscalls = map[string]map[int]string{
 		446: "landlock_restrict_self",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"s390x": {
 		1:   "exit",
@@ -2341,6 +2351,8 @@ var AuditSyscalls = map[string]map[int]string{
 		446: "landlock_restrict_self",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 	"x86_64": {
 		0:   "read",
@@ -2704,6 +2716,8 @@ var AuditSyscalls = map[string]map[int]string{
 		447: "memfd_secret",
 		448: "process_mrelease",
 		449: "futex_waitv",
+		450: "set_mempolicy_home_node",
+		451: "cachestat",
 	},
 }
 

@@ -33,6 +33,7 @@ import (
 //go:generate sh -c "perl mk_audit_syscalls.pl > zaudit_syscalls.go && gofmt -s -w zaudit_syscalls.go"
 //go:generate perl mk_audit_arches.pl
 //go:generate go run mk_audit_exit_codes.go
+//go:generate go run github.com/elastic/go-licenser
 
 const (
 	typeToken = "type="

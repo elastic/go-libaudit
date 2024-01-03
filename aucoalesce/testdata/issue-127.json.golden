@@ -14,8 +14,7 @@
         },
         "action": "violated-selinux-policy",
         "object": {
-          "primary": "system_u:object_r:sysctl_crypto_t:s0",
-          "secondary": "dir"
+          "primary": "system_u:object_r:sysctl_crypto_t:s0"
         },
         "how": "cephcsi"
       },
@@ -26,16 +25,53 @@
       },
       "data": {
         "dev": "proc",
-        "ino": "475090959",
-        "name": "crypto",
         "path": "/proc/sys/crypto/fips_enabled",
         "permissive": "1",
         "scontext": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955",
-        "seperms": "search",
         "seresult": "denied",
-        "tclass": "dir",
         "tcontext": "system_u:object_r:sysctl_crypto_t:s0"
       },
+      "avc_data": [
+        {
+          "comm": "cephcsi",
+          "dev": "proc",
+          "ino": "475090959",
+          "name": "crypto",
+          "permissive": "1",
+          "pid": "4059486",
+          "scontext": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955",
+          "seperms": "search",
+          "seresult": "denied",
+          "tclass": "dir",
+          "tcontext": "system_u:object_r:sysctl_crypto_t:s0"
+        },
+        {
+          "comm": "cephcsi",
+          "dev": "proc",
+          "ino": "475090960",
+          "name": "fips_enabled",
+          "permissive": "1",
+          "pid": "4059486",
+          "scontext": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955",
+          "seperms": "read",
+          "seresult": "denied",
+          "tclass": "file",
+          "tcontext": "system_u:object_r:sysctl_crypto_t:s0"
+        },
+        {
+          "comm": "cephcsi",
+          "dev": "proc",
+          "ino": "475090960",
+          "path": "/proc/sys/crypto/fips_enabled",
+          "permissive": "1",
+          "pid": "4059486",
+          "scontext": "system_u:system_r:svirt_lxc_net_t:s0:c222,c955",
+          "seperms": "open",
+          "seresult": "denied",
+          "tclass": "file",
+          "tcontext": "system_u:object_r:sysctl_crypto_t:s0"
+        }
+      ],
       "ecs": {
         "event": {},
         "user": {
@@ -47,38 +83,14 @@
       }
     },
     "warnings": [
-      "duplicate key (comm) from AVC message",
-      "duplicate key (comm) from AVC message",
-      "duplicate key (comm) from AVC message",
-      "duplicate key (dev) from AVC message",
-      "duplicate key (dev) from AVC message",
-      "duplicate key (dev) from AVC message",
-      "duplicate key (ino) from AVC message",
       "duplicate key (ino) from AVC message",
       "duplicate key (ino) from AVC message",
       "duplicate key (name) from AVC message",
-      "duplicate key (name) from AVC message",
-      "duplicate key (permissive) from AVC message",
-      "duplicate key (permissive) from AVC message",
-      "duplicate key (permissive) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "duplicate key (scontext) from AVC message",
-      "duplicate key (scontext) from AVC message",
-      "duplicate key (scontext) from AVC message",
       "duplicate key (seperms) from AVC message",
       "duplicate key (seperms) from AVC message",
-      "duplicate key (seperms) from AVC message",
-      "duplicate key (seresult) from AVC message",
-      "duplicate key (seresult) from AVC message",
-      "duplicate key (seresult) from AVC message",
       "duplicate key (tclass) from AVC message",
       "duplicate key (tclass) from AVC message",
-      "duplicate key (tclass) from AVC message",
-      "duplicate key (tcontext) from AVC message",
-      "duplicate key (tcontext) from AVC message",
-      "duplicate key (tcontext) from AVC message"
+      "failed to set object secondary using keys=[tclass] because they were not found"
     ]
   }
 ]

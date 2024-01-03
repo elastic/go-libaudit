@@ -206,9 +206,6 @@
         "a3": "7ffe952bd080",
         "arch": "x86_64",
         "exit": "5",
-        "new": "142290059264000",
-        "old": "61699325952000",
-        "op": "freq",
         "syscall": "clock_adjtime",
         "tty": "(none)"
       },

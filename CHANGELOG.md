@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add ECS normalization for `exit_group` syscall. [#149](https://github.com/elastic/go-libaudit/pull/149)
+
 ### Changed
 
 - Update syscall and architecture tables. [#147](https://github.com/elastic/go-libaudit/pull/147)

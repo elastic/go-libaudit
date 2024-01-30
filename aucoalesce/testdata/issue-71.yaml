@@ -1,0 +1,8 @@
+---
+
+tests:
+  multiple_netfilter_cfg_messages: |
+    type=NETFILTER_CFG msg=audit(1593786232.477:31): table=filter family=2 entries=0
+    type=NETFILTER_CFG msg=audit(1593786232.477:31): table=filter family=10 entries=0
+    type=SYSCALL msg=audit(1593786232.477:31): arch=c000003e syscall=272 success=yes exit=0 a0=40000000 a1=7fffd2436fb0 a2=40000040 a3=22 items=0 ppid=1 pid=769 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="(ostnamed)" exe="/usr/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
+    type=PROCTITLE msg=audit(1593786232.477:31): proctitle="(ostnamed)"

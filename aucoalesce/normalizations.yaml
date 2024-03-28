@@ -575,6 +575,12 @@ normalizations:
     syscalls:
       # socket - create an endpoint for communication
       - socket
+  - action: process-traced
+    object:
+      what: process
+    syscalls:
+      # ptrace - process trace
+      - ptrace
 
   # Currently unhandled
   # this list comes from parsing linux man pages at https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git
@@ -620,7 +626,6 @@ normalizations:
   # inotify_init1 - initialize an inotify instance
   # semctl - System V semaphore control operations
   # gethostname - get/set hostname
-  # ptrace - process trace
   # sysctl - read/write system parameters
   # getpeername - get name of connected peer socket
   # fork - create a child process

@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fix panic in `parseSockaddr` for malformed socket address. [#152](https://github.com/elastic/go-libaudit/pull/152)
+
 ### Removed
 
 ### Deprecated

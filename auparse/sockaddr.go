@@ -22,10 +22,8 @@ import (
 	"strconv"
 )
 
-var (
-	// errInvalidSockAddrSize means socket address size is invalid.
-	errInvalidSockAddrSize = errors.New("invalid socket address size")
-)
+// errInvalidSockAddrSize means socket address size is invalid.
+var errInvalidSockAddrSize = errors.New("invalid socket address size")
 
 func parseSockaddr(s string) (map[string]string, error) {
 	if len(s) < 4 {

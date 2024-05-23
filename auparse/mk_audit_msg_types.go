@@ -26,7 +26,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -246,7 +245,7 @@ func readRecordTypes() (map[string]int, error) {
 }
 
 func run() error {
-	tmp, err := ioutil.TempDir("", "mk_audit_msg_types")
+	tmp, err := os.MkdirTemp("", "mk_audit_msg_types")
 	if err != nil {
 		return err
 	}

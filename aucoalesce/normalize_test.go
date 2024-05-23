@@ -18,7 +18,7 @@
 package aucoalesce
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func TestNormInit(t *testing.T) {
 }
 
 func TestLoadNormalizationConfig(t *testing.T) {
-	b, err := ioutil.ReadFile("normalizations.yaml")
+	b, err := os.ReadFile("normalizations.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

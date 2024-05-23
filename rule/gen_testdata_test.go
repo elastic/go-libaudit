@@ -26,7 +26,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"flag"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -70,7 +69,7 @@ func TestUpdateGoldenData(t *testing.T) {
 }
 
 func makeGoldenFile(t testing.TB, rulesFile string) {
-	rules, err := ioutil.ReadFile(rulesFile)
+	rules, err := os.ReadFile(rulesFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -206,7 +205,7 @@ func makePaths(t testing.TB, tmpDir, rule string) []string {
 			if err := os.MkdirAll(dir, 0o700); err != nil {
 				t.Fatal(err)
 			}
-			if err := ioutil.WriteFile(testPath, nil, 0o600); err != nil {
+			if err := os.WriteFile(testPath, nil, 0o600); err != nil {
 				t.Fatal(err)
 			}
 		}

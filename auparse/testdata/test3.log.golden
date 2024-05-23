@@ -373,7 +373,7 @@
       "ip": "0xb7670aac",
       "pid": "11217",
       "ses": "21",
-      "sig": "SIGSYS",
+      "sig": "SIGUSR2",
       "syscall": "getpgid",
       "uid": "22"
     }

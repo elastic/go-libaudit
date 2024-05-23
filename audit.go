@@ -30,8 +30,6 @@ import (
 	"time"
 	"unsafe"
 
-	"go.uber.org/multierr"
-
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
 
@@ -441,7 +439,7 @@ func (c *AuditClient) Close() error {
 			err = c.set(status, NoWait)
 		}
 
-		err = multierr.Append(err, c.Netlink.Close())
+		err = errors.Join(err, c.Netlink.Close())
 	})
 
 	return err

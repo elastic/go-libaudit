@@ -105,13 +105,6 @@ type results struct {
 	events  []eventMeta
 }
 
-func testPayloadForMessage(msg *auparse.AuditMessage) map[string]interface{} {
-	return map[string]interface{}{
-		"seq": msg.Sequence,
-		"typ": msg.RecordType,
-	}
-}
-
 func testReassembler(t testing.TB, file string, expected *results) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -136,7 +129,7 @@ func testReassembler(t testing.TB, file string, expected *results) {
 		}
 
 		// Attach some predictable Payload
-		msg.Payload = testPayloadForMessage(msg)
+		msg.Payload = createTestPayload(msg)
 
 		reassmbler.PushMessage(msg)
 	}
@@ -156,9 +149,16 @@ func testReassembler(t testing.TB, file string, expected *results) {
 			assert.EqualValues(t, expectedEvent.seq, msg.Sequence, "sequence number")
 
 			// Verify that custom payload is preserved
-			assert.Equal(t, testPayloadForMessage(msg), msg.Payload)
+			assert.Equal(t, createTestPayload(msg), msg.Payload)
 		}
 		assert.Equal(t, expectedEvent.count, len(stream.events[i]), "message count")
+	}
+}
+
+func createTestPayload(msg *auparse.AuditMessage) map[string]interface{} {
+	return map[string]interface{}{
+		"seq": msg.Sequence,
+		"typ": msg.RecordType,
 	}
 }
 

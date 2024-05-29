@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -436,7 +435,7 @@ func writeGoldenFile(sourceName string, events []*AuditMessage) error {
 }
 
 func readGoldenFile(name string) ([]*StoredAuditMessage, error) {
-	data, err := ioutil.ReadFile(name)
+	data, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
@@ -480,7 +479,7 @@ func BenchmarkParseLogLine(b *testing.B) {
 	require.NoError(b, err)
 	var msgs []string
 	for _, f := range files {
-		data, err := ioutil.ReadFile(f)
+		data, err := os.ReadFile(f)
 		require.NoError(b, err)
 		for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
 			if _, err = ParseLogLine(line); err == nil {

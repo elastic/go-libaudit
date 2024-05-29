@@ -21,7 +21,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"flag"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -110,7 +109,7 @@ func testCoalesceEvent(t *testing.T, file string) {
 }
 
 func readEventsFromYAML(t testing.TB, name string) []testEvent {
-	file, err := ioutil.ReadFile(name)
+	file, err := os.ReadFile(name)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +183,7 @@ func writeGoldenFile(name string, events []testEventOutput) error {
 func readGoldenFile(name string) ([]map[string]interface{}, error) {
 	name = strings.TrimSuffix(name, ".yaml")
 
-	data, err := ioutil.ReadFile(name + ".json.golden")
+	data, err := os.ReadFile(name + ".json.golden")
 	if err != nil {
 		return nil, err
 	}

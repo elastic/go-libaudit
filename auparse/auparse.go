@@ -56,6 +56,8 @@ type AuditMessage struct {
 	Sequence   uint32           // Sequence parsed from payload.
 	RawData    string           // Raw message as a string.
 
+	Payload interface{} // Opaque payload. This can be anything that is needed to be preserved along with the message and returned back after aggregation.
+
 	offset int               // offset is the index into RawData where the header ends and message begins.
 	data   map[string]string // The key value pairs parsed from the message.
 	tags   []string          // The keys associated with the event (e.g. the values set in rules with -F key=exec).

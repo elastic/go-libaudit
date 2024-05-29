@@ -29,7 +29,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
@@ -124,7 +124,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 		t.Fatal("failed to find 'tests' in yaml")
 	}
 
-	cases, ok := tests.(map[interface{}]interface{})
+	cases, ok := tests.(map[string]interface{})
 	if !ok {
 		t.Fatalf("unexpected type %T for 'tests'", tests)
 	}
@@ -146,7 +146,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 		}
 
 		testEvents = append(testEvents, testEvent{
-			name:     name.(string),
+			name:     name,
 			messages: msgs,
 		})
 	}

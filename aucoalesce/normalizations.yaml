@@ -2,12 +2,6 @@
 # Macros declares some YAML anchors that can be referenced for some common
 # object type normalizations like user-session, socket, or process.
 macros:
-  - &defaults
-    subject:
-      primary: auid
-      secondary: uid
-    how: [exe, comm]
-
   - &macro-user-session
     subject:
       primary: auid
@@ -17,21 +11,6 @@ macros:
       secondary: [addr, hostname]
       what: user-session
     how: [exe, terminal]
-
-  - &macro-socket
-    <<: *defaults
-    object:
-      primary: [addr, path]
-      secondary: port
-      what: socket
-
-  - &macro-process
-    <<: *defaults
-    object:
-      primary: [cmd, exe, comm]
-      secondary: pid
-      what: process
-    how: terminal
 
   - &ecs-iam
     category: iam
@@ -1539,6 +1518,7 @@ normalizations:
     object:
       primary: addr
       secondary: [rport]
+      what: user-session
     record_types: CRYPTO_SESSION
     source_ip: [addr]
     ecs: *ecs-process

@@ -797,7 +797,7 @@ func TestAuditClientSetImmutable(t *testing.T) {
 	assert.EqualValues(t, 2, status.Enabled)
 }
 
-func TestRuleParsing(t *testing.T) {
+func TestValidRuleParsing(t *testing.T) {
 	var rules []string
 	switch runtime.GOARCH {
 	case "386":
@@ -833,6 +833,20 @@ func TestRuleParsing(t *testing.T) {
 			"-a always,user -F uid=root",
 			"-a always,task -F uid=root",
 			"-a always,exit -S mount -F pid=1234",
+			"-d always,exit -F arch=b64 -S execve,execveat -F key=exec",
+			"-d never,exit -F arch=b64 -S connect,accept,bind -F key=external-access",
+			"-W /etc/group -p wa",
+			"-W /etc/passwd -p rx",
+			"-W /etc/gshadow -p rwxa",
+			"-W /tmp/test -p rwa",
+			"-d always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -F key=access",
+			"-d never,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -F key=access",
+			"-d always,exit -F arch=b32 -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+			"-d always,exit -F arch=b64 -S open -F key=key -F uid=30000 -F gid=333 -F exit=-151111 -F filetype=fifo",
+			"-d never,exclude -F msgtype=GRP_CHAUTHTOK",
+			"-d always,user -F uid=root",
+			"-d always,task -F uid=root",
+			"-d always,exit -S mount -F pid=1234",
 		}
 	default:
 		// Can't have multiple syscall testing as ordering of individual syscalls
@@ -851,6 +865,19 @@ func TestRuleParsing(t *testing.T) {
 			"-a always,user -F uid=root",
 			"-a always,task -F uid=root",
 			"-a always,exit -S mount -F pid=1234",
+			"-d always,exit -S execve -F key=exec",
+			"-W /etc/group -p wa",
+			"-W /etc/passwd -p rx",
+			"-W /etc/gshadow -p rwxa",
+			"-W /tmp/test -p rwa",
+			"-d always,exit -S all -F exit=-EACCES -F key=access",
+			"-d never,exit -S all -F exit=-EPERM -F key=access",
+			"-d always,exit -S open -F key=admin -F uid=root -F gid=root -F exit=33 -F path=/tmp -F perm=rwxa",
+			"-d always,exit -S open -F key=key -F uid=30000 -F gid=333 -F exit=-151111 -F filetype=fifo",
+			"-d never,exclude -F msgtype=GRP_CHAUTHTOK",
+			"-d always,user -F uid=root",
+			"-d always,task -F uid=root",
+			"-d always,exit -S mount -F pid=1234",
 		}
 	}
 	t.Logf("checking %d rules", len(rules))
@@ -864,11 +891,109 @@ func TestRuleParsing(t *testing.T) {
 		if err != nil {
 			t.Fatal(err, msg)
 		}
-		cmdline, err := rule.ToCommandLine(data, true)
+		addRule := true
+		switch r.TypeOf() {
+		case rule.DeleteFileWatchRuleType, rule.DeleteSyscallRuleType:
+			addRule = false
+		}
+		cmdline, err := rule.ToCommandLineAddRemove(data, true, addRule)
 		if err != nil {
 			t.Fatal(err, msg)
 		}
 		assert.Equal(t, line, cmdline, msg)
+	}
+}
+
+func TestInvalidRuleParsing(t *testing.T) {
+	rules := []string{
+		"-D -a",
+		"-D -A",
+		"-D -d",
+
+		"-D -a always",
+		"-D -A always",
+		"-D -d always",
+
+		"-D -a never",
+		"-D -A never",
+		"-D -d never",
+
+		"-D -a always,task",
+		"-D -A always,task",
+		"-D -d always,task",
+
+		"-D -a always,task -w /foo/bar -p rw",
+		"-D -a always,task -W /foo/bar -p rw",
+		"-D -A always,task -w /foo/bar -p rw",
+		"-D -A always,task -W /foo/bar -p rw",
+		"-D -d always,task -w /foo/bar -p rw",
+		"-D -d always,task -W /foo/bar -p rw",
+
+		"-D -a never,task",
+		"-D -A never,task",
+		"-D -d never,task",
+
+		"-D -w /foo/bar",
+		"-D -W /foo/bar",
+		"-D -w /foo/bar -p rw",
+		"-D -W /foo/bar -p rw",
+		"-D -w /foo/bar -p garbage",
+		"-D -W /foo/bar -p garbage",
+
+		"-w /foo/bar -W /foo/bar",
+		"-w /foo/bar -W /foo/bar -p rw",
+
+		"-w foo/bar",
+		"-W foo/bar",
+		"-w foo/bar -p rw",
+		"-W foo/bar -p rw",
+
+		"-w foo/bar -S 42",
+		"-W foo/bar -S 42",
+
+		"-w foo/bar -W foo/bar",
+		"-w foo/bar -W foo/bar -p rw",
+
+		"-w foo/bar -W foo/bar -S 42",
+
+		"-w /foo/bar -F uid=100",
+		"-W /foo/bar -F uid=100",
+
+		"-w /foo/bar -S 42",
+		"-W /foo/bar -S 42",
+
+		"-w /foo/bar -F uid=100",
+		"-W /foo/bar -F uid=100",
+
+		"-w /foo/bar -C auid!=uid",
+		"-W /foo/bar -C auid!=uid",
+
+		"-a always,exit -w /foo/bar -p rw",
+		"-a always,exit -W /foo/bar -p rw",
+		"-A always,exit -w /foo/bar -p rw",
+		"-A always,exit -W /foo/bar -p rw",
+
+		"-a always,exit -w /foo/bar",
+		"-a always,exit -W /foo/bar",
+		"-A always,exit -w /foo/bar",
+		"-A always,exit -W /foo/bar",
+	}
+
+	t.Logf("checking %d rules", len(rules))
+	for idx, line := range rules {
+		r, err := flags.Parse(line)
+		if err != nil {
+			t.Log(err)
+			continue
+		}
+
+		_, err = rule.Build(r)
+		if err != nil {
+			t.Log(err)
+			continue
+		}
+
+		t.Errorf("parsing line #%d: `%s' should have failed", idx, line)
 	}
 }
 

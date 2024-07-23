@@ -25,7 +25,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -144,7 +143,7 @@ func readErrorNumbers() ([]ErrorNumber, error) {
 }
 
 func run() error {
-	tmp, err := ioutil.TempDir("", "mk_audit_exit_codes")
+	tmp, err := os.MkdirTemp("", "mk_audit_exit_codes")
 	if err != nil {
 		return err
 	}
@@ -202,7 +201,7 @@ func run() error {
 		}
 	}
 
-	if err = ioutil.WriteFile(flagOut, buf.Bytes(), 0o644); err != nil {
+	if err = os.WriteFile(flagOut, buf.Bytes(), 0o644); err != nil {
 		return err
 	}
 

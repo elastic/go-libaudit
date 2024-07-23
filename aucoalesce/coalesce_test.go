@@ -21,7 +21,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"flag"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -30,7 +29,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/elastic/go-libaudit/v2/auparse"
 )
@@ -110,7 +109,7 @@ func testCoalesceEvent(t *testing.T, file string) {
 }
 
 func readEventsFromYAML(t testing.TB, name string) []testEvent {
-	file, err := ioutil.ReadFile(name)
+	file, err := os.ReadFile(name)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +124,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 		t.Fatal("failed to find 'tests' in yaml")
 	}
 
-	cases, ok := tests.(map[interface{}]interface{})
+	cases, ok := tests.(map[string]interface{})
 	if !ok {
 		t.Fatalf("unexpected type %T for 'tests'", tests)
 	}
@@ -147,7 +146,7 @@ func readEventsFromYAML(t testing.TB, name string) []testEvent {
 		}
 
 		testEvents = append(testEvents, testEvent{
-			name:     name.(string),
+			name:     name,
 			messages: msgs,
 		})
 	}
@@ -184,7 +183,7 @@ func writeGoldenFile(name string, events []testEventOutput) error {
 func readGoldenFile(name string) ([]map[string]interface{}, error) {
 	name = strings.TrimSuffix(name, ".yaml")
 
-	data, err := ioutil.ReadFile(name + ".json.golden")
+	data, err := os.ReadFile(name + ".json.golden")
 	if err != nil {
 		return nil, err
 	}

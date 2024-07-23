@@ -23,14 +23,13 @@ package rule_test
 import (
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/elastic/go-libaudit/v2/rule"
 	"github.com/elastic/go-libaudit/v2/rule/flags"
@@ -67,7 +66,7 @@ func TestBuildGolden(t *testing.T) {
 
 func testRulesFromGoldenFile(t *testing.T, goldenFile string) {
 	t.Run(filepath.Base(goldenFile), func(t *testing.T) {
-		testdata, err := ioutil.ReadFile(goldenFile)
+		testdata, err := os.ReadFile(goldenFile)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -123,7 +122,7 @@ func mkdirTempPaths(t testing.TB, path string) {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			t.Fatal(err)
 		}
-		if err := ioutil.WriteFile(path, nil, 0o600); err != nil {
+		if err := os.WriteFile(path, nil, 0o600); err != nil {
 			t.Fatal(err)
 		}
 	}

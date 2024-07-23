@@ -128,6 +128,9 @@ func testReassembler(t testing.TB, file string, expected *results) {
 			continue
 		}
 
+		// Attach some predictable Payload
+		msg.Payload = createTestPayload(msg)
+
 		reassmbler.PushMessage(msg)
 	}
 
@@ -144,8 +147,18 @@ func testReassembler(t testing.TB, file string, expected *results) {
 
 		for _, msg := range stream.events[i] {
 			assert.EqualValues(t, expectedEvent.seq, msg.Sequence, "sequence number")
+
+			// Verify that custom payload is preserved
+			assert.Equal(t, createTestPayload(msg), msg.Payload)
 		}
 		assert.Equal(t, expectedEvent.count, len(stream.events[i]), "message count")
+	}
+}
+
+func createTestPayload(msg *auparse.AuditMessage) map[string]interface{} {
+	return map[string]interface{}{
+		"seq": msg.Sequence,
+		"typ": msg.RecordType,
 	}
 }
 

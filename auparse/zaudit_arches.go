@@ -35,6 +35,8 @@ const (
 	AUDIT_ARCH_H8300       AuditArch = 0x2e
 	AUDIT_ARCH_I386        AuditArch = 0x40000003
 	AUDIT_ARCH_IA64        AuditArch = 0xc0000032
+	AUDIT_ARCH_LOONGARCH32 AuditArch = 0x40000102
+	AUDIT_ARCH_LOONGARCH64 AuditArch = 0xc0000102
 	AUDIT_ARCH_M32R        AuditArch = 0x58
 	AUDIT_ARCH_M68K        AuditArch = 0x4
 	AUDIT_ARCH_MIPS        AuditArch = 0x8
@@ -71,6 +73,8 @@ var AuditArchNames = map[AuditArch]string{
 	AUDIT_ARCH_H8300:       "h8300",
 	AUDIT_ARCH_I386:        "i386",
 	AUDIT_ARCH_IA64:        "ia64",
+	AUDIT_ARCH_LOONGARCH32: "loongarch32",
+	AUDIT_ARCH_LOONGARCH64: "loongarch64",
 	AUDIT_ARCH_M32R:        "m32r",
 	AUDIT_ARCH_M68K:        "m68k",
 	AUDIT_ARCH_MIPS:        "mips",

@@ -17,7 +17,7 @@ use strict;
 
 my $command = "mk_audit_arches.pl ". join(' ', @ARGV);
 
-`curl -s -O https://raw.githubusercontent.com/torvalds/linux/v5.16/include/uapi/linux/audit.h`;
+`curl -s -O https://raw.githubusercontent.com/torvalds/linux/v6.6/include/uapi/linux/audit.h`;
 
 open(GCC, "gcc -E -dD audit.h |") || die "can't run gcc";
 my @arches;

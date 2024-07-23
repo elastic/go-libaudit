@@ -9,9 +9,31 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fix panic in `parseSockaddr` for malformed socket address. [#152](https://github.com/elastic/go-libaudit/pull/152)
+
 ### Removed
 
 ### Deprecated
+
+## [2.5.0]
+
+### Added
+
+- Add ECS normalization for `exit_group` syscall. [#149](https://github.com/elastic/go-libaudit/pull/149)
+
+### Changed
+
+- Update syscall and architecture tables. [#147](https://github.com/elastic/go-libaudit/pull/147)
+
+## [2.4.0]
+
+### Added
+
+- Support `saddr_fam` filters. [#145](https://github.com/elastic/go-libaudit/pull/145)
+
+### Changed
+
+- Update Vagrant file gvm and ubuntu versions. [#145](https://github.com/elastic/go-libaudit/pull/145)
 
 ## [2.3.3]
 
@@ -248,7 +270,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.3.3...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.5.0
+[2.4.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.4.0
 [2.3.3]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.3
 [2.3.2]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.2
 [2.3.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.1

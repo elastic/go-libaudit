@@ -18,10 +18,28 @@
 package auparse
 
 import (
+	"fmt"
 	"strconv"
 )
 
+// invalidSockAddrError means socket address size for family is invalid.
+type invalidSockAddrError struct {
+	family string
+	size   int
+}
+
+func (e invalidSockAddrError) Error() string {
+	if e.size < 4 {
+		return fmt.Sprintf("invalid family: too short: %d", e.size)
+	}
+	return fmt.Sprintf("invalid socket address size family=%s: %d", e.family, e.size)
+}
+
 func parseSockaddr(s string) (map[string]string, error) {
+	if len(s) < 4 {
+		return nil, invalidSockAddrError{size: len(s)}
+	}
+
 	addressFamily, err := hexToDec(s[2:4] + s[0:2]) // host-order
 	if err != nil {
 		return nil, err
@@ -38,6 +56,13 @@ func parseSockaddr(s string) (map[string]string, error) {
 		out["family"] = "unix"
 		out["path"] = socket
 	case 2: // AF_INET
+		if len(s) < 16 {
+			return nil, invalidSockAddrError{
+				family: "ipv4",
+				size:   len(s),
+			}
+		}
+
 		port, err := hexToDec(s[4:8])
 		if err != nil {
 			return nil, err
@@ -52,6 +77,13 @@ func parseSockaddr(s string) (map[string]string, error) {
 		out["addr"] = ip
 		out["port"] = strconv.Itoa(int(port))
 	case 10: // AF_INET6
+		if len(s) < 48 {
+			return nil, invalidSockAddrError{
+				family: "ipv6",
+				size:   len(s),
+			}
+		}
+
 		port, err := hexToDec(s[4:8])
 		if err != nil {
 			return nil, err

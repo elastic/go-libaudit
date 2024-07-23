@@ -33,6 +33,7 @@ import (
 //go:generate sh -c "perl mk_audit_syscalls.pl > zaudit_syscalls.go && gofmt -s -w zaudit_syscalls.go"
 //go:generate perl mk_audit_arches.pl
 //go:generate go run mk_audit_exit_codes.go
+//go:generate go run github.com/elastic/go-licenser
 
 const (
 	typeToken = "type="
@@ -54,6 +55,8 @@ type AuditMessage struct {
 	Timestamp  time.Time        // Timestamp parsed from payload in netlink message.
 	Sequence   uint32           // Sequence parsed from payload.
 	RawData    string           // Raw message as a string.
+
+	Payload interface{} // Opaque payload. This can be anything that is needed to be preserved along with the message and returned back after aggregation.
 
 	offset int               // offset is the index into RawData where the header ends and message begins.
 	data   map[string]string // The key value pairs parsed from the message.

@@ -24,7 +24,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"regexp"
 	"strings"
 
@@ -126,7 +126,7 @@ func newRuleFlagSet() *ruleFlagSet {
 	rule := &ruleFlagSet{
 		flagSet: flag.NewFlagSet("rule", flag.ContinueOnError),
 	}
-	rule.flagSet.SetOutput(ioutil.Discard)
+	rule.flagSet.SetOutput(io.Discard)
 
 	rule.flagSet.BoolVar(&rule.DeleteAll, "D", false, "delete all")
 	rule.flagSet.Var(&rule.Append, "a", "append rule")
@@ -147,7 +147,7 @@ func (r *ruleFlagSet) Usage() string {
 	buf := new(bytes.Buffer)
 	r.flagSet.SetOutput(buf)
 	r.flagSet.Usage()
-	r.flagSet.SetOutput(ioutil.Discard)
+	r.flagSet.SetOutput(io.Discard)
 	return buf.String()
 }
 

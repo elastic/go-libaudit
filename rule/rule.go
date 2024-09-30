@@ -198,13 +198,15 @@ func ToCommandLine(wf WireFormat, resolveIds bool) (rule string, err error) {
 		}
 		if r.arch == "b32" {
 			switch arch {
-			case "i386", "arm", "ppc":
+			case "i386", "arm", "ppc", "s390":
 			case "aarch64":
 				arch = "arm"
 			case "x86_64":
 				arch = "i386"
 			case "ppc64", "ppc64le":
 				arch = "ppc"
+			case "s390x":
+				arch = "s390"
 			default:
 				return "", fmt.Errorf("invalid arch for b32: '%s'", arch)
 			}
@@ -863,7 +865,7 @@ func getArch(arch string) (string, uint32, error) {
 		}
 
 		switch runtimeArch {
-		case "aarch64", "x86_64", "ppc64":
+		case "aarch64", "x86_64", "ppc64", "s390x":
 			realArch = runtimeArch
 		default:
 			return "", 0, fmt.Errorf("cannot use b64 on %v", runtimeArch)
@@ -875,7 +877,7 @@ func getArch(arch string) (string, uint32, error) {
 		}
 
 		switch runtimeArch {
-		case "arm", "i386":
+		case "arm", "i386", "s390":
 			realArch = runtimeArch
 		case "aarch64":
 			realArch = "arm"
@@ -883,6 +885,8 @@ func getArch(arch string) (string, uint32, error) {
 			realArch = "i386"
 		case "ppc64":
 			realArch = "ppc"
+		case "s390x":
+			realArch = "s390"
 		default:
 			return "", 0, fmt.Errorf("cannot use b32 on %v", runtimeArch)
 		}
@@ -909,16 +913,17 @@ func getDisplayArch(archID uint32) (string, error) {
 	requestedArch := auparse.AuditArch(archID)
 	if requestedArch == runtimeArch {
 		switch requestedArch {
-		case auparse.AUDIT_ARCH_AARCH64, auparse.AUDIT_ARCH_X86_64, auparse.AUDIT_ARCH_PPC64:
+		case auparse.AUDIT_ARCH_AARCH64, auparse.AUDIT_ARCH_X86_64, auparse.AUDIT_ARCH_PPC64, auparse.AUDIT_ARCH_S390X:
 			return "b64", nil
-		case auparse.AUDIT_ARCH_ARM, auparse.AUDIT_ARCH_I386, auparse.AUDIT_ARCH_PPC:
+		case auparse.AUDIT_ARCH_ARM, auparse.AUDIT_ARCH_I386, auparse.AUDIT_ARCH_PPC, auparse.AUDIT_ARCH_S390:
 			return "b32", nil
 		}
 	} else {
 		switch {
 		case runtimeArch == auparse.AUDIT_ARCH_AARCH64 && requestedArch == auparse.AUDIT_ARCH_ARM,
 			runtimeArch == auparse.AUDIT_ARCH_X86_64 && requestedArch == auparse.AUDIT_ARCH_I386,
-			runtimeArch == auparse.AUDIT_ARCH_PPC64 && requestedArch == auparse.AUDIT_ARCH_PPC:
+			runtimeArch == auparse.AUDIT_ARCH_PPC64 && requestedArch == auparse.AUDIT_ARCH_PPC,
+			runtimeArch == auparse.AUDIT_ARCH_S390X && requestedArch == auparse.AUDIT_ARCH_S390:
 			return "b32", nil
 		}
 	}

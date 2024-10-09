@@ -484,6 +484,9 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 				case errors.Is(err, syscall.EAGAIN):
 					time.Sleep(50 * time.Millisecond)
 					continue
+				case errors.Is(err, syscall.ENOBUFS):
+					time.Sleep(50 * time.Millisecond)
+					continue
 				default:
 					return nil, fmt.Errorf("error receiving audit reply: %w", err)
 				}

@@ -77,7 +77,7 @@ type NetlinkClient struct {
 //
 // The returned NetlinkClient must be closed with Close() when finished.
 func NewNetlinkClient(proto int, groups uint32, readBuf []byte, resp io.Writer) (*NetlinkClient, error) {
-	s, err := syscall.Socket(syscall.AF_NETLINK, syscall.SOCK_RAW, proto)
+	s, err := syscall.Socket(syscall.AF_NETLINK, syscall.SOCK_RAW|syscall.SOCK_CLOEXEC, proto)
 	if err != nil {
 		return nil, err
 	}

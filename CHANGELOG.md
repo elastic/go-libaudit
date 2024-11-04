@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix panic in `parseSockaddr` for malformed socket address. [#152](https://github.com/elastic/go-libaudit/pull/152)
 - Set `SOCK_CLOEXEC` when creating the netlink socket to avoid leaking file descriptors. [#165](https://github.com/elastic/go-libaudit/pull/165)
 - Update syscall tables. [#167](https://github.com/elastic/go-libaudit/pull/167)
+- aucoalesce: Use ECS `event.type: end` instead of `stop` for SERVICE_STOP, DAEMON_ABORT, and DAEMON_END messages. [#159](https://github.com/elastic/go-libaudit/pull/159)
 
 ### Removed
 

@@ -158,9 +158,8 @@ func GetAuditMessageType(name string) (AuditMessageType, error) {
 var tmpl = template.Must(template.New("message_types").Parse(fileTemplate))
 
 var headers = []string{
-	`https://raw.githubusercontent.com/torvalds/linux/v6.6/include/uapi/linux/audit.h`,
-	`https://raw.githubusercontent.com/linux-audit/audit-userspace/v3.1.2/lib/libaudit.h`,
-	`https://raw.githubusercontent.com/linux-audit/audit-userspace/v3.1.2/lib/msg_typetab.h`,
+	`https://raw.githubusercontent.com/linux-audit/audit-userspace/v4.0.2/lib/audit-records.h`,
+	`https://raw.githubusercontent.com/linux-audit/audit-userspace/v4.0.2/lib/msg_typetab.h`,
 }
 
 func DownloadFile(url, destinationDir string) (string, error) {
@@ -217,13 +216,13 @@ func readMessageTypeTable() (map[string]string, error) {
 		}
 	}
 
-	return constantToStringName, nil
+	return constantToStringName, s.Err()
 }
 
 func readRecordTypes() (map[string]int, error) {
-	out, err := exec.Command("gcc", "-E", "-dD", "libaudit.h", "audit.h").Output()
+	out, err := exec.Command("gcc", "-E", "-dD", "audit-records.h").Output()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to run gcc: %w", err)
 	}
 
 	recordTypeToNum := map[string]int{}
@@ -241,7 +240,7 @@ func readRecordTypes() (map[string]int, error) {
 		}
 	}
 
-	return recordTypeToNum, nil
+	return recordTypeToNum, s.Err()
 }
 
 func run() error {

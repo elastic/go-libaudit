@@ -22,7 +22,7 @@ sub fmt {
     print "\t\t$num: \"$name\",\n";
 }
 
-my $base_url = "https://raw.githubusercontent.com/linux-audit/audit-userspace/v3.1.2/lib";
+my $base_url = "https://raw.githubusercontent.com/linux-audit/audit-userspace/v4.0.2/lib";
 my @tables = (
     "aarch64",
     "arm",

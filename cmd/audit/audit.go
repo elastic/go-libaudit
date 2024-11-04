@@ -138,7 +138,7 @@ func receive(r *libaudit.AuditClient) error {
 			return fmt.Errorf("receive failed: %w", err)
 		}
 
-		// Messages from 1300-2999 are valid audit messages.
+		// Messages from 1100-2999 are valid audit messages.
 		if rawEvent.Type < auparse.AUDIT_USER_AUTH ||
 			rawEvent.Type > auparse.AUDIT_LAST_USER_MSG2 {
 			continue

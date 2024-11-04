@@ -9,14 +9,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+### Removed
+
+### Deprecated
+
+## [2.6.0]
+
+### Changed
+
 - Fix panic in `parseSockaddr` for malformed socket address. [#152](https://github.com/elastic/go-libaudit/pull/152)
 - Set `SOCK_CLOEXEC` when creating the netlink socket to avoid leaking file descriptors. [#165](https://github.com/elastic/go-libaudit/pull/165)
 - Update syscall tables. [#167](https://github.com/elastic/go-libaudit/pull/167)
 - aucoalesce: Use ECS `event.type: end` instead of `stop` for SERVICE_STOP, DAEMON_ABORT, and DAEMON_END messages. [#159](https://github.com/elastic/go-libaudit/pull/159)
-
-### Removed
-
-### Deprecated
 
 ## [2.5.0]
 
@@ -273,7 +277,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.6.0
 [2.5.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.5.0
 [2.4.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.4.0
 [2.3.3]: https://github.com/elastic/go-libaudit/releases/tag/v2.3.3

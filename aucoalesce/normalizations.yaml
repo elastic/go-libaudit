@@ -3,13 +3,11 @@
 # object type normalizations like user-session, socket, or process.
 macros:
   - &macro-user-session
-    subject:
-      primary: auid
-      secondary: [acct, id, uid]
-    object:
-      primary: terminal
-      secondary: [addr, hostname]
-      what: user-session
+    subject_primary: auid
+    subject_secondary: [acct, id, uid]
+    object_primary: terminal
+    object_secondary: [addr, hostname]
+    object_what: user-session
     how: [exe, terminal]
 
   - &ecs-iam
@@ -90,8 +88,7 @@ normalizations:
     syscalls:
       - '*' # this is a catch all
   - action: opened-file
-    object:
-      what: file
+    object_what: file
     syscalls:
       # creat - open and possibly create a file
       - creat
@@ -99,8 +96,7 @@ normalizations:
       <<: *ecs-file
       type: creation
   - action: opened-file
-    object:
-      what: file
+    object_what: file
     syscalls:
       # fallocate - manipulate file space
       - fallocate
@@ -114,8 +110,7 @@ normalizations:
       # but regardless, we consider this a change
       type: change
   - action: opened-file
-    object:
-      what: file
+    object_what: file
     syscalls:
       # open - open and possibly create a file
       - open
@@ -127,15 +122,13 @@ normalizations:
       - readlinkat
     ecs: *ecs-file
   - action: read-file
-    object:
-      what: file
+    object_what: file
     syscalls:
       # read - read from a file descriptor
       - read
     ecs: *ecs-file
   - action: wrote-to-file
-    object:
-      what: file
+    object_what: file
     syscalls:
       # write - write to a file descriptor
       - write
@@ -143,8 +136,7 @@ normalizations:
       <<: *ecs-file
       type: change
   - action: changed-file-attributes-of
-    object:
-      what: file
+    object_what: file
     syscalls:
       # setxattr - set an extended attribute value
       - setxattr
@@ -162,8 +154,7 @@ normalizations:
       <<: *ecs-file
       type: change
   - action: changed-file-permissions-of
-    object:
-      what: file
+    object_what: file
     syscalls:
       # chmod - change permissions of a file
       - chmod
@@ -175,8 +166,7 @@ normalizations:
       <<: *ecs-file
       type: change
   - action: changed-file-ownership-of
-    object:
-      what: file
+    object_what: file
     syscalls:
       # chown - change ownership of a file
       - chown
@@ -190,9 +180,8 @@ normalizations:
       <<: *ecs-file
       type: change
   - action: loaded-kernel-module
-    object:
-      what: file
-      primary: name
+    object_what: file
+    object_primary: name
     record_types:
       - KERN_MODULE
     syscalls:
@@ -204,8 +193,7 @@ normalizations:
       <<: *ecs-driver
       type: start
   - action: unloaded-kernel-module
-    object:
-      what: file
+    object_what: file
     syscalls:
       # delete_module - unload a kernel module
       - delete_module
@@ -213,9 +201,8 @@ normalizations:
       <<: *ecs-driver
       type: end
   - action: created-directory
-    object:
-      what: file
-      path_index: 1
+    object_what: file
+    object_path_index: 1
     syscalls:
       # mkdir - create a directory
       - mkdir
@@ -225,9 +212,8 @@ normalizations:
       <<: *ecs-file
       type: creation
   - action: mounted
-    object:
-      what: filesystem
-      path_index: 1
+    object_what: filesystem
+    object_path_index: 1
     syscalls:
       # mount - mount filesystem
       - mount
@@ -237,9 +223,8 @@ normalizations:
       # we consider this a high-level "creation" event
       type: creation
   - action: renamed
-    object:
-      what: file
-      path_index: 2
+    object_what: file
+    object_path_index: 2
     syscalls:
       # rename - change the name or location of a file
       - rename
@@ -251,8 +236,7 @@ normalizations:
       <<: *ecs-file
       type: change
   - action: checked-metadata-of
-    object:
-      what: file
+    object_what: file
     syscalls:
       # access - check user's permissions for a file
       - access
@@ -278,8 +262,7 @@ normalizations:
       - fgetxattr
     ecs: *ecs-file
   - action: checked-filesystem-metadata-of
-    object:
-      what: filesystem
+    object_what: filesystem
     syscalls:
       # statfs - get filesystem statistics
       - statfs
@@ -287,8 +270,7 @@ normalizations:
       - fstatfs
     ecs: *ecs-file
   - action: symlinked
-    object:
-      what: file
+    object_what: file
     syscalls:
       # symlink - make a new name for a file
       - symlink
@@ -300,8 +282,7 @@ normalizations:
       # entry for the symlink
       type: creation
   - action: unmounted
-    object:
-      what: filesystem
+    object_what: filesystem
     syscalls:
       # umount - unmount filesystem
       - umount
@@ -312,8 +293,7 @@ normalizations:
       # "deletion" to mirror the "creation" of the mount
       type: deletion
   - action: deleted
-    object:
-      what: file
+    object_what: file
     syscalls:
       # rmdir - delete a directory
       - rmdir
@@ -325,8 +305,7 @@ normalizations:
       <<: *ecs-file
       type: deletion
   - action: changed-timestamp-of
-    object:
-      what: file
+    object_what: file
     syscalls:
       # utime - change file last access and modification times
       - utime
@@ -340,8 +319,7 @@ normalizations:
       - utimensat
     ecs: *ecs-file
   - action: executed
-    object:
-      what: file
+    object_what: file
     syscalls:
       # execve - execute program
       - execve
@@ -351,8 +329,7 @@ normalizations:
       <<: *ecs-process
       type: start
   - action: listen-for-connections
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       # listen- listen for connections on a socket
       - listen
@@ -360,8 +337,7 @@ normalizations:
       <<: *ecs-network
       type: start
   - action: accepted-connection-from
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       # accept - accept a connection on a socket
       - accept
@@ -373,8 +349,7 @@ normalizations:
         - connection
         - start
   - action: bound-socket
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       # bind -bind a name to a socket
       - bind
@@ -382,8 +357,7 @@ normalizations:
       <<: *ecs-network
       type: start
   - action: connected-to
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       - connect
     ecs:
@@ -392,8 +366,7 @@ normalizations:
         - connection
         - start
   - action: received-from
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       # recv - receive a message from a socket
       - recv
@@ -406,8 +379,7 @@ normalizations:
     ecs:
       <<: *ecs-network
   - action: sent-to
-    object:
-      what: socket
+    object_what: socket
     syscalls:
       # send - send a message on a socket
       - send
@@ -420,8 +392,7 @@ normalizations:
     ecs:
       <<: *ecs-network
   - action: killed-pid
-    object:
-      what: process
+    object_what: process
     syscalls:
       # kill - send signal to a process
       - kill
@@ -433,8 +404,7 @@ normalizations:
       <<: *ecs-process
       type: end
   - action: changed-identity-of
-    object:
-      what: process
+    object_what: process
     how: syscall
     syscalls:
       # setuid - set user identity
@@ -461,8 +431,7 @@ normalizations:
       <<: *ecs-process
       type: change
   - action: changed-system-time
-    object:
-      what: system
+    object_what: system
     record_types:
       - TIME_ADJNTPVAL
       - TIME_INJOFFSET
@@ -481,8 +450,7 @@ normalizations:
       <<: *ecs-host
       type: change
   - action: make-device
-    object:
-      what: file
+    object_what: file
     syscalls:
       # mknod - create a special or ordinary file
       - mknod
@@ -492,8 +460,7 @@ normalizations:
       <<: *ecs-file
       type: creation
   - action: changed-system-name
-    object:
-      what: system
+    object_what: system
     syscalls:
       # sethostname - get/set hostname
       - sethostname
@@ -503,8 +470,7 @@ normalizations:
       <<: *ecs-host
       type: change
   - action: allocated-memory
-    object:
-      what: memory
+    object_what: memory
     syscalls:
       # mmap - map or unmap files or devices into memory
       - mmap
@@ -514,8 +480,7 @@ normalizations:
       - brk
     ecs: *ecs-process
   - action: adjusted-scheduling-policy-of
-    object:
-      what: process
+    object_what: process
     how: syscall
     syscalls:
       # sched_setparam - set and get scheduling parameters
@@ -528,8 +493,7 @@ normalizations:
       <<: *ecs-process
       type: change
   - action: end
-    object:
-      what: process
+    object_what: process
     how: syscall
     syscalls:
       # exit_group - exit all threads in a process
@@ -866,9 +830,8 @@ normalizations:
   # AUDIT_ADD_GROUP - Group account added
   - record_types: ADD_GROUP
     action: added-group-account-to
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: [*ecs-iam, *ecs-group-modification-mappings]
       type:
@@ -878,9 +841,8 @@ normalizations:
   # AUDIT_ADD_USER - User account added
   - record_types: ADD_USER
     action: added-user-account
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: [*ecs-iam, *ecs-user-modification-mappings]
       type:
@@ -889,9 +851,8 @@ normalizations:
   # AUDIT_DEL_GROUP - Group account deleted
   - record_types: DEL_GROUP
     action: deleted-group-account-from
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: [*ecs-iam, *ecs-group-modification-mappings]
       type:
@@ -900,9 +861,8 @@ normalizations:
   # AUDIT_DEL_USER - User account deleted
   - record_types: DEL_USER
     action: deleted-user-account
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: [*ecs-iam, *ecs-user-modification-mappings]
       type:
@@ -911,9 +871,8 @@ normalizations:
   # AUDIT_GRP_MGMT - Group account attr was modified
   - record_types: GRP_MGMT
     action: modified-group-account
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: *ecs-iam
       type:
@@ -929,9 +888,8 @@ normalizations:
   # AUDIT_ROLE_ASSIGN - Admin assigned user to role
   - record_types: ROLE_ASSIGN
     action: assigned-user-role-to
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: *ecs-iam
       type:
@@ -947,9 +905,8 @@ normalizations:
   # AUDIT_ROLE_REMOVE - Admin removed user from role
   - record_types: ROLE_REMOVE
     action: removed-user-role-from
-    object:
-      primary: [id, acct]
-      what: account
+    object_primary: [id, acct]
+    object_what: account
     ecs:
       <<: *ecs-iam
       type:
@@ -992,9 +949,8 @@ normalizations:
   - <<: *macro-user-session
     record_types: GRP_CHAUTHTOK
     action: changed-group-password
-    object:
-      primary: acct
-      what: user-session
+    object_primary: acct
+    object_what: user-session
     ecs:
       <<: *ecs-iam
       type:
@@ -1032,12 +988,10 @@ normalizations:
   # AUDIT_LOGIN - Define the login id and information
   - record_types: LOGIN
     action: changed-login-id-to
-    subject:
-      primary: [old_auid, old-auid]
-      secondary: uid
-    object:
-      primary: [new-auid, new_auid, auid]
-      what: user-session
+    subject_primary: [old_auid, old-auid]
+    subject_secondary: uid
+    object_primary: [new-auid, new_auid, auid]
+    object_what: user-session
     ecs:
       <<: *ecs-auth
       type: start
@@ -1088,9 +1042,8 @@ normalizations:
   - <<: *macro-user-session
     record_types: USER_ROLE_CHANGE
     action: changed-role-to
-    object:
-      primary: selected-context
-      what: user-session
+    object_primary: selected-context
+    object_what: user-session
   # AUDIT_USER_START - User session start
   - <<: *macro-user-session
     record_types: USER_START
@@ -1105,10 +1058,9 @@ normalizations:
   # AUDIT_VIRT_CONTROL - Start, Pause, Stop VM
   - record_types: VIRT_CONTROL
     action: issued-vm-control
-    object:
-      primary: op
-      secondary: vm
-      what: virtual-machine
+    object_primary: op
+    object_secondary: vm
+    object_what: virtual-machine
     ecs: *ecs-host
   # AUDIT_VIRT_CREATE - Creation of guest image
   - record_types: VIRT_CREATE
@@ -1125,9 +1077,8 @@ normalizations:
   # AUDIT_VIRT_MACHINE_ID - Binding of label to VM
   - record_types: VIRT_MACHINE_ID
     action: assigned-vm-id
-    object:
-      primary: vm
-      what: virtual-machine
+    object_primary: vm
+    object_what: virtual-machine
     ecs: *ecs-host
   # AUDIT_VIRT_MIGRATE_IN - Inbound guest migration info
   - record_types: VIRT_MIGRATE_IN
@@ -1140,10 +1091,9 @@ normalizations:
   # AUDIT_VIRT_RESOURCE - Resource assignment
   - record_types: VIRT_RESOURCE
     action: assigned-vm-resource
-    object:
-      primary: resrc
-      secondary: vm
-      what: virtual-machine
+    object_primary: resrc
+    object_secondary: vm
+    object_what: virtual-machine
     ecs: *ecs-host
 
   # Userspace process events
@@ -1171,9 +1121,8 @@ normalizations:
   # AUDIT_USER_CMD - User shell command and args
   - record_types: USER_CMD
     action: ran-command
-    object:
-      primary: cmd
-      what: process
+    object_primary: cmd
+    object_what: process
     description: >
       These messages are from user-space apps, like sudo, that log commands
       being run by a user. The uid contained in these messages is user's UID at
@@ -1188,25 +1137,22 @@ normalizations:
   # AUDIT_SYSTEM_BOOT - System boot
   - record_types: SYSTEM_BOOT
     action: booted-system
-    object:
-      what: system
+    object_what: system
     ecs:
       <<: *ecs-host
       type: start
   # AUDIT_SYSTEM_RUNLEVEL - System runlevel change
   - record_types: SYSTEM_RUNLEVEL
     action: changed-to-runlevel
-    object:
-      primary: new-level
-      what: system
+    object_primary: new-level
+    object_what: system
     ecs:
       <<: *ecs-host
       type: change
   # AUDIT_SYSTEM_SHUTDOWN - System shutdown
   - record_types: SYSTEM_SHUTDOWN
     action: shutdown-system
-    object:
-      what: system
+    object_what: system
     ecs:
       <<: *ecs-host
       type: end
@@ -1216,18 +1162,16 @@ normalizations:
   # AUDIT_SERVICE_START - Service (daemon) start
   - record_types: SERVICE_START
     action: started-service
-    object:
-      primary: unit
-      what: service
+    object_primary: unit
+    object_what: service
     ecs:
       <<: *ecs-process
       type: start
   # AUDIT_SERVICE_STOP - Service (daemon) stop
   - record_types: SERVICE_STOP
     action: stopped-service
-    object:
-      primary: unit
-      what: service
+    object_primary: unit
+    object_what: service
     ecs:
       <<: *ecs-process
       type: end
@@ -1237,26 +1181,22 @@ normalizations:
   # AUDIT_CONFIG_CHANGE - Audit system configuration change
   - record_types: CONFIG_CHANGE
     action: changed-audit-configuration
-    object:
-      primary:
-        [op, key, audit_enabled, audit_pid, audit_backlog_limit, audit_failure]
-      what: audit-config
+    object_primary: [op, key, audit_enabled, audit_pid, audit_backlog_limit, audit_failure]
+    object_what: audit-config
     ecs:
       category: [process, configuration]
       type: change
   # AUDIT_DAEMON_ABORT - Daemon error stop record
   - record_types: DAEMON_ABORT
     action: aborted-auditd-startup
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-process
       type: end
   # AUDIT_DAEMON_ACCEPT - Auditd accepted remote connection
   - record_types: DAEMON_ACCEPT
     action: remote-audit-connected
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-network
       type:
@@ -1265,8 +1205,7 @@ normalizations:
   # AUDIT_DAEMON_CLOSE - Auditd closed remote connection
   - record_types: DAEMON_CLOSE
     action: remote-audit-disconnected
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-network
       type:
@@ -1275,54 +1214,47 @@ normalizations:
   # AUDIT_DAEMON_CONFIG - Daemon config change
   - record_types: DAEMON_CONFIG
     action: changed-auditd-configuration
-    object:
-      what: service
+    object_what: service
     ecs:
       category: [process, configuration]
       type: change
   # AUDIT_DAEMON_END - Daemon normal stop record
   - record_types: DAEMON_END
     action: shutdown-audit
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-process
       type: end
   # AUDIT_DAEMON_ERR - Auditd internal error
   - record_types: DAEMON_ERR
     action: audit-error
-    object:
-      what: service
+    object_what: service
     ecs: *ecs-process
   # AUDIT_DAEMON_RECONFIG - Auditd should reconfigure
   - record_types: DAEMON_RECONFIG
     action: reconfigured-auditd
-    object:
-      what: service
+    object_what: service
     ecs:
       category: [process, configuration]
       type: info
   # AUDIT_DAEMON_RESUME - Auditd should resume logging
   - record_types: DAEMON_RESUME
     action: resumed-audit-logging
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-process
       type: change
   # AUDIT_DAEMON_ROTATE - Auditd should rotate logs
   - record_types: DAEMON_ROTATE
     action: rotated-audit-logs
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-process
       type: change
   # AUDIT_DAEMON_START - Daemon startup record
   - record_types: DAEMON_START
     action: started-audit
-    object:
-      what: service
+    object_what: service
     ecs:
       <<: *ecs-process
       type: start
@@ -1336,27 +1268,24 @@ normalizations:
   # AUDIT_USYS_CONFIG - User space system config change
   - record_types: USYS_CONFIG
     action: changed-configuration
-    object:
-      primary: op
-      what: system
+    object_primary: op
+    object_what: system
     ecs:
       category: configuration
       type: change
   # AUDIT_NETFILTER_CFG - Netfilter chain modifications
   - record_types: NETFILTER_CFG
     action: loaded-firewall-rule-to
-    object:
-      primary: table
-      what: firewall
+    object_primary: table
+    object_what: firewall
     ecs:
       category: configuration
       type: change
   # AUDIT_FEATURE_CHANGE - audit log listing feature changes
   - record_types: FEATURE_CHANGE
     action: changed-audit-feature
-    object:
-      primary: feature
-      what: system
+    object_primary: feature
+    object_what: system
     ecs:
       category: configuration
       type: change
@@ -1370,9 +1299,8 @@ normalizations:
       # AUDIT_USER_TTY - Non-ICANON TTY input meaning
       - USER_TTY
     action: typed
-    object:
-      primary: data
-      what: keystrokes
+    object_primary: data
+    object_what: keystrokes
     how: [comm, exe]
 
   # Policy events
@@ -1380,64 +1308,55 @@ normalizations:
   # AUDIT_AVC - SE Linux avc denial or grant (selinux)
   - record_types: AVC
     action: violated-selinux-policy
-    subject:
-      primary: scontext
-    object:
-      primary: tcontext
-      secondary: tclass
+    subject_primary: scontext
+    object_primary: tcontext
+    object_secondary: tclass
     has_fields:
       - seresult
   # AUDIT_AVC - SE Linux avc denial or grant (apparmor)
   - record_types: AVC
     action: violated-apparmor-policy
-    object:
-      primary: operation
-      secondary: [requested_mask, denied_mask, capname]
-      what: policy
+    object_primary: operation
+    object_secondary: [requested_mask, denied_mask, capname]
+    object_what: policy
     has_fields:
       - apparmor
   # AUDIT_FS_RELABEL - Filesystem relabeled
   - record_types: FS_RELABEL
     action: relabeled-filesystem
-    object:
-      what: mac-config
+    object_what: mac-config
   # AUDIT_LABEL_LEVEL_CHANGE - Object's level was changed
   - record_types: LABEL_LEVEL_CHANGE
     action: modified-level-of
-    object:
-      primary: printer
-      what: printer
+    object_primary: printer
+    object_what: printer
   # AUDIT_LABEL_OVERRIDE - Admin is overriding a label
   - record_types: LABEL_OVERRIDE
     action: overrode-label-of
-    object:
-      what: mac-config
+    object_what: mac-config
   # AUDIT_MAC_CHECK - User space MAC decision results
   - record_types: MAC_CHECK
     action: mac-permission
   # AUDIT_MAC_CONFIG_CHANGE - Changes to booleans
   - record_types: MAC_CONFIG_CHANGE
     action: changed-selinux-boolean
-    object:
-      primary: bool
-      what: mac-config
+    object_primary: bool
+    object_what: mac-config
     ecs:
       category: configuration
       type: change
   # AUDIT_MAC_POLICY_LOAD - Policy file load
   - record_types: MAC_POLICY_LOAD
     action: loaded-selinux-policy
-    object:
-      what: mac-config
+    object_what: mac-config
     ecs:
       category: configuration
       type: access
   # AUDIT_MAC_STATUS - Changed enforcing,permissive,off
   - record_types: MAC_STATUS
     action: changed-selinux-enforcement
-    object:
-      primary: enforcing
-      what: mac-config
+    object_primary: enforcing
+    object_what: mac-config
     ecs:
       category: configuration
       type: change
@@ -1447,16 +1366,14 @@ normalizations:
   # AUDIT_USER_MAC_CONFIG_CHANGE - Change made to MAC policy
   - record_types: USER_MAC_CONFIG_CHANGE
     action: changed-mac-configuration
-    object:
-      what: mac-config
+    object_what: mac-config
     ecs:
       category: configuration
       type: change
   # AUDIT_USER_MAC_POLICY_LOAD - Userspc daemon loaded polic
   - record_types: USER_MAC_POLICY_LOAD
     action: loaded-mac-policy
-    object:
-      what: mac-config
+    object_what: mac-config
     ecs:
       category: configuration
       type: access
@@ -1466,13 +1383,11 @@ normalizations:
   # AUDIT_SECCOMP - Secure Computing event
   - record_types: SECCOMP
     action: violated-seccomp-policy
-    object:
-      primary: syscall
-      what: process
+    object_primary: syscall
+    object_what: process
   # AUDIT_SELINUX_ERR - Internal SE Linux Errors
   - action: caused-mac-policy-error
-    object:
-      what: system
+    object_what: system
     record_types: SELINUX_ERR
   # AUDIT_APPARMOR_ALLOWED
   # AUDIT_APPARMOR_DENIED
@@ -1501,10 +1416,9 @@ normalizations:
 
   - <<: *macro-user-session
     action: negotiated-crypto-key
-    object:
-      primary: fp
-      secondary: [addr, hostname]
-      what: user-session
+    object_primary: fp
+    object_secondary: [addr, hostname]
+    object_what: user-session
     record_types: CRYPTO_KEY_USER
     source_ip: [addr]
     ecs: *ecs-process
@@ -1515,10 +1429,9 @@ normalizations:
     ecs: *ecs-process
   - <<: *macro-user-session
     action: started-crypto-session
-    object:
-      primary: addr
-      secondary: [rport]
-      what: user-session
+    object_primary: addr
+    object_secondary: [rport]
+    object_what: user-session
     record_types: CRYPTO_SESSION
     source_ip: [addr]
     ecs: *ecs-process
@@ -1530,10 +1443,9 @@ normalizations:
   # AUDIT_ANOM_ABEND - Process ended abnormally
   - record_types: ANOM_ABEND
     action: crashed-program
-    object:
-      primary: [comm, exe]
-      secondary: pid
-      what: process
+    object_primary: [comm, exe]
+    object_secondary: pid
+    object_what: process
     how: sig
     ecs:
       kind: alert
@@ -1546,9 +1458,8 @@ normalizations:
   # AUDIT_ANOM_EXEC - Execution of file
   - record_types: ANOM_EXEC
     action: attempted-execution-of-forbidden-program
-    object:
-      primary: cmd
-      what: process
+    object_primary: cmd
+    object_what: process
     how: terminal
     ecs:
       kind: alert
@@ -1620,9 +1531,8 @@ normalizations:
   # AUDIT_ANOM_PROMISCUOUS - Device changed promiscuous mode
   - record_types: ANOM_PROMISCUOUS
     action: changed-promiscuous-mode-on-device # Could be entered or exited based on prom field.
-    object:
-      primary: dev
-      what: network-device
+    object_primary: dev
+    object_what: network-device
     ecs:
       kind: alert
       # add device once in ECS
@@ -1634,9 +1544,8 @@ normalizations:
   # AUDIT_ANOM_RBAC_INTEGRITY_FAIL - RBAC file integrity failure
   - record_types: ANOM_RBAC_INTEGRITY_FAIL
     action: tested-file-system-integrity-of
-    object:
-      primary: hostname
-      what: filesystem
+    object_primary: hostname
+    object_what: filesystem
     ecs:
       kind: alert
       category:
@@ -1833,8 +1742,7 @@ normalizations:
   # AUDIT_USER - Message from userspace -- deprecated
   - record_types: USER
     action: sent-message
-    object:
-      primary: addr
+    object_primary: addr
 
   # AUDIT_SOFTWARE_UPDATE - Package management
   - record_types: SOFTWARE_UPDATE

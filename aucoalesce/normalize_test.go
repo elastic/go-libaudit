@@ -18,7 +18,6 @@
 package aucoalesce
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,14 +30,24 @@ func TestNormInit(t *testing.T) {
 }
 
 func TestLoadNormalizationConfig(t *testing.T) {
-	b, err := os.ReadFile("normalizations.yaml")
+	_, recordTypes, err := LoadNormalizationConfig(normalizationDataYAML)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, _, err := LoadNormalizationConfig(b); err != nil {
-		t.Fatal(err)
+	if len(recordTypes["USER_ROLE_CHANGE"]) != 1 {
+		t.Fatal("expected single normalization")
 	}
+	n := recordTypes["USER_ROLE_CHANGE"][0]
+
+	assert.Equal(t, n.SubjectPrimaryFieldName.Values, []string{"auid"})
+	assert.Equal(t, n.SubjectSecondaryFieldName.Values, []string{"acct", "id", "uid"})
+
+	assert.Equal(t, n.ObjectPrimaryFieldName.Values, []string{"selected-context"})
+	assert.Equal(t, n.ObjectSecondaryFieldName.Values, []string{"addr", "hostname"})
+	assert.Equal(t, n.ObjectWhat, "user-session")
+
+	assert.Equal(t, n.How.Values, []string{"exe", "terminal"})
 }
 
 var stringsYAML = `

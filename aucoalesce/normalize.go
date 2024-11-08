@@ -47,14 +47,16 @@ type Strings struct {
 	Values []string
 }
 
-func (s *Strings) UnmarshalYAML(unmarshal func(interface{}) error) error {
+var _ yaml.Unmarshaler = (*Strings)(nil)
+
+func (s *Strings) UnmarshalYAML(n *yaml.Node) error {
 	var singleValue string
-	if err := unmarshal(&singleValue); err == nil {
+	if err := n.Decode(&singleValue); err == nil {
 		s.Values = []string{singleValue}
 		return nil
 	}
 
-	return unmarshal(&s.Values)
+	return n.Decode(&s.Values)
 }
 
 type NormalizationConfig struct {
@@ -63,15 +65,19 @@ type NormalizationConfig struct {
 }
 
 type Normalization struct {
-	Subject     SubjectMapping `yaml:"subject"`
-	Action      string         `yaml:"action"`
-	Object      ObjectMapping  `yaml:"object"`
-	How         Strings        `yaml:"how"`
-	RecordTypes Strings        `yaml:"record_types"`
-	Syscalls    Strings        `yaml:"syscalls"`
-	SourceIP    Strings        `yaml:"source_ip"`
-	HasFields   Strings        `yaml:"has_fields"` // Apply the normalization if all fields are present.
-	ECS         ECSMapping     `yaml:"ecs"`
+	SubjectPrimaryFieldName   Strings    `yaml:"subject_primary"`
+	SubjectSecondaryFieldName Strings    `yaml:"subject_secondary"`
+	Action                    string     `yaml:"action"`
+	ObjectPrimaryFieldName    Strings    `yaml:"object_primary"`
+	ObjectSecondaryFieldName  Strings    `yaml:"object_secondary"`
+	ObjectWhat                string     `yaml:"object_what"`
+	ObjectPathIndex           int        `yaml:"object_path_index"`
+	How                       Strings    `yaml:"how"`
+	RecordTypes               Strings    `yaml:"record_types"`
+	Syscalls                  Strings    `yaml:"syscalls"`
+	SourceIP                  Strings    `yaml:"source_ip"`
+	HasFields                 Strings    `yaml:"has_fields"` // Apply the normalization if all fields are present.
+	ECS                       ECSMapping `yaml:"ecs"`
 }
 
 type ECSFieldMapping struct {
@@ -86,21 +92,14 @@ type ECSMapping struct {
 	Mappings []ECSFieldMapping `yaml:"mappings"`
 }
 
-type SubjectMapping struct {
-	PrimaryFieldName   Strings `yaml:"primary"`
-	SecondaryFieldName Strings `yaml:"secondary"`
-}
-
-type ObjectMapping struct {
-	PrimaryFieldName   Strings `yaml:"primary"`
-	SecondaryFieldName Strings `yaml:"secondary"`
-	What               string  `yaml:"what"`
-	PathIndex          int     `yaml:"path_index"`
-}
-
 type (
 	readReference  func(*Event) string
 	writeReference func(*Event, string)
+)
+
+var (
+	_ yaml.Unmarshaler = (*readReference)(nil)
+	_ yaml.Unmarshaler = (*writeReference)(nil)
 )
 
 var (
@@ -165,9 +164,9 @@ func resolveFieldReference(fieldRef string) (ref readReference) {
 	return nil
 }
 
-func (ref *readReference) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (ref *readReference) UnmarshalYAML(n *yaml.Node) error {
 	var fieldRef string
-	if err := unmarshal(&fieldRef); err != nil {
+	if err := n.Decode(&fieldRef); err != nil {
 		return err
 	}
 	if *ref = resolveFieldReference(fieldRef); *ref == nil {
@@ -176,9 +175,9 @@ func (ref *readReference) UnmarshalYAML(unmarshal func(interface{}) error) error
 	return nil
 }
 
-func (ref *writeReference) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (ref *writeReference) UnmarshalYAML(n *yaml.Node) error {
 	var fieldRef string
-	if err := unmarshal(&fieldRef); err != nil {
+	if err := n.Decode(&fieldRef); err != nil {
 		return err
 	}
 	if *ref = toFieldReferences[fieldRef]; *ref == nil {

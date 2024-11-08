@@ -18,6 +18,7 @@
 package aucoalesce
 
 import (
+	"bytes"
 	_ "embed"
 	"fmt"
 	"strings"
@@ -60,8 +61,8 @@ func (s *Strings) UnmarshalYAML(n *yaml.Node) error {
 }
 
 type NormalizationConfig struct {
-	Default        Normalization `yaml:"default"`
-	Normalizations []Normalization
+	Macros         []any           `yaml:"macros"`
+	Normalizations []Normalization `yaml:"normalizations"`
 }
 
 type Normalization struct {
@@ -78,6 +79,7 @@ type Normalization struct {
 	SourceIP                  Strings    `yaml:"source_ip"`
 	HasFields                 Strings    `yaml:"has_fields"` // Apply the normalization if all fields are present.
 	ECS                       ECSMapping `yaml:"ecs"`
+	Description               string     `yaml:"description,omitempty"`
 }
 
 type ECSFieldMapping struct {
@@ -188,7 +190,9 @@ func (ref *writeReference) UnmarshalYAML(n *yaml.Node) error {
 
 func LoadNormalizationConfig(b []byte) (syscalls map[string]*Normalization, recordTypes map[string][]*Normalization, err error) {
 	c := &NormalizationConfig{}
-	if err := yaml.Unmarshal(b, c); err != nil {
+	dec := yaml.NewDecoder(bytes.NewReader(b))
+	dec.KnownFields(true)
+	if err := dec.Decode(c); err != nil {
 		return nil, nil, err
 	}
 

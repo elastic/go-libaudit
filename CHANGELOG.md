@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- rule: On s390x, fix handling of rules with filters like `-F arch=b64` or `-F arch=b32`. [#164](https://github.com/elastic/go-libaudit/pull/164)
+- aucoalesce: Fix bug affecting event normalization caused by upgrade to yaml.v3. [#170](https://github.com/elastic/go-libaudit/pull/170/)
+
 ### Removed
 
 ### Deprecated

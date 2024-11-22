@@ -9,12 +9,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- rule: On s390x, fix handling of rules with filters like `-F arch=b64` or `-F arch=b32`. [#164](https://github.com/elastic/go-libaudit/pull/164)
-- aucoalesce: Fix bug affecting event normalization caused by upgrade to yaml.v3. [#170](https://github.com/elastic/go-libaudit/pull/170/)
-
 ### Removed
 
 ### Deprecated
+
+## [2.6.1]
+
+### Changed
+
+- rule: On s390x, fix handling of rules with filters like `-F arch=b64` or `-F arch=b32`. [#164](https://github.com/elastic/go-libaudit/pull/164)
+- aucoalesce: Fix bug affecting event normalization caused by upgrade to yaml.v3. [#170](https://github.com/elastic/go-libaudit/pull/170/)
 
 ## [2.6.0]
 
@@ -280,7 +284,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   Linux kernel.
 - Added auparse package for parsing audit logs.
 
-[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/elastic/go-libaudit/compare/v2.6.1...HEAD
+[2.6.1]: https://github.com/elastic/go-libaudit/releases/tag/v2.6.1
 [2.6.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.6.0
 [2.5.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.5.0
 [2.4.0]: https://github.com/elastic/go-libaudit/releases/tag/v2.4.0

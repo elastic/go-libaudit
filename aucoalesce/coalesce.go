@@ -511,66 +511,66 @@ func applyNormalization(event *Event) {
 
 	event.Summary.Action = norm.Action
 
-	switch norm.Object.What {
+	switch norm.ObjectWhat {
 	case "file", "filesystem":
-		event.Summary.Object.Type = norm.Object.What
+		event.Summary.Object.Type = norm.ObjectWhat
 		if len(event.Paths) > 0 {
-			if err := setFileObject(event, norm.Object.PathIndex); err != nil {
+			if err := setFileObject(event, norm.ObjectPathIndex); err != nil {
 				event.Warnings = append(event.Warnings, fmt.Errorf("failed to set file object: %w", err))
 			}
 		}
 	case "socket":
-		event.Summary.Object.Type = norm.Object.What
+		event.Summary.Object.Type = norm.ObjectWhat
 		setSocketObject(event)
 	default:
-		event.Summary.Object.Type = norm.Object.What
+		event.Summary.Object.Type = norm.ObjectWhat
 	}
 
-	if len(norm.Subject.PrimaryFieldName.Values) > 0 {
+	if len(norm.SubjectPrimaryFieldName.Values) > 0 {
 		var err error
-		for _, subjKey := range norm.Subject.PrimaryFieldName.Values {
+		for _, subjKey := range norm.SubjectPrimaryFieldName.Values {
 			if err = setSubjectPrimary(subjKey, event); err == nil {
 				break
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject primary using keys=%v because they were not found", norm.Subject.PrimaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject primary using keys=%v because they were not found", norm.SubjectPrimaryFieldName.Values))
 		}
 	}
 
-	if len(norm.Subject.SecondaryFieldName.Values) > 0 {
+	if len(norm.SubjectSecondaryFieldName.Values) > 0 {
 		var err error
-		for _, subjKey := range norm.Subject.SecondaryFieldName.Values {
+		for _, subjKey := range norm.SubjectSecondaryFieldName.Values {
 			if err = setSubjectSecondary(subjKey, event); err == nil {
 				break
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject secondary using keys=%v because they were not found", norm.Subject.SecondaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set subject secondary using keys=%v because they were not found", norm.SubjectSecondaryFieldName.Values))
 		}
 	}
 
-	if len(norm.Object.PrimaryFieldName.Values) > 0 {
+	if len(norm.ObjectPrimaryFieldName.Values) > 0 {
 		var err error
-		for _, objKey := range norm.Object.PrimaryFieldName.Values {
+		for _, objKey := range norm.ObjectPrimaryFieldName.Values {
 			if err = setObjectPrimary(objKey, event); err == nil {
 				break
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object primary using keys=%v because they were not found", norm.Object.PrimaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object primary using keys=%v because they were not found", norm.ObjectPrimaryFieldName.Values))
 		}
 	}
 
-	if len(norm.Object.SecondaryFieldName.Values) > 0 {
+	if len(norm.ObjectSecondaryFieldName.Values) > 0 {
 		var err error
-		for _, objKey := range norm.Object.SecondaryFieldName.Values {
+		for _, objKey := range norm.ObjectSecondaryFieldName.Values {
 			if err = setObjectSecondary(objKey, event); err == nil {
 				break
 			}
 		}
 		if err != nil {
-			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object secondary using keys=%v because they were not found", norm.Object.SecondaryFieldName.Values))
+			event.Warnings = append(event.Warnings, fmt.Errorf("failed to set object secondary using keys=%v because they were not found", norm.ObjectSecondaryFieldName.Values))
 		}
 	}
 

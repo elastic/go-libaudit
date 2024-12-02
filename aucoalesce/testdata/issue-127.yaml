@@ -1,0 +1,7 @@
+---
+
+tests:
+  multiple_avc_messages: |
+    type=AVC msg=audit(1668179838.476:649407): avc:  denied  { search } for  pid=4059486 comm="cephcsi" name="crypto" dev="proc" ino=475090959 scontext=system_u:system_r:svirt_lxc_net_t:s0:c222,c955 tcontext=system_u:object_r:sysctl_crypto_t:s0 tclass=dir permissive=1
+    type=AVC msg=audit(1668179838.476:649407): avc:  denied  { read } for  pid=4059486 comm="cephcsi" name="fips_enabled" dev="proc" ino=475090960 scontext=system_u:system_r:svirt_lxc_net_t:s0:c222,c955 tcontext=system_u:object_r:sysctl_crypto_t:s0 tclass=file permissive=1
+    type=AVC msg=audit(1668179838.476:649407): avc:  denied  { open } for  pid=4059486 comm="cephcsi" path="/proc/sys/crypto/fips_enabled" dev="proc" ino=475090960 scontext=system_u:system_r:svirt_lxc_net_t:s0:c222,c955 tcontext=system_u:object_r:sysctl_crypto_t:s0 tclass=file permissive=1

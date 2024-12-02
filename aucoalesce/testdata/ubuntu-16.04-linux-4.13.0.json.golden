@@ -73,11 +73,7 @@
         },
         "group": {}
       }
-    },
-    "warnings": [
-      "duplicate key (comm) from AVC message",
-      "duplicate key (pid) from AVC message"
-    ]
+    }
   },
   {
     "test_name": "AVC_AppArmor_unlink",
@@ -131,7 +127,6 @@
         "arch": "x86_64",
         "exit": "0",
         "fsuid": "100",
-        "name": "/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj",
         "operation": "unlink",
         "ouid": "100",
         "profile": "docker-nginx",
@@ -139,6 +134,30 @@
         "syscall": "unlink",
         "tty": "pts0"
       },
+      "avc_data": [
+        {
+          "apparmor": "AUDIT",
+          "comm": "apt-get",
+          "fsuid": "100",
+          "name": "/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj",
+          "operation": "unlink",
+          "ouid": "100",
+          "pid": "26024",
+          "profile": "docker-nginx",
+          "requested_mask": "d"
+        },
+        {
+          "apparmor": "AUDIT",
+          "comm": "apt-get",
+          "fsuid": "100",
+          "name": "/var/lib/docker/aufs/diff/8087092ad17fa7433455dccab4f52b438ae032d22bf40a8d098c7235cfad53d8/var/lib/apt/lists/partial/.apt-acquire-privs-test.zW4jyj",
+          "operation": "unlink",
+          "ouid": "100",
+          "pid": "26024",
+          "profile": "docker-nginx",
+          "requested_mask": "d"
+        }
+      ],
       "paths": [
         {
           "cap_fe": "0",
@@ -203,17 +222,7 @@
       }
     },
     "warnings": [
-      "duplicate key (apparmor) from AVC message",
-      "duplicate key (comm) from AVC message",
-      "duplicate key (comm) from AVC message",
-      "duplicate key (fsuid) from AVC message",
-      "duplicate key (name) from AVC message",
-      "duplicate key (operation) from AVC message",
-      "duplicate key (ouid) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "duplicate key (pid) from AVC message",
-      "duplicate key (profile) from AVC message",
-      "duplicate key (requested_mask) from AVC message"
+      "duplicate key (name) from AVC message"
     ]
   }
 ]

@@ -77,8 +77,10 @@ type Event struct {
 	Dest    *Address `json:"destination,omitempty" yaml:"destination,omitempty"`
 	Net     *Network `json:"network,omitempty"     yaml:"network,omitempty"`
 
-	Data  map[string]string   `json:"data,omitempty"  yaml:"data,omitempty"`
-	Paths []map[string]string `json:"paths,omitempty" yaml:"paths,omitempty"`
+	Data             map[string]string   `json:"data,omitempty"  yaml:"data,omitempty"`
+	AVCData          []map[string]string `json:"avc_data,omitempty"  yaml:"avc_data,omitempty"`
+	NetfilterCFGData []map[string]string `json:"netfilter_cfg_data,omitempty"  yaml:"netfilter_cfg_data,omitempty"`
+	Paths            []map[string]string `json:"paths,omitempty" yaml:"paths,omitempty"`
 
 	ECS ECSFields `json:"ecs" yaml:"ecs"`
 
@@ -218,13 +220,21 @@ func normalizeCompound(msgs []*auparse.AuditMessage) (*Event, error) {
 			break
 		}
 	}
-	if syscall == nil {
-		// All compound records have syscall messages.
-		return nil, errors.New("missing syscall message in compound event")
-	}
 
 	event := newEvent(special, syscall)
 
+	keyCollision := false
+	seen := make(map[string]bool)
+	for _, msg := range msgs {
+		switch msg.RecordType {
+		case auparse.AUDIT_AVC, auparse.AUDIT_NETFILTER_CFG:
+			if hasKeyCollision(msg, seen) {
+				keyCollision = true
+			}
+		}
+	}
+
+	dups := make(map[string]bool)
 	for _, msg := range msgs {
 		switch msg.RecordType {
 		case auparse.AUDIT_SYSCALL:
@@ -235,9 +245,22 @@ func normalizeCompound(msgs []*auparse.AuditMessage) (*Event, error) {
 			addSockaddrRecord(msg, event)
 		case auparse.AUDIT_EXECVE:
 			addExecveRecord(msg, event)
+		case auparse.AUDIT_AVC:
+			if keyCollision {
+				addAVCRecord(msg, event)
+			}
+			addFieldsToEventData(msg, event, true, dups)
+		case auparse.AUDIT_NETFILTER_CFG:
+			if keyCollision {
+				addNetfilterCfgRecord(msg, event)
+			}
+			addFieldsToEventData(msg, event, true, dups)
 		default:
-			addFieldsToEventData(msg, event)
+			addFieldsToEventData(msg, event, false, dups)
 		}
+	}
+	for k := range dups {
+		delete(event.Data, k)
 	}
 
 	return event, nil
@@ -378,6 +401,43 @@ func addPathRecord(path *auparse.AuditMessage, event *Event) {
 	event.Paths = append(event.Paths, data)
 }
 
+func hasKeyCollision(msg *auparse.AuditMessage, seen map[string]bool) bool {
+	data, err := msg.Data()
+	if err != nil {
+		return false
+	}
+
+	for k := range data {
+		if seen[k] {
+			return true
+		}
+		seen[k] = true
+	}
+	return false
+}
+
+func addAVCRecord(path *auparse.AuditMessage, event *Event) {
+	data, err := path.Data()
+	if err != nil {
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to parse AVC message: %w", err))
+		return
+	}
+
+	event.AVCData = append(event.AVCData, data)
+}
+
+func addNetfilterCfgRecord(path *auparse.AuditMessage, event *Event) {
+	data, err := path.Data()
+	if err != nil {
+		event.Warnings = append(event.Warnings, fmt.Errorf(
+			"failed to parse NETFILTER_CFG message: %w", err))
+		return
+	}
+
+	event.NetfilterCFGData = append(event.NetfilterCFGData, data)
+}
+
 func addProcess(event *Event) {
 	event.Process.PID = event.Data["pid"]
 	delete(event.Data, "pid")
@@ -434,7 +494,7 @@ func addExecveRecord(execve *auparse.AuditMessage, event *Event) {
 	event.Process.Args = args
 }
 
-func addFieldsToEventData(msg *auparse.AuditMessage, event *Event) {
+func addFieldsToEventData(msg *auparse.AuditMessage, event *Event, allowDuplicate bool, dups map[string]bool) {
 	data, err := msg.Data()
 	if err != nil {
 		event.Warnings = append(event.Warnings,
@@ -443,9 +503,10 @@ func addFieldsToEventData(msg *auparse.AuditMessage, event *Event) {
 	}
 
 	for k, v := range data {
-		if _, found := event.Data[k]; found {
+		if o, found := event.Data[k]; found && (o != v || !allowDuplicate) {
 			event.Warnings = append(event.Warnings, fmt.Errorf(
 				"duplicate key (%v) from %v message", k, msg.RecordType))
+			dups[k] = true
 			continue
 		}
 		event.Data[k] = v

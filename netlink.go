@@ -127,7 +127,7 @@ func getPortID(fd int) (uint32, error) {
 	return addr.Pid, nil
 }
 
-// Send a message to the netlink client in non-blocking mode. Behavior is otherwise identical to Send()
+// SendNoWait sends a message to the netlink client in non-blocking mode. Behavior is otherwise identical to Send()
 func (c *NetlinkClient) SendNoWait(msg syscall.NetlinkMessage) (uint32, error) {
 	return c.send(msg, syscall.MSG_DONTWAIT)
 }

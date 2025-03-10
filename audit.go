@@ -529,6 +529,7 @@ func (c *AuditClient) closeAndUnsetPid() {
 			// throw out events until we can try to send again. We're closing, so we don't really care.
 			_, err = c.Netlink.Receive(true, noParse)
 			// if we got some events, or we would be waiting, try again try sending again
+			// If we get an ENOBUF, should we try to drain the socket, or retry first? This assumes we keep draining the socket.
 			if err == nil || errors.Is(err, syscall.EAGAIN) || errors.Is(err, syscall.EWOULDBLOCK) {
 				_, err := c.Netlink.SendNoWait(msg)
 				if err == nil {

@@ -49,7 +49,7 @@ const (
 // Netlink groups.
 const (
 	NetlinkGroupNone    = iota // Group 0 not used
-	NetlinkGroupReadLog        // "best effort" read only socket
+	NetlinkGroupReadLog        // "best effort" read only socket, defined in the kernel as AUDIT_NLGRP_READLOG
 )
 
 // WaitMode is a flag to control the behavior of methods that abstract
@@ -427,16 +427,12 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 // become no-ops.
 func (c *AuditClient) Close() error {
 	var err error
-
 	// Only unregister and close the socket once.
 	c.closeOnce.Do(func() {
 		if c.clearPIDOnClose {
 			// Unregister from the kernel for a clean exit.
-			status := AuditStatus{
-				Mask: AuditStatusPID,
-				PID:  0,
-			}
-			err = c.set(status, NoWait)
+			c.closeAndUnsetPid()
+
 		}
 
 		err = errors.Join(err, c.Netlink.Close())
@@ -503,6 +499,46 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 			seq, msg.Header.Seq)
 	}
 	return &msg, nil
+}
+
+// an isolated operation to unset our pid from the audit subsystem and close the socket
+func (c *AuditClient) closeAndUnsetPid() {
+	msg := syscall.NetlinkMessage{
+		Header: syscall.NlMsghdr{
+			Type:  AuditSet,
+			Flags: syscall.NLM_F_REQUEST | syscall.NLM_F_ACK,
+		},
+		Data: AuditStatus{
+			Mask: AuditStatusPID,
+			PID:  0,
+		}.toWireFormat(),
+	}
+
+	noParse := func(bytes []byte) ([]syscall.NetlinkMessage, error) {
+		return nil, nil
+	}
+
+	// If our request to unset the PID would block, then try to drain events from
+	// the netlink socket, resend, try again.
+	// In netlink, EAGAIN usually indicates our read buffer is full.
+	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the  audit pid.
+	_, err := c.Netlink.SendNoWait(msg)
+	if err != nil {
+		// sending may be blocked, retry. If the kernel layer is blocked, we'll usually get ENOBUF,
+		// but retry on any error.
+		for {
+			// throw out events until we can try to send again. We're closing, so we don't really care.
+			_, err = c.Netlink.Receive(true, noParse)
+			// if we got some events, or we would be waiting, try again try sending again
+			if err == nil || errors.Is(err, syscall.EAGAIN) || errors.Is(err, syscall.EWOULDBLOCK) {
+				_, err := c.Netlink.SendNoWait(msg)
+				if err == nil {
+					break
+				}
+			}
+
+		}
+	}
 }
 
 func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {

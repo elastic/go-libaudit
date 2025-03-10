@@ -524,8 +524,7 @@ func (c *AuditClient) closeAndUnsetPid() {
 	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the  audit pid.
 	_, err := c.Netlink.SendNoWait(msg)
 	if err != nil {
-		// sending may be blocked, retry. If the kernel layer is blocked, we'll usually get ENOBUF,
-		// but retry on any error.
+		// sending may be blocked, retry.
 		for {
 			// throw out events until we can try to send again. We're closing, so we don't really care.
 			_, err = c.Netlink.Receive(true, noParse)

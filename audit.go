@@ -535,6 +535,9 @@ func (c *AuditClient) closeAndUnsetPid() {
 				if err == nil {
 					break
 				}
+				// Not sure how we could end up here unless other threads are doing something weird, but best to handle this so we don't loop forever.
+			} else if errors.Is(err, syscall.EBADFD) {
+				return
 			}
 
 		}

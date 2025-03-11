@@ -431,7 +431,8 @@ func (c *AuditClient) Close() error {
 	c.closeOnce.Do(func() {
 		if c.clearPIDOnClose {
 			// Unregister from the kernel for a clean exit.
-			c.closeAndUnsetPid()
+			err = c.closeAndUnsetPid()
+
 		}
 
 		err = errors.Join(err, c.Netlink.Close())

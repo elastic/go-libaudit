@@ -500,12 +500,13 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 	return &msg, nil
 }
 
-// an isolated operation to unset our pid from the audit subsystem and close the socket
-func (c *AuditClient) closeAndUnsetPid() {
+// unset our pid from the audit subsystem and close the socket.
+// This is a sort of isolated refactor, meant to deal with the deadlocks that can happen when we're not careful with blocking operations throughout a lot of this code.
+func (c *AuditClient) closeAndUnsetPid() error {
 	msg := syscall.NetlinkMessage{
 		Header: syscall.NlMsghdr{
 			Type:  AuditSet,
-			Flags: syscall.NLM_F_REQUEST | syscall.NLM_F_ACK,
+			Flags: syscall.NLM_F_REQUEST,
 		},
 		Data: AuditStatus{
 			Mask: AuditStatusPID,
@@ -517,30 +518,41 @@ func (c *AuditClient) closeAndUnsetPid() {
 		return nil, nil
 	}
 
+	// retry the send if the syscall gets an interrupt.
+	// This may not be totally needed, as non-blocking calls shouldn't really return an EINTR, but there's nothing saying it can't.
+	retryOnEINTR := func(msg syscall.NetlinkMessage) (uint32, error) {
+		maxRetry := 10
+		for i := 0; i < maxRetry; i++ {
+			wrote, err := c.Netlink.SendNoWait(msg)
+			if !errors.Is(err, syscall.EINTR) {
+				return wrote, err
+			}
+		}
+		return 0, fmt.Errorf("could not send netlink message, got repeated EINTR")
+	}
+
 	// If our request to unset the PID would block, then try to drain events from
 	// the netlink socket, resend, try again.
 	// In netlink, EAGAIN usually indicates our read buffer is full.
 	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the  audit pid.
-	_, err := c.Netlink.SendNoWait(msg)
+	_, err := retryOnEINTR(msg)
 	if err != nil {
-		// sending may be blocked, retry.
-		for {
-			// throw out events until we can try to send again. We're closing, so we don't really care.
+		maxRetry := 10000
+		// sending may be blocked, try to empty the buffer, then send again
+		for i := 0; i < maxRetry; i++ {
+			// Attempt to drain the socket before we retry the close
 			_, err = c.Netlink.Receive(true, noParse)
-			// if we got some events, or we would be waiting, try again try sending again
-			// If we get an ENOBUF, should we try to drain the socket, or retry first? This assumes we keep draining the socket.
-			if err == nil || errors.Is(err, syscall.EAGAIN) || errors.Is(err, syscall.EWOULDBLOCK) {
-				_, err := c.Netlink.SendNoWait(msg)
-				if err == nil {
-					break
-				}
-				// Not sure how we could end up here unless other threads are doing something weird, but best to handle this so we don't loop forever.
-			} else if errors.Is(err, syscall.EBADFD) {
-				return
+			if err == nil || errors.Is(err, syscall.EINTR) || errors.Is(err, syscall.ENOBUFS) {
+				continue
+			} else if errors.Is(err, syscall.EAGAIN) {
+				break
 			}
-
 		}
 	}
+	// One last attempt.
+	// Looking at the kernel code in kauditd_thread, I think we can survive failing to unset the pid, as connection failures will cause the pid to be unset.
+	_, err = retryOnEINTR(msg)
+	return fmt.Errorf("error sending PID unset event: %w", err)
 }
 
 func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {
@@ -598,7 +610,7 @@ func parseNetlinkAuditMessage(buf []byte) ([]syscall.NetlinkMessage, error) {
 // https://github.com/linux-audit/audit-kernel/blob/v4.7/include/uapi/linux/audit.h#L318-L325
 type AuditStatusMask uint32
 
-// Mask types for AuditStatus.
+// Mask types for AuditStatus. Originally defined in the kernel at audit.h
 const (
 	AuditStatusEnabled AuditStatusMask = 1 << iota
 	AuditStatusFailure

@@ -30,12 +30,15 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"slices"
+	"sync"
 	"syscall"
 	"testing"
 	"testing/quick"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/elastic/go-libaudit/v2/rule"
 	"github.com/elastic/go-libaudit/v2/rule/flags"
@@ -54,6 +57,89 @@ var (
 // testRule is a base64 representation of the following rule.
 // -a always,exit -S open,truncate -F dir=/etc -F success=0
 const testRule = `BAAAAAIAAAACAAAABAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGsAAABoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAvZXRj`
+
+// TestNetlinkIface is a mock interface for testing close behavior
+type TestNetlinkIface struct {
+	recvStack []error
+	sendStack []error
+}
+
+func (tn *TestNetlinkIface) Close() error {
+	return nil
+}
+
+func (tn *TestNetlinkIface) Send(msg syscall.NetlinkMessage) (uint32, error) {
+	top := tn.sendStack[0]
+	tn.sendStack = slices.Delete(tn.sendStack, 0, 1)
+	return 0, top
+}
+
+func (tn *TestNetlinkIface) SendNoWait(msg syscall.NetlinkMessage) (uint32, error) {
+	top := tn.sendStack[0]
+	tn.sendStack = slices.Delete(tn.sendStack, 0, 1)
+	return 0, top
+}
+
+func (tn *TestNetlinkIface) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.NetlinkMessage, error) {
+	top := tn.recvStack[0]
+	tn.recvStack = slices.Delete(tn.recvStack, 0, 1)
+	return nil, top
+
+}
+
+func TestCloseBehavior(t *testing.T) {
+	testCases := []struct {
+		name string
+		cfg  *TestNetlinkIface
+		err  error
+	}{
+		{
+			name: "retry",
+			cfg: &TestNetlinkIface{
+				// cause the first send to error out
+				sendStack: []error{syscall.EWOULDBLOCK, nil, nil},
+				// force the close logic to drain
+				recvStack: []error{syscall.ENOBUFS, syscall.ENOBUFS, syscall.EAGAIN},
+			},
+			err: nil,
+		},
+		{
+			name: "fail-recv-error",
+			cfg: &TestNetlinkIface{
+				// cause the first send to error out
+				sendStack: []error{syscall.EWOULDBLOCK, nil, nil},
+				// force the close logic to drain
+				recvStack: []error{syscall.ENOBUFS, syscall.ENOBUFS, syscall.EBADFD},
+			},
+			err: syscall.EBADFD,
+		},
+		{
+			name: "fail-send-error",
+			cfg: &TestNetlinkIface{
+				// cause the first send to error out
+				sendStack: []error{syscall.EWOULDBLOCK, syscall.EBADFD, nil},
+				// force the close logic to drain
+				recvStack: []error{syscall.EAGAIN, syscall.EAGAIN},
+			},
+			err: syscall.EBADFD,
+		},
+	}
+
+	for _, test := range testCases {
+		t.Run(test.name, func(t *testing.T) {
+			testClient := AuditClient{
+				Netlink:         test.cfg,
+				pendingAcks:     []uint32{},
+				clearPIDOnClose: true,
+				closeOnce:       sync.Once{},
+			}
+
+			err := testClient.Close()
+			require.True(t, errors.Is(err, test.err))
+		})
+	}
+
+}
 
 func TestAuditClientGetStatus(t *testing.T) {
 	if os.Geteuid() != 0 {

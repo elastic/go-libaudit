@@ -547,10 +547,11 @@ func (c *AuditClient) closeAndUnsetPid() error {
 					return err
 				}
 			}
-		} else {
-			// if we get another error from the send, return that up
-			return err
+			// try again after we flush the recv buffer
+			continue
 		}
+		// if we get another error from the send, return that up
+		return err
 
 	}
 	// we may not want to treat this as a hard error?

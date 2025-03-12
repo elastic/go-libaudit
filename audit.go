@@ -547,6 +547,9 @@ func (c *AuditClient) closeAndUnsetPid() error {
 					return err
 				}
 			}
+		} else {
+			// if we get another error from the send, return that up
+			return err
 		}
 
 	}

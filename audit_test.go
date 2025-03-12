@@ -64,23 +64,23 @@ type TestNetlinkIface struct {
 	sendStack []error
 }
 
-func (tn *TestNetlinkIface) Close() error {
+func (_ *TestNetlinkIface) Close() error {
 	return nil
 }
 
-func (tn *TestNetlinkIface) Send(msg syscall.NetlinkMessage) (uint32, error) {
+func (tn *TestNetlinkIface) Send(_ syscall.NetlinkMessage) (uint32, error) {
 	top := tn.sendStack[0]
 	tn.sendStack = slices.Delete(tn.sendStack, 0, 1)
 	return 0, top
 }
 
-func (tn *TestNetlinkIface) SendNoWait(msg syscall.NetlinkMessage) (uint32, error) {
+func (tn *TestNetlinkIface) SendNoWait(_ syscall.NetlinkMessage) (uint32, error) {
 	top := tn.sendStack[0]
 	tn.sendStack = slices.Delete(tn.sendStack, 0, 1)
 	return 0, top
 }
 
-func (tn *TestNetlinkIface) Receive(nonBlocking bool, p NetlinkParser) ([]syscall.NetlinkMessage, error) {
+func (tn *TestNetlinkIface) Receive(_ bool, _ NetlinkParser) ([]syscall.NetlinkMessage, error) {
 	top := tn.recvStack[0]
 	tn.recvStack = slices.Delete(tn.recvStack, 0, 1)
 	return nil, top

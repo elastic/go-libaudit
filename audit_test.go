@@ -64,7 +64,7 @@ type TestNetlinkIface struct {
 	sendStack []error
 }
 
-func (_ *TestNetlinkIface) Close() error {
+func (*TestNetlinkIface) Close() error {
 	return nil
 }
 
@@ -84,7 +84,6 @@ func (tn *TestNetlinkIface) Receive(_ bool, _ NetlinkParser) ([]syscall.NetlinkM
 	top := tn.recvStack[0]
 	tn.recvStack = slices.Delete(tn.recvStack, 0, 1)
 	return nil, top
-
 }
 
 func TestCloseBehavior(t *testing.T) {
@@ -138,7 +137,6 @@ func TestCloseBehavior(t *testing.T) {
 			require.True(t, errors.Is(err, test.err))
 		})
 	}
-
 }
 
 func TestAuditClientGetStatus(t *testing.T) {

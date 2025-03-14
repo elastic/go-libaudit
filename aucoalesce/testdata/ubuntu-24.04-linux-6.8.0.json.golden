@@ -1,0 +1,73 @@
+[
+  {
+    "test_name": "linkat_syscall",
+    "event": {
+      "@timestamp": "2025-03-14T20:13:15.885Z",
+      "sequence": 240,
+      "category": "audit-rule",
+      "record_type": "syscall",
+      "result": "fail",
+      "session": "3",
+      "tags": [
+        "syscalls_link_operations"
+      ],
+      "summary": {
+        "actor": {
+          "primary": "1000",
+          "secondary": "0"
+        },
+        "object": {},
+        "how": "/home/ubuntu/link"
+      },
+      "user": {
+        "ids": {
+          "auid": "1000",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "user": "unconfined"
+        }
+      },
+      "process": {
+        "pid": "15200",
+        "ppid": "6099",
+        "name": "link",
+        "exe": "/home/ubuntu/link"
+      },
+      "data": {
+        "a0": "ffffffffffffff9c",
+        "a1": "0",
+        "a2": "ffffffffffffff9c",
+        "a3": "fffffa0ba75f",
+        "arch": "aarch64",
+        "exit": "EFAULT",
+        "items": "1",
+        "syscall": "linkat",
+        "tty": "pts1"
+      },
+      "ecs": {
+        "event": {
+          "category": [
+            "process"
+          ],
+          "type": [
+            "info"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    }
+  }
+]

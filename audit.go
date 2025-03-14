@@ -526,8 +526,9 @@ func (c *AuditClient) closeAndUnsetPid() error {
 		if errors.Is(err, syscall.EINTR) {
 			// got a transient interrupt, try again
 			continue
-		} else if errors.Is(err, syscall.EAGAIN) {
-			// send would block, try to drain the receive socket. The recv count here is just so we have enough of a buffer to attempt a send again
+		} else if errors.Is(err, syscall.EAGAIN) { //nolint:revive // easier to read with the else blocks
+			// send would block, try to drain the receive socket. The recv count here is just so we have enough of a buffer to attempt a send again/
+			// The number is just here so we ideally have enough of a buffer to attempt the send again.
 			maxRecv := 10000
 			for i := 0; i < maxRecv; i++ {
 				_, err = c.Netlink.Receive(true, noParse)

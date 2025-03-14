@@ -16,7 +16,10 @@
           "primary": "1000",
           "secondary": "0"
         },
-        "object": {},
+        "action": "linked",
+        "object": {
+          "type": "file"
+        },
         "how": "/home/ubuntu/link"
       },
       "user": {
@@ -55,10 +58,10 @@
       "ecs": {
         "event": {
           "category": [
-            "process"
+            "file"
           ],
           "type": [
-            "info"
+            "creation"
           ]
         },
         "user": {

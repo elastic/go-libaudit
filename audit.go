@@ -520,34 +520,29 @@ func (c *AuditClient) closeAndUnsetPid() error {
 	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the audit pid.
 	// The retry count here is largely arbitrary, and provides a buffer for either transient errors (EINTR) or retries.
 	retries := 5
-outer:
+	// outer:
 	for i := 0; i < retries; i++ {
 		_, err := c.Netlink.SendNoWait(msg)
-		switch err {
-		case nil:
-			// send good, return
-			return nil
-		case syscall.EINTR:
+		if errors.Is(err, syscall.EINTR) {
 			// got a transient interrupt, try again
 			continue
-		case syscall.EAGAIN:
+		} else if errors.Is(err, syscall.EAGAIN) {
 			// send would block, try to drain the receive socket. The recv count here is just so we have enough of a buffer to attempt a send again
 			maxRecv := 10000
 			for i := 0; i < maxRecv; i++ {
 				_, err = c.Netlink.Receive(true, noParse)
-				switch err {
-				case nil, syscall.EINTR, syscall.ENOBUFS:
+				if err == nil || errors.Is(err, syscall.EINTR) || errors.Is(err, syscall.ENOBUFS) {
 					// continue with receive, try to read more data
 					continue
-				case syscall.EAGAIN:
+				} else if errors.Is(err, syscall.EAGAIN) {
 					// receive would block, try to send again
-					continue outer
-				default:
-					// if we have another kind of error, just bail and return that error.
+					break
+				} else {
 					return err
 				}
 			}
-		default:
+		} else {
+			// if we have another kind of error, just bail and return that error.
 			return err
 		}
 

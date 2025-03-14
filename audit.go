@@ -539,16 +539,19 @@ func (c *AuditClient) closeAndUnsetPid() error {
 					// receive would block, try to send again
 					break
 				} else {
+					// if receive returns an other error, just return that.
 					return err
 				}
 			}
 		} else {
-			// if we have another kind of error, just bail and return that error.
+			// if Send returns and other error, just return that
 			return err
 		}
 
 	}
 	// we may not want to treat this as a hard error?
+	// It's not a massive error if this fails, since the kernel will unset the PID if it can't communicate with the process,
+	// so this is largely for neatness.
 	return fmt.Errorf("could not unset pid from audit after retries")
 }
 

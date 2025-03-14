@@ -103,6 +103,26 @@ func TestCloseBehavior(t *testing.T) {
 			err: nil,
 		},
 		{
+			name: "repeated-send-fail",
+			cfg: &TestNetlinkIface{
+				// cause the first send to error out
+				sendStack: []error{syscall.EWOULDBLOCK, syscall.EWOULDBLOCK, syscall.EWOULDBLOCK, nil},
+				// force the close logic to drain
+				recvStack: []error{syscall.EWOULDBLOCK, syscall.EWOULDBLOCK, nil, syscall.EWOULDBLOCK, nil, syscall.EWOULDBLOCK, nil},
+			},
+			err: nil,
+		},
+		{
+			name: "transient-eintr-send",
+			cfg: &TestNetlinkIface{
+				// cause the first send to error out
+				sendStack: []error{syscall.EINTR, nil, nil},
+				// force the close logic to drain
+				recvStack: []error{syscall.EAGAIN},
+			},
+			err: nil,
+		},
+		{
 			name: "fail-recv-error",
 			cfg: &TestNetlinkIface{
 				// cause the first send to error out
@@ -134,7 +154,7 @@ func TestCloseBehavior(t *testing.T) {
 			}
 
 			err := testClient.Close()
-			require.True(t, errors.Is(err, test.err))
+			require.True(t, errors.Is(err, test.err), "expected error %s", test.err)
 		})
 	}
 }

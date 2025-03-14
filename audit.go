@@ -514,48 +514,51 @@ func (c *AuditClient) closeAndUnsetPid() error {
 		}.toWireFormat(),
 	}
 
-	noParse := func(bytes []byte) ([]syscall.NetlinkMessage, error) {
-		return nil, nil
-	}
-
 	// If our request to unset the PID would block, then try to drain events from
 	// the netlink socket, resend, try again.
 	// In netlink, EAGAIN usually indicates our read buffer is full.
 	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the audit pid.
-	maxLoop := 5
-	for i := 0; i < maxLoop; i++ {
+	// The retry count here is largely arbitrary, and provides a buffer for either transient errors (EINTR) or retries.
+	retries := 5
+outer:
+	for i := 0; i < retries; i++ {
 		_, err := c.Netlink.SendNoWait(msg)
-		// if we get an interrupt, retry the send
-		if err == nil {
+		switch err {
+		case nil:
+			// send good, return
 			return nil
-		} else if errors.Is(err, syscall.EINTR) {
-			// got interrupt, try again
+		case syscall.EINTR:
+			// got a transient interrupt, try again
 			continue
-		} else if errors.Is(err, syscall.EAGAIN) {
+		case syscall.EAGAIN:
+			// send would block, try to drain the receive socket. The recv count here is just so we have enough of a buffer to attempt a send again
 			maxRecv := 10000
-			// send would block, try to drain the receive socket
 			for i := 0; i < maxRecv; i++ {
 				_, err = c.Netlink.Receive(true, noParse)
-				if errors.Is(err, syscall.EAGAIN) {
-					// receive would block, try to send again
-					break
-				} else if err == nil || errors.Is(err, syscall.EINTR) || errors.Is(err, syscall.ENOBUFS) {
-					// retry the receive
+				switch err {
+				case nil, syscall.EINTR, syscall.ENOBUFS:
+					// continue with receive, try to read more data
 					continue
-				} else {
+				case syscall.EAGAIN:
+					// receive would block, try to send again
+					continue outer
+				default:
 					// if we have another kind of error, just bail and return that error.
 					return err
 				}
 			}
-			// try again after we flush the recv buffer
-			continue
+		default:
+			return err
 		}
-		// if we get another error from the send, return that up
-		return err
 
 	}
 	// we may not want to treat this as a hard error?
 	return fmt.Errorf("could not unset pid from audit after retries")
+}
+
+// noParse is a no-op parser used by closeAndUnsetPID
+func noParse([]byte) ([]syscall.NetlinkMessage, error) {
+	return nil, nil
 }
 
 func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {

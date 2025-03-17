@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- rule: On ppc64le, fix handling of rules with filters like `-F arch=b64` or `-F arch=b32`. [#175](https://github.com/elastic/go-libaudit/pull/175)
+
 ### Removed
 
 ### Deprecated

@@ -865,7 +865,7 @@ func getArch(arch string) (string, uint32, error) {
 		}
 
 		switch runtimeArch {
-		case "aarch64", "x86_64", "ppc64", "s390x":
+		case "aarch64", "x86_64", "ppc64", "ppc64le", "s390x":
 			realArch = runtimeArch
 		default:
 			return "", 0, fmt.Errorf("cannot use b64 on %v", runtimeArch)
@@ -883,7 +883,7 @@ func getArch(arch string) (string, uint32, error) {
 			realArch = "arm"
 		case "x86_64":
 			realArch = "i386"
-		case "ppc64":
+		case "ppc64", "ppc64le":
 			realArch = "ppc"
 		case "s390x":
 			realArch = "s390"

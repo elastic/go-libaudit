@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- aucoalesce: Add ECS enrichments for `link` and `linkat` syscalls. [#177](https://github.com/elastic/go-libaudit/pull/177)
+
 ### Changed
 
 ### Removed

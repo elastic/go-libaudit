@@ -269,6 +269,18 @@ normalizations:
       # fstatfs - get filesystem statistics
       - fstatfs
     ecs: *ecs-file
+  - action: linked
+    object_what: file
+    syscalls:
+      # link - make a new name for a file
+      - link
+      # linkat - make a new name for a file
+      - linkat
+    ecs:
+      <<: *ecs-file
+      # "creation" since we're creating a new file system
+      # entry for the link
+      type: creation
   - action: symlinked
     object_what: file
     syscalls:

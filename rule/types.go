@@ -24,10 +24,12 @@ type Type int
 
 // The rule types supported by this package.
 const (
-	DeleteAllRuleType      Type = iota + 1 // DeleteAllRule
-	FileWatchRuleType                      // FileWatchRule
-	AppendSyscallRuleType                  // SyscallRule
-	PrependSyscallRuleType                 // SyscallRule
+	DeleteAllRuleType       Type = iota + 1 // DeleteAllRule
+	FileWatchRuleType                       // FileWatchRule
+	DeleteFileWatchRuleType                 // FileWatchRule
+	AppendSyscallRuleType                   // SyscallRule
+	PrependSyscallRuleType                  // SyscallRule
+	DeleteSyscallRuleType                   // SyscallRule
 )
 
 // Rule is the generic interface that all rule types implement.

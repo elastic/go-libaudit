@@ -36,6 +36,7 @@ import (
 // in the message and an error if it occurred.
 type NetlinkSender interface {
 	Send(msg syscall.NetlinkMessage) (uint32, error)
+	SendNoWait(msg syscall.NetlinkMessage) (uint32, error)
 }
 
 // NetlinkReceiver receives data from the netlink socket and uses the provided
@@ -126,17 +127,26 @@ func getPortID(fd int) (uint32, error) {
 	return addr.Pid, nil
 }
 
+// SendNoWait sends a message to the netlink client in non-blocking mode. Behavior is otherwise identical to Send()
+func (c *NetlinkClient) SendNoWait(msg syscall.NetlinkMessage) (uint32, error) {
+	return c.send(msg, syscall.MSG_DONTWAIT)
+}
+
 // Send sends a netlink message and returns the sequence number used
 // in the message and an error if it occurred. If the PID is not set then
 // the value will be populated automatically (recommended).
 func (c *NetlinkClient) Send(msg syscall.NetlinkMessage) (uint32, error) {
+	return c.send(msg, 0)
+}
+
+func (c *NetlinkClient) send(msg syscall.NetlinkMessage, flags int) (uint32, error) {
 	if msg.Header.Pid == 0 {
 		msg.Header.Pid = c.pid
 	}
 
 	msg.Header.Seq = atomic.AddUint32(&c.seq, 1)
 	to := &syscall.SockaddrNetlink{}
-	return msg.Header.Seq, syscall.Sendto(c.fd, serialize(msg), 0, to)
+	return msg.Header.Seq, syscall.Sendto(c.fd, serialize(msg), flags, to)
 }
 
 func serialize(msg syscall.NetlinkMessage) []byte {

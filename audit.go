@@ -49,7 +49,7 @@ const (
 // Netlink groups.
 const (
 	NetlinkGroupNone    = iota // Group 0 not used
-	NetlinkGroupReadLog        // "best effort" read only socket
+	NetlinkGroupReadLog        // "best effort" read only socket, defined in the kernel as AUDIT_NLGRP_READLOG
 )
 
 // WaitMode is a flag to control the behavior of methods that abstract
@@ -427,16 +427,11 @@ func (c *AuditClient) Receive(nonBlocking bool) (*RawAuditMessage, error) {
 // become no-ops.
 func (c *AuditClient) Close() error {
 	var err error
-
 	// Only unregister and close the socket once.
 	c.closeOnce.Do(func() {
 		if c.clearPIDOnClose {
 			// Unregister from the kernel for a clean exit.
-			status := AuditStatus{
-				Mask: AuditStatusPID,
-				PID:  0,
-			}
-			err = c.set(status, NoWait)
+			err = c.closeAndUnsetPid()
 		}
 
 		err = errors.Join(err, c.Netlink.Close())
@@ -505,6 +500,70 @@ func (c *AuditClient) getReply(seq uint32) (*syscall.NetlinkMessage, error) {
 	return &msg, nil
 }
 
+// unset our pid from the audit subsystem and close the socket.
+// This is a sort of isolated refactor, meant to deal with the deadlocks that can happen when we're not careful with blocking operations throughout a lot of this code.
+func (c *AuditClient) closeAndUnsetPid() error {
+	msg := syscall.NetlinkMessage{
+		Header: syscall.NlMsghdr{
+			Type:  AuditSet,
+			Flags: syscall.NLM_F_REQUEST,
+		},
+		Data: AuditStatus{
+			Mask: AuditStatusPID,
+			PID:  0,
+		}.toWireFormat(),
+	}
+
+	// If our request to unset the PID would block, then try to drain events from
+	// the netlink socket, resend, try again.
+	// In netlink, EAGAIN usually indicates our read buffer is full.
+	// The auditd code (which I'm using as a reference implementation) doesn't wait for a response when unsetting the audit pid.
+	// The retry count here is largely arbitrary, and provides a buffer for either transient errors (EINTR) or retries.
+	retries := 5
+outer:
+	for i := 0; i < retries; i++ {
+		_, err := c.Netlink.SendNoWait(msg)
+		switch {
+		case err == nil:
+			return nil
+		case errors.Is(err, syscall.EINTR):
+			// got a transient interrupt, try again
+			continue
+		case errors.Is(err, syscall.EAGAIN):
+			// send would block, try to drain the receive socket. The recv count here is just so we have enough of a buffer to attempt a send again/
+			// The number is just here so we ideally have enough of a buffer to attempt the send again.
+			maxRecv := 10000
+			for i := 0; i < maxRecv; i++ {
+				_, err = c.Netlink.Receive(true, noParse)
+				switch {
+				case err == nil, errors.Is(err, syscall.EINTR), errors.Is(err, syscall.ENOBUFS):
+					// continue with receive, try to read more data
+					continue
+				case errors.Is(err, syscall.EAGAIN):
+					// receive would block, try to send again
+					continue outer
+				default:
+					// if receive returns an other error, just return that.
+					return err
+				}
+			}
+		default:
+			// if Send returns and other error, just return that
+			return err
+		}
+
+	}
+	// we may not want to treat this as a hard error?
+	// It's not a massive error if this fails, since the kernel will unset the PID if it can't communicate with the process,
+	// so this is largely for neatness.
+	return fmt.Errorf("could not unset pid from audit after retries")
+}
+
+// noParse is a no-op parser used by closeAndUnsetPID
+func noParse([]byte) ([]syscall.NetlinkMessage, error) {
+	return nil, nil
+}
+
 func (c *AuditClient) set(status AuditStatus, mode WaitMode) error {
 	msg := syscall.NetlinkMessage{
 		Header: syscall.NlMsghdr{
@@ -560,7 +619,7 @@ func parseNetlinkAuditMessage(buf []byte) ([]syscall.NetlinkMessage, error) {
 // https://github.com/linux-audit/audit-kernel/blob/v4.7/include/uapi/linux/audit.h#L318-L325
 type AuditStatusMask uint32
 
-// Mask types for AuditStatus.
+// Mask types for AuditStatus. Originally defined in the kernel at audit.h
 const (
 	AuditStatusEnabled AuditStatusMask = 1 << iota
 	AuditStatusFailure

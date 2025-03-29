@@ -1,0 +1,96 @@
+[
+  {
+    "test_name": "multiple_netfilter_cfg_messages",
+    "event": {
+      "@timestamp": "2020-07-03T14:23:52.477Z",
+      "sequence": 31,
+      "category": "configuration",
+      "record_type": "netfilter_cfg",
+      "result": "success",
+      "session": "unset",
+      "summary": {
+        "actor": {
+          "primary": "unset",
+          "secondary": "0"
+        },
+        "action": "loaded-firewall-rule-to",
+        "object": {
+          "type": "firewall",
+          "primary": "filter"
+        },
+        "how": "/usr/lib/systemd/systemd"
+      },
+      "user": {
+        "ids": {
+          "auid": "unset",
+          "egid": "0",
+          "euid": "0",
+          "fsgid": "0",
+          "fsuid": "0",
+          "gid": "0",
+          "sgid": "0",
+          "suid": "0",
+          "uid": "0"
+        },
+        "selinux": {
+          "domain": "init_t",
+          "level": "s0",
+          "role": "system_r",
+          "user": "system_u"
+        }
+      },
+      "process": {
+        "pid": "769",
+        "ppid": "1",
+        "title": "(ostnamed)",
+        "name": "(ostnamed)",
+        "exe": "/usr/lib/systemd/systemd"
+      },
+      "data": {
+        "a0": "40000000",
+        "a1": "7fffd2436fb0",
+        "a2": "40000040",
+        "a3": "22",
+        "arch": "x86_64",
+        "entries": "0",
+        "exit": "0",
+        "syscall": "unshare",
+        "table": "filter",
+        "tty": "(none)"
+      },
+      "netfilter_cfg_data": [
+        {
+          "entries": "0",
+          "family": "2",
+          "table": "filter"
+        },
+        {
+          "entries": "0",
+          "family": "10",
+          "table": "filter"
+        }
+      ],
+      "ecs": {
+        "event": {
+          "category": [
+            "configuration",
+            "process"
+          ],
+          "type": [
+            "change",
+            "info"
+          ]
+        },
+        "user": {
+          "effective": {},
+          "target": {},
+          "changes": {}
+        },
+        "group": {}
+      }
+    },
+    "warnings": [
+      "duplicate key (family) from NETFILTER_CFG message"
+    ]
+  }
+]

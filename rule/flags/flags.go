@@ -58,14 +58,19 @@ func Parse(s string) (rule.Rule, error) {
 			Type: rule.DeleteAllRuleType,
 			Keys: ruleFlagSet.Key,
 		}
-	case rule.FileWatchRuleType:
-		r = &rule.FileWatchRule{
-			Type:        rule.FileWatchRuleType,
+	case rule.FileWatchRuleType, rule.DeleteFileWatchRuleType:
+		fileWatchRule := &rule.FileWatchRule{
+			Type:        ruleFlagSet.Type,
 			Path:        ruleFlagSet.Path,
 			Permissions: ruleFlagSet.Permissions,
 			Keys:        ruleFlagSet.Key,
 		}
-	case rule.AppendSyscallRuleType, rule.PrependSyscallRuleType:
+		r = fileWatchRule
+
+		if ruleFlagSet.Type == rule.DeleteFileWatchRuleType {
+			fileWatchRule.Path = ruleFlagSet.DeletePath
+		}
+	case rule.AppendSyscallRuleType, rule.PrependSyscallRuleType, rule.DeleteSyscallRuleType:
 		syscallRule := &rule.SyscallRule{
 			Type:     ruleFlagSet.Type,
 			Filters:  ruleFlagSet.Filters,
@@ -74,12 +79,16 @@ func Parse(s string) (rule.Rule, error) {
 		}
 		r = syscallRule
 
-		if ruleFlagSet.Type == rule.AppendSyscallRuleType {
+		switch ruleFlagSet.Type {
+		case rule.AppendSyscallRuleType:
 			syscallRule.List = ruleFlagSet.Append.List
 			syscallRule.Action = ruleFlagSet.Append.Action
-		} else if ruleFlagSet.Type == rule.PrependSyscallRuleType {
+		case rule.PrependSyscallRuleType:
 			syscallRule.List = ruleFlagSet.Prepend.List
 			syscallRule.Action = ruleFlagSet.Prepend.Action
+		case rule.DeleteSyscallRuleType:
+			syscallRule.List = ruleFlagSet.Delete.List
+			syscallRule.Action = ruleFlagSet.Delete.Action
 		}
 	default:
 		return nil, fmt.Errorf("unknown rule type: %v", ruleFlagSet.Type)
@@ -99,11 +108,13 @@ type ruleFlagSet struct {
 	// Audit Rule
 	Prepend  addFlag    // -A Prepend rule (list,action) or (action,list).
 	Append   addFlag    // -a Append rule (list,action) or (action,list).
+	Delete   addFlag    // [-d] delete single rule
 	Filters  filterList // -F [n=v | n!=v | n<v | n>v | n<=v | n>=v | n&v | n&=v] OR -C [n=v | n!=v]
 	Syscalls stringList // -S Syscall name or number or "all". Value can be comma-separated.
 
 	// Filepath watch (can be done more expressively using syscalls)
 	Path        string              // -w Path for filesystem watch (no wildcards).
+	DeletePath  string              // -W Path for filesystem watch to remove (no wildcards).
 	Permissions fileAccessTypeFlags // -p [r|w|x|a] Permission filter.
 
 	Key stringList // -k Key(s) to associate with the rule.
@@ -120,11 +131,13 @@ func newRuleFlagSet() *ruleFlagSet {
 	rule.flagSet.BoolVar(&rule.DeleteAll, "D", false, "delete all")
 	rule.flagSet.Var(&rule.Append, "a", "append rule")
 	rule.flagSet.Var(&rule.Prepend, "A", "prepend rule")
+	rule.flagSet.Var(&rule.Delete, "d", "delete rule")
 	rule.flagSet.Var((*interFieldFilterList)(&rule.Filters), "C", "comparison filter")
 	rule.flagSet.Var((*valueFilterList)(&rule.Filters), "F", "filter")
 	rule.flagSet.Var(&rule.Syscalls, "S", "syscall name, number, or 'all'")
 	rule.flagSet.Var(&rule.Permissions, "p", "access type - r=read, w=write, x=execute, a=attribute change")
 	rule.flagSet.StringVar(&rule.Path, "w", "", "path to watch, no wildcards")
+	rule.flagSet.StringVar(&rule.DeletePath, "W", "", "path to unwatch, no wildcards")
 	rule.flagSet.Var(&rule.Key, "k", "key")
 
 	return rule
@@ -140,51 +153,92 @@ func (r *ruleFlagSet) Usage() string {
 
 func (r *ruleFlagSet) validate() error {
 	var (
-		deleteAll uint8
-		fileWatch uint8
-		syscall   uint8
+		deleteAll       uint8
+		fileWatchFlags  uint8
+		addFileWatch    uint8
+		deleteFileWatch uint8
+		syscallFlags    uint8
+		addSyscall      uint8
+		deleteSyscall   uint8
 	)
 
 	r.flagSet.Visit(func(f *flag.Flag) {
 		switch f.Name {
 		case "D":
 			deleteAll = 1
-		case "w", "p":
-			fileWatch = 1
-		case "a", "A", "C", "F", "S":
-			syscall = 1
+		case "p":
+			fileWatchFlags = 1
+		case "w":
+			addFileWatch = 1
+		case "W":
+			deleteFileWatch = 1
+		case "S", "F", "C":
+			syscallFlags = 1
+		case "a", "A":
+			addSyscall = 1
+		case "d":
+			deleteSyscall = 1
 		}
 	})
 
 	// Test for mutual exclusivity.
-	switch deleteAll + fileWatch + syscall {
+	switch deleteAll + addFileWatch + deleteFileWatch + addSyscall + deleteSyscall {
 	case 0:
 		return errors.New("missing an operation flag (add or delete rule)")
 	case 1:
 		switch {
 		case deleteAll > 0:
 			r.Type = rule.DeleteAllRuleType
-		case fileWatch > 0:
+		case addFileWatch > 0:
 			r.Type = rule.FileWatchRuleType
-		case syscall > 0:
+		case deleteFileWatch > 0:
+			r.Type = rule.DeleteFileWatchRuleType
+		case addSyscall > 0:
 			r.Type = rule.AppendSyscallRuleType
+		case deleteSyscall > 0:
+			r.Type = rule.DeleteSyscallRuleType
+		default:
+			return fmt.Errorf("unknown state")
 		}
 	default:
 		ops := make([]string, 0, 3)
 		if deleteAll > 0 {
 			ops = append(ops, "delete all [-D]")
 		}
-		if fileWatch > 0 {
-			ops = append(ops, "file watch [-w|-p]")
+		if addFileWatch > 0 {
+			ops = append(ops, "file watch [-w]")
 		}
-		if syscall > 0 {
-			ops = append(ops, "audit rule [-a|-A|-S|-C|-F]")
+		if deleteFileWatch > 0 {
+			ops = append(ops, "delete file watch [-W]")
 		}
+		if addSyscall > 0 {
+			ops = append(ops, "audit rule [-a|-A]")
+		}
+		if deleteSyscall > 0 {
+			ops = append(ops, "delete audit rule [-d]")
+		}
+
 		return fmt.Errorf("mutually exclusive flags uses together (%v)",
 			strings.Join(ops, " and "))
 	}
 
-	if syscall > 0 {
+	if (addFileWatch+deleteFileWatch) > 0 && syscallFlags > 0 {
+		return fmt.Errorf("audit rule [-F|-S|-C] flags cannot be used with file watches")
+	}
+
+	if (addSyscall+deleteSyscall) > 0 && fileWatchFlags > 0 {
+		return fmt.Errorf("file watch [-p] flags cannot be used with syscall rules")
+	}
+
+	if deleteAll > 0 && syscallFlags > 0 {
+		return fmt.Errorf("audit rule [-F|-S|-C] flags cannot be used when deleting all rules")
+	}
+
+	if deleteAll > 0 && fileWatchFlags > 0 {
+		return fmt.Errorf("file watch permission [-p] flags cannot be used when deleting all rules")
+	}
+
+	if addSyscall > 0 {
 		var zero addFlag
 		if r.Prepend == zero && r.Append == zero {
 			return errors.New("audit rules must specify either [-A] or [-a]")

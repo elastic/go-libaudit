@@ -224,7 +224,7 @@ func (l *eventList) remove() {
 }
 
 // Clear removes all events from the list and returns the events and the number
-// of list events.
+// of lost events.
 func (l *eventList) Clear() ([]*event, int) {
 	l.Lock()
 	defer l.Unlock()
@@ -243,7 +243,7 @@ func (l *eventList) Clear() ([]*event, int) {
 		event := l.events[seq]
 
 		if l.lastSeq > 0 {
-			lost += int(seq - l.lastSeq - 1)
+			lost += int(seq) - int(l.lastSeq) - 1
 		}
 		l.lastSeq = seq
 		evicted = append(evicted, event)
@@ -302,7 +302,7 @@ func (l *eventList) CleanUp() ([]*event, int) {
 
 		if event.complete || size > l.maxSize || event.IsExpired() {
 			if l.lastSeq > 0 {
-				lost += int(seq - l.lastSeq - 1)
+				lost += int(seq) - int(l.lastSeq) - 1
 			}
 			l.lastSeq = seq
 			evicted = append(evicted, event)

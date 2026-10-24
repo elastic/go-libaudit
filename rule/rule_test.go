@@ -235,9 +235,10 @@ func TestAddFilter(t *testing.T) {
 		if err := addFilter(rule, "exit", "!=", "-1"); err != nil {
 			t.Fatal(err)
 		}
+		expected := -1
 		assert.EqualValues(t, exitField, rule.fields[0])
 		assert.EqualValues(t, notEqualOperator, rule.fieldFlags[0])
-		assert.EqualValues(t, -1, rule.values[0])
+		assert.EqualValues(t, uint32(expected), rule.values[0])
 	})
 
 	t.Run("exit_named", func(t *testing.T) {
@@ -255,9 +256,10 @@ func TestAddFilter(t *testing.T) {
 		if err := addFilter(rule, "exit", "!=", "-EPERM"); err != nil {
 			t.Fatal(err)
 		}
+		expected := -1 * int(syscall.EPERM)
 		assert.EqualValues(t, exitField, rule.fields[0])
 		assert.EqualValues(t, notEqualOperator, rule.fieldFlags[0])
-		assert.EqualValues(t, -1*int(syscall.EPERM), rule.values[0])
+		assert.EqualValues(t, uint32(expected), rule.values[0])
 	})
 
 	t.Run("msgtype", func(t *testing.T) {
@@ -399,9 +401,10 @@ func TestAddFilter(t *testing.T) {
 		if err := addFilter(rule, "a3", "=", strconv.FormatInt(math.MinInt32, 10)); err != nil {
 			t.Fatal(err)
 		}
+		expected := math.MinInt32
 		assert.EqualValues(t, arg3Field, rule.fields[0])
 		assert.EqualValues(t, equalOperator, rule.fieldFlags[0])
-		assert.EqualValues(t, math.MinInt32, rule.values[0])
+		assert.EqualValues(t, uint32(expected), rule.values[0])
 	})
 }
 
